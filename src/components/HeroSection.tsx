@@ -1,141 +1,111 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-
-const CITIES = ['Warsaw', 'Kraków', 'Prague']
-
 export default function HeroSection() {
-  const [cityIdx, setCityIdx] = useState(0)
-  const [fading, setFading] = useState(false)
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setFading(true)
-      setTimeout(() => {
-        setCityIdx((i) => (i + 1) % CITIES.length)
-        setFading(false)
-      }, 400)
-    }, 2400)
-    return () => clearInterval(interval)
-  }, [])
-
   return (
     <section className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden noise-overlay">
-      {/* Background */}
+      {/* Base bg */}
       <div className="absolute inset-0 bg-[#070707]" />
 
       {/* Atmospheric blobs */}
       <div
-        className="blob absolute opacity-25"
+        className="blob absolute opacity-20"
         style={{
           width: 700,
           height: 700,
           bottom: '-15%',
-          left: '-10%',
-          background: 'radial-gradient(circle, #e2714b 0%, transparent 70%)',
-          filter: 'blur(120px)',
+          left: '-12%',
+          background: 'radial-gradient(circle, #e2714b 0%, transparent 68%)',
+          filter: 'blur(110px)',
         }}
       />
       <div
-        className="blob absolute opacity-20"
+        className="blob absolute opacity-15"
         style={{
           width: 500,
           height: 500,
-          top: '-10%',
+          top: '-8%',
           right: '-5%',
-          background: 'radial-gradient(circle, #f59e0b 0%, transparent 70%)',
+          background: 'radial-gradient(circle, #f59e0b 0%, transparent 68%)',
           filter: 'blur(100px)',
         }}
       />
       <div
-        className="blob absolute opacity-10"
+        className="blob absolute opacity-8"
         style={{
-          width: 400,
-          height: 400,
-          top: '40%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
+          width: 350,
+          height: 350,
+          top: '45%',
+          left: '55%',
           background: 'radial-gradient(circle, #fbbf24 0%, transparent 70%)',
-          filter: 'blur(90px)',
+          filter: 'blur(80px)',
         }}
       />
 
-      {/* Subtle grid */}
+      {/* Topographic / grid lines */}
       <div
-        className="absolute inset-0 opacity-[0.03]"
+        className="absolute inset-0 opacity-[0.025]"
         style={{
           backgroundImage:
-            'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)',
-          backgroundSize: '60px 60px',
+            'linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)',
+          backgroundSize: '72px 72px',
         }}
       />
 
       {/* Content */}
       <div className="relative z-10 max-w-5xl mx-auto px-6 md:px-10 flex flex-col items-center text-center">
-        {/* Cities pill */}
-        <div
-          className="inline-flex items-center gap-3 px-5 py-2 rounded-full border border-amber-400/25 bg-amber-400/5 mb-10"
-          style={{ animationDelay: '0.1s' }}
-        >
+
+        {/* Pill */}
+        <div className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full border border-amber-400/20 bg-amber-400/[0.06] mb-10">
           <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse-slow" />
-          <span className="text-xs font-medium tracking-widest text-amber-400/80 uppercase">
-            driftd is live in ·&nbsp;
-            <span
-              className="inline-block transition-opacity duration-300"
-              style={{ opacity: fading ? 0 : 1, minWidth: 56 }}
-            >
-              {CITIES[cityIdx]}
-            </span>
+          <span className="text-[11px] font-medium tracking-[0.2em] text-amber-400/75 uppercase">
+            launching summer 2026 · warsaw · kraków · prague
           </span>
         </div>
 
         {/* Headline */}
         <h1
-          className="font-display font-black leading-none tracking-tight text-warm-white"
-          style={{
-            fontSize: 'clamp(3.2rem, 10vw, 8rem)',
-            textShadow: '0 0 80px rgba(251,191,36,0.08)',
-          }}
+          className="font-display font-black text-warm-white leading-[0.92] tracking-tight"
+          style={{ fontSize: 'clamp(2.8rem, 9vw, 6.8rem)' }}
         >
-          Stop Following
+          you weren&apos;t meant
           <br />
-          <span className="gradient-text italic">the Crowd</span>
+          <span className="italic gradient-text">to follow the crowd.</span>
         </h1>
 
         {/* Subheadline */}
         <p
-          className="mt-8 max-w-xl text-lg md:text-xl leading-relaxed text-warm-gray-300"
+          className="mt-8 max-w-lg text-base md:text-xl leading-relaxed text-warm-gray-300"
           style={{ fontWeight: 300 }}
         >
-          <span className="text-amber-400/90 font-normal">driftd</span> is an AI companion that whispers the city's secrets in your ear.
-          No landmarks. No tourist traps.{' '}
-          <span className="text-warm-white font-normal">Just the real city.</span>
+          <span className="text-amber-400/90 font-medium">driftd</span> is an AI companion
+          that whispers a city&apos;s secrets in your ear.
+          no landmarks. no tourist traps.{' '}
+          <span className="text-warm-white font-normal">just the real city.</span>
         </p>
 
-        {/* CTA */}
-        <div className="mt-12 flex flex-col sm:flex-row items-center gap-4">
-          <a href="#waitlist" className="btn-primary text-base px-10 py-4">
-            Join the waitlist
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="ml-1">
-              <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        {/* CTAs */}
+        <div className="mt-10 flex flex-col sm:flex-row items-center gap-4">
+          <a href="#waitlist" className="btn-primary text-sm px-9 py-4">
+            join the waitlist
+            <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+              <path d="M2.5 7.5h10M8 3.5l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </a>
-          <a href="#how-it-works" className="btn-outline text-base px-10 py-4">
-            See how it works
+          <a href="#how-it-works" className="btn-outline text-sm px-9 py-4">
+            see how it works
           </a>
         </div>
 
-        {/* Free badge */}
-        <p className="mt-6 text-sm text-warm-gray-400">
-          driftd is free for explorers · Cities pay us
+        {/* Micro copy */}
+        <p className="mt-5 text-xs text-warm-gray-500 tracking-wide">
+          driftd is free for explorers · cities pay us
         </p>
       </div>
 
-      {/* Scroll indicator */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-10 animate-bounce-slow">
-        <span className="text-xs tracking-widest text-warm-gray-400 uppercase">Scroll</span>
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="text-warm-gray-400">
-          <path d="M5 8l5 5 5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      {/* Scroll hint */}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-1.5 animate-bounce-slow">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" className="text-warm-gray-500">
+          <path d="M4 7l5 5 5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
       </div>
     </section>

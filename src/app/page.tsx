@@ -1,7 +1,10 @@
 import Navbar from '@/components/Navbar'
 import HeroSection from '@/components/HeroSection'
+import TickerBar from '@/components/TickerBar'
 import HowItWorks from '@/components/HowItWorks'
+import MapDemo from '@/components/MapDemo'
 import AICompanion from '@/components/AICompanion'
+import Manifesto from '@/components/Manifesto'
 import ForCities from '@/components/ForCities'
 import WaitlistSection from '@/components/WaitlistSection'
 import Footer from '@/components/Footer'
@@ -13,8 +16,11 @@ export default function Home() {
       <ScrollReset />
       <Navbar />
       <HeroSection />
+      <TickerBar />
       <HowItWorks />
+      <MapDemo />
       <AICompanion />
+      <Manifesto />
       <ForCities />
       <WaitlistSection />
       <Footer />
