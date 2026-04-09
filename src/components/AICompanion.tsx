@@ -73,7 +73,7 @@ export default function AICompanion() {
           <div className="lg:sticky lg:top-32">
             <FadeIn direction="left">
               <span className="text-xs tracking-widest uppercase text-amber-400/70 font-medium mb-4 block">
-                The AI companion
+                The driftd companion
               </span>
               <div className="divider mb-6" />
               <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-warm-white leading-tight mb-6">
@@ -92,7 +92,7 @@ export default function AICompanion() {
               <div className="inline-flex items-center gap-3 px-5 py-3 rounded-xl border border-amber-400/15 bg-amber-400/5">
                 <div className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
                 <span className="text-sm text-warm-gray-200 font-medium">
-                  Powered by real-time AI · No scripted tours
+                  driftd · Powered by real-time AI · No scripts
                 </span>
               </div>
             </FadeIn>

@@ -71,7 +71,7 @@ export default function HowItWorks() {
         <FadeIn className="mb-20 md:mb-24">
           <div className="flex flex-col items-start">
             <span className="text-xs tracking-widest uppercase text-amber-400/70 font-medium mb-4">
-              The experience
+              How driftd works
             </span>
             <div className="divider mb-6" />
             <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-warm-white leading-tight max-w-lg">

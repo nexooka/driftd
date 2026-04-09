@@ -67,7 +67,7 @@ export default function Footer() {
               driftd
             </a>
             <p className="text-warm-gray-400 text-sm leading-relaxed max-w-xs">
-              Explore cities like they were meant to be explored. Anti-tourist tourism, powered by AI.
+              driftd is anti-tourist tourism — an AI companion that shows you the city nobody else sees.
             </p>
             <div className="flex gap-3 mt-6">
               {SOCIAL.map((s) => (

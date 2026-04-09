@@ -54,12 +54,14 @@ export default function WaitlistSection() {
             Early access
           </span>
           <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-warm-white leading-tight mb-6">
-            Be first to{' '}
-            <span className="italic gradient-text">drift</span>
+            Get early access
+            <br />
+            to{' '}
+            <span className="italic gradient-text">driftd</span>
           </h2>
           <p className="text-warm-gray-300 text-lg leading-relaxed mb-12 max-w-xl mx-auto">
-            We're opening city by city. Drop your email and we'll reach out when driftd
-            lands somewhere you'll want to explore.
+            driftd is opening city by city. Drop your email and we'll reach out when
+            it lands somewhere you'll want to explore.
           </p>
         </FadeIn>
 

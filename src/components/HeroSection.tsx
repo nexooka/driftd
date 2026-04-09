@@ -79,7 +79,7 @@ export default function HeroSection() {
         >
           <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse-slow" />
           <span className="text-xs font-medium tracking-widest text-amber-400/80 uppercase">
-            Now exploring ·&nbsp;
+            driftd is live in ·&nbsp;
             <span
               className="inline-block transition-opacity duration-300"
               style={{ opacity: fading ? 0 : 1, minWidth: 56 }}
@@ -107,7 +107,7 @@ export default function HeroSection() {
           className="mt-8 max-w-xl text-lg md:text-xl leading-relaxed text-warm-gray-300"
           style={{ fontWeight: 300 }}
         >
-          driftd is an AI companion that whispers the city's secrets in your ear.
+          <span className="text-amber-400/90 font-normal">driftd</span> is an AI companion that whispers the city's secrets in your ear.
           No landmarks. No tourist traps.{' '}
           <span className="text-warm-white font-normal">Just the real city.</span>
         </p>
@@ -127,7 +127,7 @@ export default function HeroSection() {
 
         {/* Free badge */}
         <p className="mt-6 text-sm text-warm-gray-400">
-          Free for explorers · Cities pay us
+          driftd is free for explorers · Cities pay us
         </p>
       </div>
 
