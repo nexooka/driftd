@@ -40,15 +40,15 @@ const CITIES: City[] = [
   {
     id: 'warsaw',
     name: 'Warsaw',
-    // Pronounced zigzag — more vertical amplitude
-    path: 'M 88,350 C 125,288 178,166 218,170 C 258,174 310,332 358,328 C 402,324 446,141 492,145 C 536,149 580,316 625,310 C 658,306 700,160 748,158',
+    // Steep climb to a high plateau, then descends at the end — distinct from Berlin's S-wave
+    path: 'M 80,350 C 95,240 135,110 175,108 C 215,106 275,138 340,135 C 405,132 460,120 515,118 C 575,116 625,130 668,125 C 710,120 740,195 760,280',
     stops: [
-      { x:  88, y: 350, label: '1970s mural in praga',      lw: 100, lx: 100, ly: 343 },
-      { x: 218, y: 170, label: 'best pierogi, no tourists', lw: 116, lx: 160, ly: 143 },
-      { x: 358, y: 328, label: 'secret garden courtyard',   lw: 112, lx: 302, ly: 338 },
-      { x: 492, y: 145, label: 'jazz bar in a basement',    lw: 108, lx: 438, ly: 118 },
-      { x: 625, y: 310, label: 'communist-era arcade',      lw: 100, lx: 575, ly: 320 },
-      { x: 748, y: 158, label: 'vistula locals only',       lw:  92, lx: 644, ly: 151 },
+      { x:  80, y: 350, label: '1970s mural in praga',      lw: 100, lx:  92, ly: 343 },
+      { x: 175, y: 108, label: 'best pierogi, no tourists', lw: 116, lx: 117, ly: 118 },
+      { x: 340, y: 135, label: 'secret garden courtyard',   lw: 112, lx: 284, ly: 108 },
+      { x: 515, y: 118, label: 'jazz bar in a basement',    lw: 108, lx: 461, ly: 128 },
+      { x: 668, y: 125, label: 'communist-era arcade',      lw: 100, lx: 614, ly:  98 },
+      { x: 760, y: 280, label: 'vistula locals only',       lw:  92, lx: 656, ly: 273 },
     ],
   },
   {

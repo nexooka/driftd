@@ -77,7 +77,7 @@ export default function HeroSection() {
           className="mt-8 max-w-lg text-base md:text-xl leading-relaxed text-warm-gray-300"
           style={{ fontWeight: 300 }}
         >
-          <span className="text-amber-400/90 font-medium">driftd</span> is an AI companion
+          <span className="text-amber-400/90 font-medium">driftd</span>{' '}is an AI companion
           that whispers a city&apos;s secrets in your ear.
           no landmarks. no tourist traps.{' '}
           <span className="text-warm-white font-normal">just the real city.</span>
