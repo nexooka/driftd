@@ -24,10 +24,10 @@ export default function Navbar() {
         {/* Logo */}
         <a
           href="/"
-          className="font-display text-2xl font-bold tracking-widest text-warm-white hover:text-amber-400 transition-colors duration-200"
-          style={{ letterSpacing: '0.2em' }}
+          className="font-display text-2xl font-bold text-warm-white hover:text-amber-400 transition-colors duration-200"
+          style={{ letterSpacing: '0.05em' }}
         >
-          DRIFT
+          driftd
         </a>
 
         {/* Desktop nav */}

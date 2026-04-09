@@ -2,7 +2,7 @@ import { FadeIn } from './FadeIn'
 
 const STATS = [
   { value: '73%', label: 'of tourists in Tokyo never leave 3 neighborhoods' },
-  { value: '4×', label: 'more neighborhoods visited per Drift user' },
+  { value: '4×', label: 'more neighborhoods visited per driftd user' },
   { value: '€0', label: 'cost to tourists — cities fund the experience' },
 ]
 
@@ -47,7 +47,7 @@ export default function ForCities() {
                 <span className="italic text-terra">problem."</span>
               </blockquote>
               <p className="text-warm-gray-300 text-lg leading-relaxed mb-10 max-w-lg">
-                Overcrowded landmarks, underfunded neighborhoods. Drift redistributes tourist
+                Overcrowded landmarks, underfunded neighborhoods. driftd redistributes tourist
                 foot traffic intelligently — sending curious people to the places that deserve
                 them, not just the ones that already have signs.
               </p>

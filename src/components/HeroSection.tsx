@@ -107,7 +107,7 @@ export default function HeroSection() {
           className="mt-8 max-w-xl text-lg md:text-xl leading-relaxed text-warm-gray-300"
           style={{ fontWeight: 300 }}
         >
-          Drift is an AI companion that whispers the city's secrets in your ear.
+          driftd is an AI companion that whispers the city's secrets in your ear.
           No landmarks. No tourist traps.{' '}
           <span className="text-warm-white font-normal">Just the real city.</span>
         </p>

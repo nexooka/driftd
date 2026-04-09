@@ -58,7 +58,7 @@ export default function WaitlistSection() {
             <span className="italic gradient-text">drift</span>
           </h2>
           <p className="text-warm-gray-300 text-lg leading-relaxed mb-12 max-w-xl mx-auto">
-            We're opening city by city. Drop your email and we'll reach out when Drift
+            We're opening city by city. Drop your email and we'll reach out when driftd
             lands somewhere you'll want to explore.
           </p>
         </FadeIn>

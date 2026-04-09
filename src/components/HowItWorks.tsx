@@ -15,7 +15,7 @@ const STEPS = [
     ),
     title: 'Pick your vibe',
     description:
-      'Tell Drift what kind of explorer you are today. We\'ll shape your route around your mood, not around what TripAdvisor thinks is important.',
+      'Tell driftd what kind of explorer you are today. We\'ll shape your route around your mood, not around what TripAdvisor thinks is important.',
     extra: (
       <div className="flex flex-wrap gap-2 mt-4">
         {VIBES.map((v) => (
@@ -41,7 +41,7 @@ const STEPS = [
     ),
     title: 'Put in your headphones',
     description:
-      'Launch Drift, slip in your earbuds, and let the AI companion take over. It speaks as you walk — not a list of facts, but actual stories.',
+      'Launch driftd, slip in your earbuds, and let the AI companion take over. It speaks as you walk — not a list of facts, but actual stories.',
     extra: null,
   },
   {
@@ -53,7 +53,7 @@ const STEPS = [
         <path d="M16 11V9M21 15h2M16 19v2M11 15H9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
       </svg>
     ),
-    title: 'Drift',
+    title: 'driftd',
     description:
       'Walk. Discover. Ask questions about that strange building. Let yourself get a little lost. This is how the city actually wants to be seen.',
     extra: null,

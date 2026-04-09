@@ -21,7 +21,7 @@ const MODES = [
     label: '"What\'s that?"',
     tagline: 'Point and ask anything',
     description:
-      'See an interesting facade? A weird sculpture? An unmarked door? Ask Drift. It taps into visual context and local knowledge to tell you what no signpost ever would.',
+      'See an interesting facade? A weird sculpture? An unmarked door? Ask driftd. It taps into visual context and local knowledge to tell you what no signpost ever would.',
     icon: (
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
         <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="1.5" />
@@ -37,7 +37,7 @@ const MODES = [
     label: 'Ambient discovery',
     tagline: 'Let curiosity lead',
     description:
-      'No destination, no checklist. Drift quietly monitors what\'s around you and nudges you when something worth knowing is nearby. Follow the nudge, or don\'t. That\'s the whole point.',
+      'No destination, no checklist. driftd quietly monitors what\'s around you and nudges you when something worth knowing is nearby. Follow the nudge, or don\'t. That\'s the whole point.',
     icon: (
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
         <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.5" />
@@ -83,7 +83,7 @@ export default function AICompanion() {
                 <span className="italic gradient-text">guidebook</span>
               </h2>
               <p className="text-warm-gray-300 text-lg leading-relaxed mb-8 max-w-md">
-                Most travel apps give you lists. Drift gives you a voice — one that knows
+                Most travel apps give you lists. driftd gives you a voice — one that knows
                 the neighborhood, remembers what you've seen, and gets more interesting
                 the further you wander.
               </p>

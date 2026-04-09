@@ -61,10 +61,10 @@ export default function Footer() {
           <div>
             <a
               href="/"
-              className="font-display text-2xl font-bold text-warm-white tracking-widest block mb-4 hover:text-amber-400 transition-colors"
-              style={{ letterSpacing: '0.2em' }}
+              className="font-display text-2xl font-bold text-warm-white block mb-4 hover:text-amber-400 transition-colors"
+              style={{ letterSpacing: '0.05em' }}
             >
-              DRIFT
+              driftd
             </a>
             <p className="text-warm-gray-400 text-sm leading-relaxed max-w-xs">
               Explore cities like they were meant to be explored. Anti-tourist tourism, powered by AI.
@@ -136,7 +136,7 @@ export default function Footer() {
         {/* Bottom bar */}
         <div className="border-t border-white/[0.05] pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-warm-gray-500">
-            © {new Date().getFullYear()} Drift. Built for the curious.
+            © {new Date().getFullYear()} driftd. Built for the curious.
           </p>
           <div className="flex gap-6">
             <a href="#" className="text-xs text-warm-gray-500 hover:text-warm-gray-300 transition-colors">Privacy</a>

@@ -18,11 +18,11 @@ const dmSans = DM_Sans({
 })
 
 export const metadata: Metadata = {
-  title: 'Drift — Explore Cities Like a Local',
+  title: 'driftd — Explore Cities Like a Local',
   description:
-    "Drift is an AI companion that whispers the city\u2019s secrets in your ear. No landmarks. No tourist traps. Just the real city.",
+    "driftd is an AI companion that whispers the city\u2019s secrets in your ear. No landmarks. No tourist traps. Just the real city.",
   openGraph: {
-    title: 'Drift — Explore Cities Like a Local',
+    title: 'driftd — Explore Cities Like a Local',
     description: 'AI-powered walking routes through the hidden side of the city.',
     type: 'website',
   },
