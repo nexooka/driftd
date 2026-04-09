@@ -49,7 +49,7 @@ const MODES = [
 
 export default function AICompanion() {
   return (
-    <section id="features" className="relative py-28 md:py-36 bg-[#080808] overflow-hidden">
+    <section id="features" className="relative py-28 md:py-36 bg-[#0a0a0a] overflow-hidden">
       <div
         className="blob absolute opacity-12 pointer-events-none"
         style={{

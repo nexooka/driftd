@@ -4,7 +4,7 @@ export default function HeroSection() {
   return (
     <section className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden noise-overlay">
       {/* Base bg */}
-      <div className="absolute inset-0 bg-[#070707]" />
+      <div className="absolute inset-0 bg-[#0a0a0a]" />
 
       {/* Atmospheric blobs */}
       <div
@@ -58,7 +58,7 @@ export default function HeroSection() {
         <div className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full border border-amber-400/20 bg-amber-400/[0.06] mb-10">
           <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse-slow" />
           <span className="text-[11px] font-medium tracking-[0.2em] text-amber-400/75 uppercase">
-            launching summer 2026 · warsaw · kraków · prague
+            launching summer 2026 · warsaw · berlin · prague
           </span>
         </div>
 
@@ -67,9 +67,9 @@ export default function HeroSection() {
           className="font-display font-black text-warm-white leading-[0.92] tracking-tight"
           style={{ fontSize: 'clamp(2.8rem, 9vw, 6.8rem)' }}
         >
-          you weren&apos;t meant
+          stop following.
           <br />
-          <span className="italic gradient-text">to follow the crowd.</span>
+          <span className="italic gradient-text">start drifting.</span>
         </h1>
 
         {/* Subheadline */}

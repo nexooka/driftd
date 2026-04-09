@@ -1,52 +1,114 @@
 'use client'
 
-import { useInView } from '@/lib/useInView'
+import { useState, useRef } from 'react'
 import { FadeIn } from './FadeIn'
 
-const STOPS = [
-  { x: 100, y: 358, label: 'hidden courtyard', labelX: 118, labelY: 345, anchor: 'start' },
-  { x: 248, y: 262, label: '1970s mural', labelX: 265, labelY: 250, anchor: 'start' },
-  { x: 372, y: 298, label: 'best pierogi in Praga', labelX: 372, labelY: 282, anchor: 'middle' },
-  { x: 488, y: 172, label: 'rooftop nobody knows', labelX: 505, labelY: 160, anchor: 'start' },
-  { x: 618, y: 238, label: 'jazz bar, basement', labelX: 618, labelY: 222, anchor: 'middle' },
-  { x: 736, y: 152, label: 'soviet-era arcade', labelX: 718, labelY: 140, anchor: 'end' },
+/* ── Types ──────────────────────────────────────────── */
+interface Stop {
+  x: number; y: number
+  label: string
+  lx: number; ly: number; lw: number // label rect: top-left x/y, width
+}
+
+interface City {
+  id: string
+  name: string
+  path: string
+  stops: Stop[]
+}
+
+/* ── City data ──────────────────────────────────────── */
+// Label rect height is 15px. Text baseline: ly + 7.5
+// Sides: right → lx = x+12, ly = y-7; left → lx = x-lw-12, ly = y-7;
+//        top   → lx = x-lw/2, ly = y-27; bottom → lx = x-lw/2, ly = y+10
+
+const CITIES: City[] = [
+  {
+    id: 'berlin',
+    name: 'Berlin',
+    // Meandering S-curve left→right
+    path: 'M 90,308 C 140,258 180,194 225,198 C 268,202 314,272 362,268 C 406,264 448,148 492,152 C 534,156 578,246 622,242 C 658,239 700,164 742,162',
+    stops: [
+      { x:  90, y: 308, label: 'hidden beer garden',       lw:  90, lx: 102, ly: 301 },
+      { x: 225, y: 198, label: 'cold war tunnel entrance', lw: 112, lx: 169, ly: 171 },
+      { x: 362, y: 268, label: 'best döner in kreuzberg',  lw: 112, lx: 306, ly: 278 },
+      { x: 492, y: 152, label: 'abandoned rail yard art',  lw: 112, lx: 436, ly: 125 },
+      { x: 622, y: 242, label: 'techno bar at 3pm',        lw:  88, lx: 578, ly: 252 },
+      { x: 742, y: 162, label: 'rooftop nobody posts',     lw: 100, lx: 630, ly: 155 },
+    ],
+  },
+  {
+    id: 'warsaw',
+    name: 'Warsaw',
+    // Pronounced zigzag — more vertical amplitude
+    path: 'M 88,350 C 125,288 178,166 218,170 C 258,174 310,332 358,328 C 402,324 446,141 492,145 C 536,149 580,316 625,310 C 658,306 700,160 748,158',
+    stops: [
+      { x:  88, y: 350, label: '1970s mural in praga',      lw: 100, lx: 100, ly: 343 },
+      { x: 218, y: 170, label: 'best pierogi, no tourists', lw: 116, lx: 160, ly: 143 },
+      { x: 358, y: 328, label: 'secret garden courtyard',   lw: 112, lx: 302, ly: 338 },
+      { x: 492, y: 145, label: 'jazz bar in a basement',    lw: 108, lx: 438, ly: 118 },
+      { x: 625, y: 310, label: 'communist-era arcade',      lw: 100, lx: 575, ly: 320 },
+      { x: 748, y: 158, label: 'vistula locals only',       lw:  92, lx: 644, ly: 151 },
+    ],
+  },
+  {
+    id: 'prague',
+    name: 'Prague',
+    // Looping — goes forward, then curves back, then extends right
+    path: 'M 120,318 C 162,258 215,148 265,152 C 328,156 385,126 445,128 C 505,130 558,215 598,212 C 576,212 554,368 532,368 C 594,368 656,282 718,282',
+    stops: [
+      { x: 120, y: 318, label: 'absinthe bar in a cellar',   lw: 116, lx: 132, ly: 311 },
+      { x: 265, y: 152, label: 'art nouveau passage',         lw:  96, lx: 217, ly: 125 },
+      { x: 445, y: 128, label: 'viewpoint without crowds',    lw: 116, lx: 387, ly: 101 },
+      { x: 598, y: 212, label: 'vinyl record café',           lw:  88, lx: 610, ly: 205 },
+      { x: 532, y: 368, label: 'medieval courtyard',          lw:  92, lx: 486, ly: 378 },
+      { x: 718, y: 282, label: 'graffiti alley in žižkov',    lw: 120, lx: 586, ly: 275 },
+    ],
+  },
 ]
 
-const MOBILE_STOPS = [
-  { num: 1, type: 'courtyard', name: 'hidden courtyard' },
-  { num: 2, type: 'mural', name: '1970s mural' },
-  { num: 3, type: 'food', name: 'best pierogi in Praga' },
-  { num: 4, type: 'viewpoint', name: 'rooftop nobody knows' },
-  { num: 5, type: 'music', name: 'jazz bar, basement' },
-  { num: 6, type: 'culture', name: 'soviet-era arcade' },
-]
-
-// Horizontal street Y values
-const H_STREETS = [55, 115, 175, 235, 295, 355, 415]
-// Vertical street X values
-const V_STREETS = [55, 125, 195, 265, 335, 405, 475, 545, 615, 685, 750]
-
-// City block fills (x, y, w, h)
+/* ── SVG grid constants ─────────────────────────────── */
+const H = [55, 115, 175, 235, 295, 355, 415]
+const V = [55, 125, 195, 265, 335, 405, 475, 545, 615, 685, 755]
 const BLOCKS = [
-  [57, 57, 56, 46], [127, 57, 56, 46], [197, 57, 56, 46], [337, 57, 56, 46], [407, 57, 56, 46], [547, 57, 56, 46], [617, 57, 56, 46], [687, 57, 51, 46],
-  [57, 117, 56, 46], [197, 117, 56, 46], [267, 117, 56, 46], [407, 117, 56, 46], [477, 117, 56, 46], [617, 117, 56, 46], [687, 117, 51, 46],
-  [57, 177, 56, 46], [127, 177, 56, 46], [337, 177, 56, 46], [407, 177, 56, 46], [547, 177, 56, 46], [687, 177, 51, 46],
-  [57, 237, 56, 46], [267, 237, 56, 46], [337, 237, 56, 46], [477, 237, 56, 46], [617, 237, 56, 46], [687, 237, 51, 46],
-  [127, 297, 56, 46], [197, 297, 56, 46], [407, 297, 56, 46], [477, 297, 56, 46], [547, 297, 56, 46], [687, 297, 51, 46],
-  [57, 357, 56, 46], [267, 357, 56, 46], [337, 357, 56, 46], [477, 357, 56, 46], [617, 357, 56, 46], [687, 357, 51, 46],
+  [57,57,56,46],[127,57,56,46],[197,57,56,46],[337,57,56,46],[407,57,56,46],[547,57,56,46],[617,57,56,46],[687,57,56,46],
+  [57,117,56,46],[197,117,56,46],[267,117,56,46],[407,117,56,46],[477,117,56,46],[617,117,56,46],[687,117,56,46],
+  [57,177,56,46],[127,177,56,46],[337,177,56,46],[407,177,56,46],[547,177,56,46],[687,177,56,46],
+  [57,237,56,46],[267,237,56,46],[337,237,56,46],[477,237,56,46],[617,237,56,46],
+  [127,297,56,46],[197,297,56,46],[407,297,56,46],[477,297,56,46],[547,297,56,46],
+  [57,357,56,46],[267,357,56,46],[337,357,56,46],[477,357,56,46],[617,357,56,46],[687,357,56,46],
 ]
 
+/* ── Component ──────────────────────────────────────── */
 export default function MapDemo() {
-  const { ref, inView } = useInView(0.2)
+  const [active, setActive] = useState(0)
+  const [routeKey, setRouteKey] = useState(0)
+  const touchStartX = useRef(0)
+
+  const goTo = (idx: number) => {
+    if (idx === active) return
+    setActive(idx)
+    setRouteKey((k) => k + 1)
+  }
+  const prev = () => goTo((active - 1 + CITIES.length) % CITIES.length)
+  const next = () => goTo((active + 1) % CITIES.length)
+
+  const onTouchStart = (e: React.TouchEvent) => { touchStartX.current = e.touches[0].clientX }
+  const onTouchEnd = (e: React.TouchEvent) => {
+    const diff = touchStartX.current - e.changedTouches[0].clientX
+    if (Math.abs(diff) > 40) { if (diff > 0) next(); else prev() }
+  }
+
+  const city = CITIES[active]
 
   return (
-    <section id="map" className="relative py-28 md:py-36 bg-[#080808] overflow-hidden">
+    <section id="map" className="relative py-28 md:py-36 bg-[#0a0a0a] overflow-hidden">
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-400/10 to-transparent" />
 
       <div className="max-w-7xl mx-auto px-6 md:px-10">
 
         {/* Header */}
-        <FadeIn className="mb-14">
+        <FadeIn className="mb-10">
           <span className="text-[11px] tracking-[0.2em] uppercase text-amber-400/70 font-medium block mb-4">
             your route
           </span>
@@ -58,148 +120,198 @@ export default function MapDemo() {
           </h2>
         </FadeIn>
 
-        {/* Map — desktop only */}
-        <div ref={ref} className="hidden md:block relative rounded-2xl overflow-hidden border border-white/[0.06]" style={{ background: '#080808' }}>
+        {/* City tabs */}
+        <div className="flex gap-2 mb-6 flex-wrap">
+          {CITIES.map((c, i) => (
+            <button
+              key={c.id}
+              onClick={() => goTo(i)}
+              className={`px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200 ${
+                i === active
+                  ? 'bg-amber-400 text-[#0a0a0a]'
+                  : 'bg-white/[0.05] text-warm-gray-300 hover:bg-white/[0.09] border border-white/[0.08]'
+              }`}
+            >
+              {c.name}
+            </button>
+          ))}
+        </div>
+
+        {/* ── Desktop SVG map ── */}
+        <div
+          className="hidden md:block relative rounded-2xl overflow-hidden border border-white/[0.06] select-none"
+          style={{ background: '#0a0a0a' }}
+          onTouchStart={onTouchStart}
+          onTouchEnd={onTouchEnd}
+        >
+          {/* Arrow: left */}
+          <button
+            onClick={prev}
+            aria-label="Previous city"
+            className="absolute left-3 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-black/70 border border-white/10 flex items-center justify-center text-warm-gray-300 hover:text-warm-white hover:border-amber-400/30 hover:bg-black/90 transition-all duration-150 active:scale-90"
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
+
+          {/* Arrow: right */}
+          <button
+            onClick={next}
+            aria-label="Next city"
+            className="absolute right-3 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-black/70 border border-white/10 flex items-center justify-center text-warm-gray-300 hover:text-warm-white hover:border-amber-400/30 hover:bg-black/90 transition-all duration-150 active:scale-90"
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
+
+          {/* SVG */}
           <svg
-            viewBox="0 0 810 430"
+            viewBox="0 0 810 420"
             width="100%"
             height="auto"
             xmlns="http://www.w3.org/2000/svg"
             aria-hidden="true"
           >
-            {/* Background */}
-            <rect width="810" height="430" fill="#080808" />
+            <rect width="810" height="420" fill="#0a0a0a" />
 
-            {/* City block fills */}
+            {/* City blocks */}
             {BLOCKS.map(([x, y, w, h], i) => (
-              <rect key={i} x={x} y={y} width={w} height={h} fill="#0d0d0d" rx="1" />
+              <rect key={i} x={x} y={y} width={w} height={h} fill="#0f0f0f" rx="1" />
             ))}
 
-            {/* Streets: horizontal */}
-            {H_STREETS.map((y) => (
-              <line key={`h${y}`} x1="0" y1={y} x2="810" y2={y} stroke="#161616" strokeWidth="1" />
-            ))}
+            {/* Street grid */}
+            {H.map((y) => <line key={`h${y}`} x1="0" y1={y} x2="810" y2={y} stroke="#161616" strokeWidth="1" />)}
+            {V.map((x) => <line key={`v${x}`} x1={x} y1="0" x2={x} y2="420" stroke="#161616" strokeWidth="1" />)}
 
-            {/* Streets: vertical */}
-            {V_STREETS.map((x) => (
-              <line key={`v${x}`} x1={x} y1="0" x2={x} y2="430" stroke="#161616" strokeWidth="1" />
-            ))}
+            {/* Main roads */}
+            <line x1="0" y1="235" x2="810" y2="235" stroke="#1d1d1d" strokeWidth="2" />
+            <line x1="405" y1="0" x2="405" y2="420" stroke="#1d1d1d" strokeWidth="2" />
 
-            {/* Main road highlight: horizontal y=235 */}
-            <line x1="0" y1="235" x2="810" y2="235" stroke="#1e1e1e" strokeWidth="2" />
-            {/* Main road highlight: vertical x=405 */}
-            <line x1="405" y1="0" x2="405" y2="430" stroke="#1e1e1e" strokeWidth="2" />
-
-            {/* Street name hints (very faint) */}
-            <text x="130" y="230" fill="#2a2a2a" fontSize="7" fontFamily="monospace" textAnchor="middle">NOWY ŚWIAT</text>
-            <text x="400" y="80" fill="#2a2a2a" fontSize="7" fontFamily="monospace" textAnchor="middle">PRAGA NORTH</text>
-            <text x="600" y="230" fill="#2a2a2a" fontSize="7" fontFamily="monospace" textAnchor="middle">MARSZAŁKOWSKA</text>
-
-            {/* Gradient overlay on edges */}
             <defs>
-              <radialGradient id="edgeFade" cx="50%" cy="50%" r="50%">
-                <stop offset="60%" stopColor="#080808" stopOpacity="0" />
-                <stop offset="100%" stopColor="#080808" stopOpacity="0.9" />
+              <radialGradient id="vignette" cx="50%" cy="50%" r="50%">
+                <stop offset="60%" stopColor="#0a0a0a" stopOpacity="0" />
+                <stop offset="100%" stopColor="#0a0a0a" stopOpacity="0.9" />
               </radialGradient>
-              <filter id="glow">
-                <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
-                <feMerge>
-                  <feMergeNode in="coloredBlur"/>
-                  <feMergeNode in="SourceGraphic"/>
-                </feMerge>
+              <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="2.5" result="blur"/>
+                <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
               </filter>
             </defs>
-            <rect width="810" height="430" fill="url(#edgeFade)" />
 
-            {/* Route path */}
+            {/* Edge vignette */}
+            <rect width="810" height="420" fill="url(#vignette)" />
+
+            {/* Animated route — key changes on city switch, restarting the CSS animation */}
             <path
-              d="M 100,358 C 150,320 200,268 248,262 C 295,256 330,306 372,298 C 410,290 448,178 488,172 C 526,166 568,240 618,238 C 652,236 700,158 736,152"
+              key={`${city.id}-${routeKey}`}
+              d={city.path}
               fill="none"
               stroke="#fbbf24"
-              strokeWidth="2"
+              strokeWidth="2.5"
               strokeLinecap="round"
               strokeLinejoin="round"
-              strokeDasharray="6 4"
-              className={`route-path ${inView ? 'draw' : ''}`}
               filter="url(#glow)"
+              className="route-path draw"
             />
 
-            {/* Stop markers */}
-            {STOPS.map((stop, i) => (
-              <g key={i}>
-                {/* Pulse ring (first stop only) */}
+            {/* Stops */}
+            {city.stops.map((stop, i) => (
+              <g key={`${city.id}-stop-${i}`}>
+                {/* Pulse on first stop */}
                 {i === 0 && (
-                  <circle cx={stop.x} cy={stop.y} r="10" fill="none" stroke="#fbbf24" strokeWidth="1" opacity="0.3">
-                    <animate attributeName="r" values="8;16;8" dur="2.5s" repeatCount="indefinite" />
-                    <animate attributeName="opacity" values="0.4;0;0.4" dur="2.5s" repeatCount="indefinite" />
+                  <circle cx={stop.x} cy={stop.y} r="10" fill="none" stroke="#fbbf24" strokeWidth="1" opacity="0">
+                    <animate attributeName="r"       values="8;18;8"       dur="2.5s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0.35;0;0.35"  dur="2.5s" repeatCount="indefinite" />
                   </circle>
                 )}
                 {/* Outer ring */}
-                <circle cx={stop.x} cy={stop.y} r="7" fill="none" stroke="#fbbf24" strokeWidth="1" opacity="0.3" />
-                {/* Inner dot */}
-                <circle cx={stop.x} cy={stop.y} r="4" fill="#fbbf24" />
+                <circle cx={stop.x} cy={stop.y} r="7.5" fill="none" stroke="#fbbf24" strokeWidth="1" opacity="0.25" />
+                {/* Dot */}
+                <circle cx={stop.x} cy={stop.y} r="4.5" fill="#fbbf24" />
                 {/* Number */}
-                <text x={stop.x} y={stop.y + 1} fill="#070707" fontSize="5" fontWeight="bold" fontFamily="sans-serif" textAnchor="middle" dominantBaseline="middle">
+                <text x={stop.x} y={stop.y + 0.5} fill="#0a0a0a" fontSize="5.5" fontWeight="bold"
+                      fontFamily="ui-sans-serif,system-ui" textAnchor="middle" dominantBaseline="middle">
                   {i + 1}
                 </text>
-
-                {/* Label box */}
-                <g>
-                  <rect
-                    x={stop.anchor === 'end' ? stop.labelX - 90 : stop.anchor === 'middle' ? stop.labelX - 54 : stop.labelX - 2}
-                    y={stop.labelY - 11}
-                    width="92"
-                    height="16"
-                    rx="4"
-                    fill="#0f0f0f"
-                    stroke="#2a2a2a"
-                    strokeWidth="0.5"
-                    opacity="0.95"
-                  />
-                  <text
-                    x={stop.labelX}
-                    y={stop.labelY - 2}
-                    fill="#c8c0b5"
-                    fontSize="7.5"
-                    fontFamily="ui-sans-serif, system-ui"
-                    textAnchor={stop.anchor as 'start' | 'middle' | 'end'}
-                    dominantBaseline="middle"
-                  >
-                    {stop.label}
-                  </text>
-                </g>
+                {/* Label */}
+                <rect x={stop.lx} y={stop.ly} width={stop.lw} height={15} rx="3.5"
+                      fill="#0e0e0e" stroke="#282828" strokeWidth="0.5" opacity="0.97" />
+                <text x={stop.lx + 6} y={stop.ly + 7.5} fill="#c8c0b5" fontSize="7"
+                      fontFamily="ui-sans-serif,system-ui" dominantBaseline="middle">
+                  {stop.label}
+                </text>
               </g>
             ))}
           </svg>
 
-          {/* Bottom caption */}
-          <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-[#080808] to-transparent flex items-end justify-center pb-3">
-            <p className="text-warm-gray-500 text-xs tracking-wide">
-              AI-generated · every walk is one of a kind · this route will never repeat
+          {/* Bottom caption bar */}
+          <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-[#0a0a0a] to-transparent flex items-end justify-center pb-2.5">
+            <p className="text-warm-gray-600 text-[10px] tracking-widest uppercase">
+              AI-generated · every route is one of a kind · never repeats
             </p>
           </div>
         </div>
 
-        {/* Mobile: vertical stop list */}
+        {/* ── Mobile view ── */}
         <div className="md:hidden">
-          <div className="relative">
-            {/* Connector line */}
-            <div className="absolute left-4 top-5 bottom-5 w-px bg-gradient-to-b from-amber-400/60 via-amber-400/20 to-transparent" />
+          {/* City selector + arrows */}
+          <div className="flex items-center justify-between mb-6">
+            <button
+              onClick={prev}
+              aria-label="Previous city"
+              className="w-10 h-10 rounded-full border border-white/10 bg-white/[0.04] flex items-center justify-center text-warm-gray-300 active:scale-90 transition-all"
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+            <span className="font-display text-xl font-bold text-warm-white">{city.name}</span>
+            <button
+              onClick={next}
+              aria-label="Next city"
+              className="w-10 h-10 rounded-full border border-white/10 bg-white/[0.04] flex items-center justify-center text-warm-gray-300 active:scale-90 transition-all"
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+          </div>
 
-            {MOBILE_STOPS.map((stop, i) => (
-              <FadeIn key={stop.num} delay={i * 80} className="flex items-start gap-5 mb-7">
-                <div className="relative z-10 flex-shrink-0 w-9 h-9 rounded-full bg-amber-400 flex items-center justify-center text-ink text-xs font-bold shadow-lg">
-                  {stop.num}
+          {/* Stop list */}
+          <div
+            className="relative"
+            onTouchStart={onTouchStart}
+            onTouchEnd={onTouchEnd}
+          >
+            <div className="absolute left-[18px] top-5 bottom-10 w-px bg-gradient-to-b from-amber-400/50 via-amber-400/15 to-transparent" />
+            {city.stops.map((stop, i) => (
+              <div key={`${city.id}-m-${i}`} className="flex items-center gap-5 mb-5">
+                <div className="relative z-10 flex-shrink-0 w-9 h-9 rounded-full bg-amber-400 flex items-center justify-center text-[#0a0a0a] text-xs font-bold">
+                  {i + 1}
                 </div>
-                <div className="pt-1">
-                  <p className="text-[10px] uppercase tracking-widest text-amber-400/60 mb-0.5">{stop.type}</p>
-                  <p className="text-warm-white font-medium">{stop.name}</p>
-                </div>
-              </FadeIn>
+                <p className="text-warm-white text-sm font-medium leading-snug">{stop.label}</p>
+              </div>
             ))}
           </div>
-          <p className="text-warm-gray-500 text-xs text-center mt-4 tracking-wide italic">
-            AI-generated · every walk is one of a kind
+
+          {/* Dot indicators */}
+          <div className="flex justify-center gap-2 mt-6">
+            {CITIES.map((c, i) => (
+              <button
+                key={c.id}
+                onClick={() => goTo(i)}
+                aria-label={`Show ${c.name}`}
+                className={`rounded-full transition-all duration-200 ${
+                  i === active ? 'w-5 h-2 bg-amber-400' : 'w-2 h-2 bg-white/20'
+                }`}
+              />
+            ))}
+          </div>
+
+          <p className="text-warm-gray-600 text-[10px] text-center mt-4 tracking-widest uppercase">
+            AI-generated · every route is one of a kind
           </p>
         </div>
       </div>

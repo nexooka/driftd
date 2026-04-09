@@ -39,7 +39,7 @@ const VALUE_PROPS = [
 
 export default function ForCities() {
   return (
-    <section id="cities" className="relative py-28 md:py-36 bg-[#0d0d0d] overflow-hidden">
+    <section id="cities" className="relative py-28 md:py-36 bg-[#0a0a0a] overflow-hidden">
       <div
         className="blob absolute opacity-15 pointer-events-none"
         style={{

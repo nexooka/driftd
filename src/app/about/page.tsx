@@ -136,7 +136,7 @@ export default function AboutPage() {
                 <path d="M2 7h10M7 3l4 4-4 4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </a>
-            <p className="mt-4 text-xs text-warm-gray-500">launching summer 2026 in warsaw, kraków & prague</p>
+            <p className="mt-4 text-xs text-warm-gray-500">launching summer 2026 in warsaw, berlin & prague</p>
           </FadeIn>
         </div>
       </section>

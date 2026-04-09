@@ -32,10 +32,10 @@ export default function WaitlistSection() {
   }
 
   return (
-    <section id="waitlist" className="relative py-28 md:py-36 bg-[#070707] overflow-hidden">
+    <section id="waitlist" className="relative py-28 md:py-36 bg-[#0a0a0a] overflow-hidden">
       {/* Center glow */}
       <div
-        className="blob absolute opacity-18 pointer-events-none"
+        className="blob absolute opacity-[0.12] pointer-events-none"
         style={{
           width: 700,
           height: 700,
@@ -111,7 +111,7 @@ export default function WaitlistSection() {
               </form>
               {error && <p className="mt-3 text-sm text-red-400">{error}</p>}
               <p className="mt-5 text-xs text-warm-gray-500 tracking-wide">
-                launching summer 2026 in warsaw, kraków & prague · more cities coming
+                launching summer 2026 in warsaw, berlin & prague · more cities coming
               </p>
             </>
           )}
