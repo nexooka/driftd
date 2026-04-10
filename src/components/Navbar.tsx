@@ -4,9 +4,9 @@ import { useEffect, useState } from 'react'
 
 const LINKS = [
   { label: 'how it works', href: '#how-it-works' },
-  { label: 'features', href: '#features' },
   { label: 'for cities', href: '#cities' },
   { label: 'about', href: '/about' },
+  { label: 'demo', href: '/demo' },
 ]
 
 export default function Navbar() {
