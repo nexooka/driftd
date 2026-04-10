@@ -30,12 +30,15 @@ ROUTE QUALITY:
 11. Match vibe tags. If they said "artsy + chill" — no loud bars, lots of cafés and street art.
 12. For regeneration requests: pick a completely different neighborhood or angle. Never repeat previous stops.
 
+STARTING POINT:
+13. CRITICAL: Stop #1 MUST be at or within a 2-minute walk (under 150m) of the user's stated starting point. The user is physically standing there — stop #1 is something interesting right where they start. Never begin the route somewhere that requires a long walk to reach.
+
 COORDINATES:
-13. Provide accurate latitude and longitude for each stop. These will be plotted on a real map. Use your knowledge of the city's actual geography. Be precise — wrong coordinates will put stops in the wrong location.
+14. Provide accurate latitude and longitude for each stop. These will be plotted on a real map. Use your knowledge of the city's actual geography. Be precise — wrong coordinates will put stops in the wrong location.
 
 WRITING STYLE:
-14. Casual, warm, opinionated. Like texting a friend who grew up there. Use lowercase. Include specific tips (what to order, what time of day, what to look for). Absolutely banned words: "vibrant," "charming," "must-see," "iconic," "hidden gem," "nestled," "quaint," "picturesque." Instead: "this place goes hard," "locals come here to escape," "get the [specific item]," "most people walk straight past this," "one of the best-kept secrets."
-15. Output MUST be valid JSON in exactly the format below. No prose outside the JSON. No markdown code fences. No commentary.
+15. Casual, warm, opinionated. Like texting a friend who grew up there. Use lowercase. Include specific tips (what to order, what time of day, what to look for). Absolutely banned words: "vibrant," "charming," "must-see," "iconic," "hidden gem," "nestled," "quaint," "picturesque." Instead: "this place goes hard," "locals come here to escape," "get the [specific item]," "most people walk straight past this," "one of the best-kept secrets."
+16. Output MUST be valid JSON in exactly the format below. No prose outside the JSON. No markdown code fences. No commentary.
 
 OUTPUT FORMAT — return exactly this JSON, nothing else:
 {
@@ -68,51 +71,34 @@ function parseRoute(text: string) {
   return JSON.parse(s.slice(start, end + 1))
 }
 
-/* ── Real walking times via OSRM (foot profile) ─────────────────────── */
-async function getWalkingLeg(
-  lat1: number, lng1: number,
-  lat2: number, lng2: number
-): Promise<{ minutes: number; meters: number } | null> {
-  try {
-    const url = `https://router.project-osrm.org/route/v1/foot/${lng1},${lat1};${lng2},${lat2}?overview=false`
-    const res = await fetch(url, { signal: AbortSignal.timeout(7000) })
-    const data = await res.json()
-    const leg = data.routes?.[0]
-    if (!leg) return null
-    return {
-      minutes: Math.max(1, Math.round(leg.duration / 60)),
-      meters: Math.round(leg.distance),
-    }
-  } catch {
-    return null
-  }
+/* ── Haversine walking time estimate (server-side fallback) ──────────── */
+function haversineMeters(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const R = 6371000
+  const dLat = (lat2 - lat1) * Math.PI / 180
+  const dLng = (lng2 - lng1) * Math.PI / 180
+  const a = Math.sin(dLat / 2) ** 2
+    + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) ** 2
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
 }
 
-async function enrichWalkingTimes(stops: any[]) {
+function enrichWalkingTimes(stops: any[]) {
   if (stops.length < 2) return
-
-  // Fetch all legs in parallel
-  const legs = await Promise.all(
-    stops.slice(0, -1).map((stop, i) => {
-      const next = stops[i + 1]
-      if (stop.lat && stop.lng && next.lat && next.lng) {
-        return getWalkingLeg(stop.lat, stop.lng, next.lat, next.lng)
-      }
-      return Promise.resolve(null)
-    })
-  )
 
   let totalWalkingMinutes = 0
   let totalWalkingMeters = 0
 
-  legs.forEach((leg, i) => {
-    if (leg) {
-      stops[i].walk_to_next_minutes = leg.minutes
-      stops[i].walk_to_next_meters = leg.meters
-      totalWalkingMinutes += leg.minutes
-      totalWalkingMeters += leg.meters
+  stops.slice(0, -1).forEach((stop, i) => {
+    const next = stops[i + 1]
+    if (stop.lat && stop.lng && next.lat && next.lng) {
+      // straight-line × 1.35 detour factor → realistic street distance
+      const meters = Math.round(haversineMeters(stop.lat, stop.lng, next.lat, next.lng) * 1.35)
+      // 83 m/min ≈ avg walking pace (5 km/h)
+      const minutes = Math.max(1, Math.round(meters / 83))
+      stops[i].walk_to_next_minutes = minutes
+      stops[i].walk_to_next_meters = meters
+      totalWalkingMinutes += minutes
+      totalWalkingMeters += meters
     } else {
-      // OSRM failed — keep AI estimate, no distance
       totalWalkingMinutes += stops[i].walk_to_next_minutes ?? 0
     }
   })
@@ -176,8 +162,8 @@ Generate a walking route. Remember: aim for ${Math.round(minutes / 8)} stops min
       const text = response.content[0].type === 'text' ? response.content[0].text : ''
       const route = parseRoute(text)
 
-      // Replace AI-guessed walking times with real OSRM foot-profile data
-      const walking = await enrichWalkingTimes(route.stops)
+      // Replace AI-guessed walking times with haversine-based estimates
+      const walking = enrichWalkingTimes(route.stops)
       if (walking) {
         route.total_walking_minutes = walking.totalWalkingMinutes
         route.total_walking_meters = walking.totalWalkingMeters

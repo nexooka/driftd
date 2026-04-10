@@ -59,6 +59,51 @@ export default function RouteMap({ stops, routeKey }: { stops: MapStop[]; routeK
         .addAttribution('© <a href="https://carto.com" style="color:#555">CARTO</a> © <a href="https://openstreetmap.org" style="color:#555">OSM</a>')
         .addTo(map)
 
+      // Helper: bearing in degrees between two lat/lng points
+      function bearing(lat1: number, lng1: number, lat2: number, lng2: number): number {
+        const toRad = (d: number) => d * Math.PI / 180
+        const dLng = toRad(lng2 - lng1)
+        const y = Math.sin(dLng) * Math.cos(toRad(lat2))
+        const x = Math.cos(toRad(lat1)) * Math.sin(toRad(lat2))
+          - Math.sin(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.cos(dLng)
+        return ((Math.atan2(y, x) * 180 / Math.PI) + 360) % 360
+      }
+
+      // Place arrow markers along a geometry at ~every `interval` metres
+      function addArrows(coords: [number, number][], intervalM: number) {
+        let accumulated = 0
+        for (let i = 1; i < coords.length; i++) {
+          const [lat1, lng1] = coords[i - 1]
+          const [lat2, lng2] = coords[i]
+          const dLat = (lat2 - lat1) * Math.PI / 180
+          const dLng = (lng2 - lng1) * Math.PI / 180
+          const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) ** 2
+          const segM = 6371000 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+          accumulated += segM
+          if (accumulated >= intervalM) {
+            accumulated = 0
+            const midLat = (lat1 + lat2) / 2
+            const midLng = (lng1 + lng2) / 2
+            const deg = bearing(lat1, lng1, lat2, lng2)
+            const arrowIcon = L.divIcon({
+              html: `<div style="
+                width:18px;height:18px;
+                display:flex;align-items:center;justify-content:center;
+                transform:rotate(${deg}deg);
+              ">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <path d="M7 1 L12 10 L7 8 L2 10 Z" fill="#fbbf24" fill-opacity="0.9"/>
+                </svg>
+              </div>`,
+              className: '',
+              iconSize: [18, 18],
+              iconAnchor: [9, 9],
+            })
+            L.marker([midLat, midLng], { icon: arrowIcon, interactive: false }).addTo(map)
+          }
+        }
+      }
+
       // Try OSRM for actual walking path
       try {
         const coordStr = latlngs.map(([lat, lng]) => `${lng},${lat}`).join(';')
@@ -76,9 +121,10 @@ export default function RouteMap({ stops, routeKey }: { stops: MapStop[]; routeK
             weight: 3.5,
             opacity: 0.9,
           }).addTo(map)
+          addArrows(routeCoords, 120)
         }
       } catch {
-        // Fallback: straight dashed lines
+        // Fallback: straight dashed lines with arrows
         if (!destroyed) {
           L.polyline(latlngs, {
             color: '#fbbf24',
@@ -86,6 +132,7 @@ export default function RouteMap({ stops, routeKey }: { stops: MapStop[]; routeK
             opacity: 0.8,
             dashArray: '8 5',
           }).addTo(map)
+          addArrows(latlngs, 120)
         }
       }
 
