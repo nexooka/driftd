@@ -68,6 +68,62 @@ function parseRoute(text: string) {
   return JSON.parse(s.slice(start, end + 1))
 }
 
+/* ── Real walking times via OSRM (foot profile) ─────────────────────── */
+async function getWalkingLeg(
+  lat1: number, lng1: number,
+  lat2: number, lng2: number
+): Promise<{ minutes: number; meters: number } | null> {
+  try {
+    const url = `https://router.project-osrm.org/route/v1/foot/${lng1},${lat1};${lng2},${lat2}?overview=false`
+    const res = await fetch(url, { signal: AbortSignal.timeout(7000) })
+    const data = await res.json()
+    const leg = data.routes?.[0]
+    if (!leg) return null
+    return {
+      minutes: Math.max(1, Math.round(leg.duration / 60)),
+      meters: Math.round(leg.distance),
+    }
+  } catch {
+    return null
+  }
+}
+
+async function enrichWalkingTimes(stops: any[]) {
+  if (stops.length < 2) return
+
+  // Fetch all legs in parallel
+  const legs = await Promise.all(
+    stops.slice(0, -1).map((stop, i) => {
+      const next = stops[i + 1]
+      if (stop.lat && stop.lng && next.lat && next.lng) {
+        return getWalkingLeg(stop.lat, stop.lng, next.lat, next.lng)
+      }
+      return Promise.resolve(null)
+    })
+  )
+
+  let totalWalkingMinutes = 0
+  let totalWalkingMeters = 0
+
+  legs.forEach((leg, i) => {
+    if (leg) {
+      stops[i].walk_to_next_minutes = leg.minutes
+      stops[i].walk_to_next_meters = leg.meters
+      totalWalkingMinutes += leg.minutes
+      totalWalkingMeters += leg.meters
+    } else {
+      // OSRM failed — keep AI estimate, no distance
+      totalWalkingMinutes += stops[i].walk_to_next_minutes ?? 0
+    }
+  })
+
+  // Clear walk fields on last stop
+  stops[stops.length - 1].walk_to_next_minutes = null
+  stops[stops.length - 1].walk_to_next_meters = null
+
+  return { totalWalkingMinutes, totalWalkingMeters }
+}
+
 export async function POST(req: NextRequest) {
   const { city, vibes, minutes, start, end, notes, previousStops = [] } = await req.json()
 
@@ -119,6 +175,14 @@ Generate a walking route. Remember: aim for ${Math.round(minutes / 8)} stops min
       })
       const text = response.content[0].type === 'text' ? response.content[0].text : ''
       const route = parseRoute(text)
+
+      // Replace AI-guessed walking times with real OSRM foot-profile data
+      const walking = await enrichWalkingTimes(route.stops)
+      if (walking) {
+        route.total_walking_minutes = walking.totalWalkingMinutes
+        route.total_walking_meters = walking.totalWalkingMeters
+      }
+
       return NextResponse.json(route)
     } catch (err) {
       attempt++

@@ -17,12 +17,15 @@ interface RouteStop {
   description: string
   why_this_spot: string
   walk_to_next_minutes: number | null
+  walk_to_next_meters?: number | null
   time_at_stop_minutes: number
 }
 interface RouteResult {
   city: string
   intro: string
   total_minutes: number
+  total_walking_minutes?: number
+  total_walking_meters?: number
   vibes: string[]
   stops: RouteStop[]
   time_warning: string | null
@@ -124,6 +127,25 @@ function buildPath(pts: Array<{x: number; y: number}>): string {
     d += ` C ${mx},${p.y} ${mx},${c.y} ${c.x},${c.y}`
   }
   return d
+}
+
+/* ── Formatting helpers ──────────────────────────────────────────────── */
+function fmtDist(meters: number): string {
+  return meters < 1000 ? `${meters}m` : `${(meters / 1000).toFixed(1)}km`
+}
+function fmtWalkingLeg(minutes: number, meters?: number | null): string {
+  const t = `${minutes} min walk`
+  return meters ? `${t} · ${fmtDist(meters)}` : t
+}
+function fmtTotalWalking(minutes?: number, meters?: number): string | null {
+  if (!minutes && !meters) return null
+  const parts: string[] = []
+  if (meters) parts.push(fmtDist(meters))
+  if (minutes) {
+    const h = Math.floor(minutes / 60), m = minutes % 60
+    parts.push(h > 0 ? `${h}h ${m}min walking` : `${m}min walking`)
+  }
+  return parts.join(' · ')
 }
 
 /* ── Rate limiter ────────────────────────────────────────────────────── */
@@ -316,6 +338,11 @@ export default function DemoPage() {
                   <span className="text-warm-gray-500 text-sm">·</span>
                   <span className="text-warm-gray-400 text-sm">{route.stops.length} stops</span>
                 </div>
+                {fmtTotalWalking(route.total_walking_minutes, route.total_walking_meters) && (
+                  <p className="text-warm-gray-500 text-xs mt-2 tracking-wide">
+                    {fmtTotalWalking(route.total_walking_minutes, route.total_walking_meters)}
+                  </p>
+                )}
               </div>
               <button
                 onClick={() => { setView('form'); setRoute(null) }}
@@ -382,12 +409,20 @@ export default function DemoPage() {
                         <p className="text-amber-400/75 text-xs italic mb-4">
                           → {stop.why_this_spot}
                         </p>
-                        {stop.walk_to_next_minutes !== null && (
-                          <div className="flex items-center gap-2 text-warm-gray-500 text-xs">
+                        {stop.walk_to_next_minutes !== null ? (
+                          <div className="flex items-center gap-2 text-warm-gray-500 text-xs mt-1">
                             <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                              <path d="M6 1v10M1 6l5 5 5-5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+                              <path d="M6 2v8M3 7l3 3 3-3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
                             </svg>
-                            <span>{stop.walk_to_next_minutes} min walk to next stop</span>
+                            <span>{fmtWalkingLeg(stop.walk_to_next_minutes, stop.walk_to_next_meters)} to next stop</span>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2 text-amber-400/50 text-xs mt-1">
+                            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                              <circle cx="6" cy="6" r="4" stroke="currentColor" strokeWidth="1.2"/>
+                              <path d="M4 6l1.5 1.5L8 4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                            <span>end of drift</span>
                           </div>
                         )}
                       </div>
@@ -395,6 +430,20 @@ export default function DemoPage() {
                   </div>
                 )
               })}
+            </div>
+
+            {/* End of route summary */}
+            <div className="mt-6 px-6 py-5 rounded-2xl border border-white/[0.04] bg-[#0e0e0e] text-center">
+              <p className="font-display font-bold text-warm-white text-lg mb-1">
+                that&apos;s your drift.
+              </p>
+              <p className="text-warm-gray-500 text-sm">
+                {[
+                  route.total_walking_meters ? fmtDist(route.total_walking_meters) + ' total walking' : null,
+                  route.total_walking_minutes ? (() => { const h = Math.floor(route.total_walking_minutes! / 60), m = route.total_walking_minutes! % 60; return h > 0 ? `${h}h ${m}min on foot` : `${m}min on foot` })() : null,
+                  `${route.stops.length} stops`,
+                ].filter(Boolean).join(' · ')}
+              </p>
             </div>
           </section>
 
