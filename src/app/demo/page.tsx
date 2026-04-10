@@ -1,14 +1,19 @@
 'use client'
 
 import { useState, useEffect, useRef, CSSProperties } from 'react'
+import dynamic from 'next/dynamic'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
+
+const RouteMap = dynamic(() => import('@/components/RouteMap'), { ssr: false })
 
 /* ── Types ──────────────────────────────────────────────────────────── */
 interface RouteStop {
   number: number
   name: string
   neighborhood: string
+  lat?: number
+  lng?: number
   description: string
   why_this_spot: string
   walk_to_next_minutes: number | null
@@ -279,10 +284,9 @@ export default function DemoPage() {
 
   /* ── Result view ──────────────────────────────────────────────────── */
   if (view === 'result' && route) {
-    const positions = computeMapPositions(route.stops)
-    const pathD = buildPath(positions)
-    const H = [55, 115, 175, 235, 295, 355, 415]
-    const V = [55, 125, 195, 265, 335, 405, 475, 545, 615, 685, 755, 810]
+    const mapStops = route.stops
+      .filter(s => s.lat && s.lng)
+      .map(s => ({ number: s.number, name: s.name, lat: s.lat!, lng: s.lng! }))
 
     return (
       <main className="min-h-screen bg-[#0a0a0a]">
@@ -340,72 +344,12 @@ export default function DemoPage() {
             </div>
           </section>
 
-          {/* Map — desktop only */}
-          <section className="max-w-7xl mx-auto px-6 md:px-10 mb-10 hidden md:block">
-            <div className="rounded-2xl border border-white/[0.06] overflow-hidden">
-              <svg viewBox="0 0 800 340" width="100%" height="auto" aria-hidden>
-                <rect width="800" height="340" fill="#0a0a0a"/>
-                {H.map(y => <line key={`h${y}`} x1="0" y1={y} x2="800" y2={y} stroke="#141414" strokeWidth="1"/>)}
-                {V.map(x => <line key={`v${x}`} x1={x} y1="0" x2={x} y2="340" stroke="#141414" strokeWidth="1"/>)}
-                <line x1="0" y1="170" x2="800" y2="170" stroke="#1a1a1a" strokeWidth="2"/>
-                <line x1="400" y1="0" x2="400" y2="340" stroke="#1a1a1a" strokeWidth="2"/>
-                <defs>
-                  <radialGradient id="mapVig" cx="50%" cy="50%" r="50%">
-                    <stop offset="60%" stopColor="#0a0a0a" stopOpacity="0"/>
-                    <stop offset="100%" stopColor="#0a0a0a" stopOpacity="0.85"/>
-                  </radialGradient>
-                  <filter id="mapGlow" x="-30%" y="-30%" width="160%" height="160%">
-                    <feGaussianBlur stdDeviation="3" result="b"/>
-                    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-                  </filter>
-                </defs>
-                <rect width="800" height="340" fill="url(#mapVig)"/>
-                {/* Animated route */}
-                <path
-                  key={mapKey}
-                  d={pathD}
-                  fill="none"
-                  stroke="#fbbf24"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  filter="url(#mapGlow)"
-                  style={{
-                    strokeDasharray: 4000,
-                    strokeDashoffset: 4000,
-                    animation: 'drawRoute 2.4s ease-out forwards',
-                  } as CSSProperties}
-                />
-                {/* Stops */}
-                {route.stops.map((stop, i) => {
-                  const pos = positions[i]
-                  if (!pos) return null
-                  return (
-                    <g key={`stop-${i}`}>
-                      {i === 0 && (
-                        <circle cx={pos.x} cy={pos.y} r="10" fill="none" stroke="#fbbf24" strokeWidth="1">
-                          <animate attributeName="r" values="8;18;8" dur="2.5s" repeatCount="indefinite"/>
-                          <animate attributeName="opacity" values="0.35;0;0.35" dur="2.5s" repeatCount="indefinite"/>
-                        </circle>
-                      )}
-                      <circle cx={pos.x} cy={pos.y} r="8" fill="none" stroke="#fbbf24" strokeWidth="1" opacity="0.25"/>
-                      <circle cx={pos.x} cy={pos.y} r="5" fill="#fbbf24"/>
-                      <text x={pos.x} y={pos.y + 0.5} fill="#0a0a0a" fontSize="6" fontWeight="bold"
-                            fontFamily="ui-sans-serif,system-ui" textAnchor="middle" dominantBaseline="middle">
-                        {i + 1}
-                      </text>
-                      <rect x={pos.lx} y={pos.ly} width={pos.lw} height={15} rx="3.5"
-                            fill="#0e0e0e" stroke="#282828" strokeWidth="0.5" opacity="0.97"/>
-                      <text x={pos.lx + 7} y={pos.ly + 7.5} fill="#c8c0b5" fontSize="7"
-                            fontFamily="ui-sans-serif,system-ui" dominantBaseline="middle">
-                        {stop.name}
-                      </text>
-                    </g>
-                  )
-                })}
-              </svg>
-            </div>
-          </section>
+          {/* Real map */}
+          {mapStops.length > 0 && (
+            <section className="max-w-7xl mx-auto px-6 md:px-10 mb-10">
+              <RouteMap stops={mapStops} routeKey={mapKey} />
+            </section>
+          )}
 
           {/* Stop cards */}
           <section className="max-w-7xl mx-auto px-6 md:px-10 mb-14">
@@ -420,7 +364,6 @@ export default function DemoPage() {
                   <div key={i} style={style}
                        className="group rounded-2xl border border-white/[0.06] bg-[#111] p-6 md:p-8 card-hover">
                     <div className="flex gap-5 items-start">
-                      {/* Number */}
                       <div className="flex-shrink-0 w-10 h-10 rounded-full bg-amber-400 flex items-center justify-center text-[#0a0a0a] font-bold text-sm">
                         {stop.number}
                       </div>
