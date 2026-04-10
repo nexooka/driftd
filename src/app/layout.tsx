@@ -51,6 +51,10 @@ export const metadata: Metadata = {
     description: 'AI-powered city exploration for the curious traveller.',
     images: ['/og-image.png'],
   },
+  icons: {
+    icon: '/icon.png',
+    apple: '/apple-icon.png',
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
