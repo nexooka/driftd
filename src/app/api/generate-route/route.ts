@@ -92,7 +92,7 @@ Generate a walking route following all your rules. Output ONLY the JSON object, 
   while (attempt < 2) {
     try {
       const response = await client.messages.create({
-        model: 'claude-opus-4-6',
+        model: 'claude-sonnet-4-6',
         max_tokens: 4000,
         system: SYSTEM_PROMPT,
         messages: [{ role: 'user', content: userPrompt }],
