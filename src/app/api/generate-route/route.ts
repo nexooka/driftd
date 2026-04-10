@@ -103,10 +103,11 @@ Generate a walking route following all your rules. Output ONLY the JSON object, 
       return NextResponse.json(route)
     } catch (err) {
       attempt++
+      console.error(`Route generation attempt ${attempt} failed:`, err)
       if (attempt >= 2) {
-        console.error('Route generation failed:', err)
+        const msg = err instanceof Error ? err.message : String(err)
         return NextResponse.json(
-          { error: 'the drift isn\'t working right now. try again in a moment.' },
+          { error: 'the drift isn\'t working right now. try again in a moment.', _debug: msg },
           { status: 500 }
         )
       }
