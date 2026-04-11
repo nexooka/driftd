@@ -112,30 +112,28 @@ async function nominatim(q: string, countryCode: string): Promise<{ lat: number;
 }
 
 /* ── Geocode each stop to fix AI-hallucinated coordinates ───────────── */
-// Runs up to 4 in parallel with a small stagger to avoid hammering Nominatim.
+// Fire all stops in parallel, cap the entire operation at 4s so it can
+// never block the response even if Nominatim is slow or rate-limiting.
 async function geocodeStops(stops: any[], city: string): Promise<void> {
   const cc = CITY_COUNTRY[city] ?? ''
-  const CONCURRENCY = 4
 
-  async function fixStop(stop: any, idx: number): Promise<void> {
-    await new Promise(r => setTimeout(r, idx * 80)) // stagger requests
+  const work = Promise.allSettled(stops.map(async (stop, idx) => {
+    await new Promise(r => setTimeout(r, idx * 60)) // gentle stagger
     try {
       let result = await nominatim(`${stop.name}, ${city}`, cc)
       if (!result && stop.address) result = await nominatim(`${stop.address}, ${city}`, cc)
       if (!result) return
       if (stop.lat && stop.lng) {
         const dist = haversineMeters(stop.lat, stop.lng, result.lat, result.lng)
-        if (dist > 3000) return // reject if wrong city
+        if (dist > 3000) return // reject wrong-city match
       }
       stop.lat = result.lat
       stop.lng = result.lng
     } catch { /* keep existing coords */ }
-  }
+  }))
 
-  // Process in batches of CONCURRENCY
-  for (let i = 0; i < stops.length; i += CONCURRENCY) {
-    await Promise.all(stops.slice(i, i + CONCURRENCY).map((s, j) => fixStop(s, j)))
-  }
+  // Hard cap — never block longer than 4s regardless of Nominatim
+  await Promise.race([work, new Promise(r => setTimeout(r, 4000))])
 }
 
 /* ── Geocode starting address via Nominatim ──────────────────────────── */
@@ -299,7 +297,7 @@ Generate a walking route. Aim for ${Math.round(minutes / 8)} stops minimum. Outp
     try {
       const response = await client.messages.create({
         model: 'claude-sonnet-4-6',
-        max_tokens: 4000,
+        max_tokens: 6000,
         system: SYSTEM_PROMPT,
         messages: [{ role: 'user', content: userPrompt }],
       })
