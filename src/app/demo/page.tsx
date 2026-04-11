@@ -17,6 +17,7 @@ interface RouteStop {
   lng?: number
   description: string
   why_this_spot: string
+  tagline?: string
   walk_to_next_minutes: number | null
   walk_to_next_meters?: number | null
   walk_note?: string | null
@@ -380,70 +381,101 @@ export default function DemoPage() {
             </section>
           )}
 
-          {/* Stop cards */}
+          {/* Stop cards + walk connectors */}
           <section className="max-w-7xl mx-auto px-6 md:px-10 mb-14">
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-0">
               {route.stops.map((stop, i) => {
-                const style: CSSProperties = {
+                const isLast = i === route.stops.length - 1
+                const stopStyle: CSSProperties = {
                   opacity: visibleStops[i] ? 1 : 0,
-                  transform: visibleStops[i] ? 'none' : 'translateY(20px)',
-                  transition: 'opacity 0.5s ease-out, transform 0.5s ease-out',
+                  transform: visibleStops[i] ? 'none' : 'translateY(16px)',
+                  transition: 'opacity 0.45s ease-out, transform 0.45s ease-out',
+                }
+                const walkStyle: CSSProperties = {
+                  opacity: visibleStops[i] ? 1 : 0,
+                  transition: 'opacity 0.45s ease-out 0.1s',
                 }
                 return (
-                  <div key={i} style={style}
-                       className="group rounded-2xl border border-white/[0.06] bg-[#111] p-6 md:p-8 card-hover">
-                    <div className="flex gap-5 items-start">
-                      <div className="flex-shrink-0 w-10 h-10 rounded-full bg-amber-400 flex items-center justify-center text-[#0a0a0a] font-bold text-sm">
-                        {stop.number}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex flex-wrap items-center gap-2 mb-1.5">
-                          <h3 className="font-display font-bold text-warm-white text-lg md:text-xl">
-                            {stop.name}
-                          </h3>
-                          <span className="px-2 py-0.5 rounded-full text-[10px] border border-white/10 bg-white/[0.04] text-warm-gray-400 font-medium uppercase tracking-wide">
-                            {stop.neighborhood}
-                          </span>
+                  <div key={i}>
+                    {/* ── Stop card ── */}
+                    <div style={stopStyle}
+                         className="group rounded-2xl border border-white/[0.06] bg-[#111] p-6 md:p-8 card-hover">
+                      <div className="flex gap-5 items-start">
+                        <div className="flex-shrink-0 w-10 h-10 rounded-full bg-amber-400 flex items-center justify-center text-[#0a0a0a] font-bold text-sm">
+                          {stop.number}
                         </div>
-                        {stop.address && (
-                          <p className="text-warm-gray-500 text-xs mb-2 flex items-center gap-1">
-                            <svg width="10" height="12" viewBox="0 0 10 12" fill="none" className="shrink-0 opacity-60">
-                              <path d="M5 0C2.8 0 1 1.8 1 4c0 3 4 8 4 8s4-5 4-8c0-2.2-1.8-4-4-4zm0 5.5A1.5 1.5 0 1 1 5 2.5a1.5 1.5 0 0 1 0 3z" fill="currentColor"/>
-                            </svg>
-                            {stop.address}
-                          </p>
-                        )}
-                        <p className="text-warm-gray-300 text-sm leading-relaxed mb-3" style={{ fontWeight: 300 }}>
-                          {stop.description}
-                        </p>
-                        <p className="text-amber-400/75 text-xs italic mb-4">
-                          → {stop.why_this_spot}
-                        </p>
-                        {stop.walk_to_next_minutes !== null ? (
-                          <div className="mt-1 space-y-1">
-                            <div className="flex items-center gap-2 text-warm-gray-500 text-xs">
-                              <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                                <path d="M6 2v8M3 7l3 3 3-3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <div className="flex-1 min-w-0">
+                          {/* Name + neighborhood */}
+                          <div className="flex flex-wrap items-center gap-2 mb-1">
+                            <h3 className="font-display font-bold text-warm-white text-lg md:text-xl">
+                              {stop.name}
+                            </h3>
+                            <span className="px-2 py-0.5 rounded-full text-[10px] border border-white/10 bg-white/[0.04] text-warm-gray-400 font-medium uppercase tracking-wide">
+                              {stop.neighborhood}
+                            </span>
+                          </div>
+                          {/* Tagline */}
+                          {stop.tagline && (
+                            <p className="text-amber-400/70 text-[13px] font-medium mb-2 leading-snug">
+                              {stop.tagline}
+                            </p>
+                          )}
+                          {/* Address */}
+                          {stop.address && (
+                            <p className="text-warm-gray-600 text-xs mb-3 flex items-center gap-1">
+                              <svg width="9" height="11" viewBox="0 0 10 12" fill="none" className="shrink-0 opacity-50">
+                                <path d="M5 0C2.8 0 1 1.8 1 4c0 3 4 8 4 8s4-5 4-8c0-2.2-1.8-4-4-4zm0 5.5A1.5 1.5 0 1 1 5 2.5a1.5 1.5 0 0 1 0 3z" fill="currentColor"/>
                               </svg>
-                              <span>{fmtWalkingLeg(stop.walk_to_next_minutes, stop.walk_to_next_meters)} to next stop</span>
+                              {stop.address}
+                            </p>
+                          )}
+                          {/* Description */}
+                          <p className="text-warm-gray-300 text-sm leading-relaxed mb-3" style={{ fontWeight: 300 }}>
+                            {stop.description}
+                          </p>
+                          {/* Why */}
+                          <p className="text-warm-gray-500 text-xs italic">
+                            {stop.why_this_spot}
+                          </p>
+                          {/* End of drift badge */}
+                          {isLast && (
+                            <div className="flex items-center gap-2 text-amber-400/50 text-xs mt-4">
+                              <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                                <circle cx="6" cy="6" r="4" stroke="currentColor" strokeWidth="1.2"/>
+                                <path d="M4 6l1.5 1.5L8 4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+                              </svg>
+                              <span>end of drift</span>
                             </div>
-                            {stop.walk_note && (
-                              <p className="text-warm-gray-600 text-xs italic pl-5 leading-relaxed">
-                                {stop.walk_note}
-                              </p>
-                            )}
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-2 text-amber-400/50 text-xs mt-1">
-                            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                              <circle cx="6" cy="6" r="4" stroke="currentColor" strokeWidth="1.2"/>
-                              <path d="M4 6l1.5 1.5L8 4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-                            </svg>
-                            <span>end of drift</span>
-                          </div>
-                        )}
+                          )}
+                        </div>
                       </div>
                     </div>
+
+                    {/* ── Walk connector (between stops) ── */}
+                    {!isLast && stop.walk_to_next_minutes !== null && (
+                      <div style={walkStyle} className="flex items-start gap-4 px-5 md:px-7 py-3 my-1 rounded-xl bg-white/[0.015] border border-white/[0.03]">
+                        {/* Walking icon */}
+                        <div className="mt-0.5 flex-shrink-0">
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" className="text-warm-gray-600">
+                            <circle cx="12" cy="4" r="2" stroke="currentColor" strokeWidth="1.6"/>
+                            <path d="M10 8.5l-2 4 3 1-1 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M14 8.5l1.5 3.5-2.5 1 1 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M8 14l-1.5 4.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
+                            <path d="M16 14l1.5 4.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
+                          </svg>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-warm-gray-400 text-sm font-medium">
+                            {fmtWalkingLeg(stop.walk_to_next_minutes, stop.walk_to_next_meters)}
+                          </p>
+                          {stop.walk_note && (
+                            <p className="text-warm-gray-600 text-xs italic mt-0.5 leading-relaxed">
+                              {stop.walk_note}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )
               })}
