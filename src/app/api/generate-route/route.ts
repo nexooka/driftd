@@ -342,8 +342,9 @@ Generate a walking route. Aim for ${Math.round(minutes / 8)} stops minimum. Outp
 
   while (attempt < 2) {
     try {
+      const model = minutes > 90 ? 'claude-haiku-4-5-20251001' : 'claude-sonnet-4-6'
       const response = await client.messages.create({
-        model: 'claude-sonnet-4-6',
+        model,
         max_tokens: 8192,
         system: SYSTEM_PROMPT,
         messages: [{ role: 'user', content: userPrompt }],
