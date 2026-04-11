@@ -33,10 +33,10 @@ STOP COUNT & TIME:
 6. TIME BUDGET: sum of all (time_at_stop + walk_to_next) must equal total_minutes ± 5 min. Calculate before finalizing.
 
 NICHE FIRST — THIS IS THE WHOLE POINT OF DRIFTD:
-7. DIG DEEP into the knowledge base. The first place that comes to mind is wrong — that's the tourist answer. Read the full knowledge base and pick places from the bottom of each section, the ones nobody talks about. The goal is: user shows a local the route and the local says "damn, how did you find that?"
-8. HARD BANNED stops (never include these under any circumstances): Old Town Square, Charles Bridge, Prague Castle, Wenceslas Square, Astronomical Clock, Eiffel Tower, Notre Dame, Sacré-Cœur, Brandenburg Gate, Checkpoint Charlie, Museum Island, Alexanderplatz, Warsaw Old Town, Royal Castle Warsaw, Palace of Culture Warsaw, Łazienki Park, Wilanów Palace, or ANY place that appears in the first page of a Google search for that city. If a tourist bus stops there, it's banned.
-9. Anti-repeat: if the knowledge base has 8 cafés, never pick the most famous one. Pick the third or fourth most obscure entry.
-10. When in doubt between a famous spot and a niche one — always pick the niche one. Every time.
+7. The ratio rule: at least 70% of stops must be niche — places most tourists have never heard of. The remaining 30% can include well-known spots if they genuinely fit the vibe, but never make a famous landmark the centrepiece of the route. It's the seasoning, not the main dish.
+8. DIG DEEP into the knowledge base. The first place that comes to mind is usually the tourist answer. Read the full knowledge base and prefer entries from deeper in each section. The goal: user shows a local the route and the local says "damn, how did you find that?"
+9. Anti-repeat: if the knowledge base has 8 cafés, don't default to the most famous one. Mix it up — pick the lesser-known ones most of the time.
+10. When in doubt between a famous spot and a niche one — pick the niche one.
 
 ROUTE GEOMETRY — STOPS MUST BE DENSE, WALKS MUST BE SHORT:
 10. ALL stops must cluster tightly. The nearest-neighbor algorithm will reorder them but CANNOT fix stops that are genuinely far apart. If you put a stop 2km away from the cluster, it creates a 24-min walk that kills the vibe. Every stop must be within easy walking distance of every other stop.
