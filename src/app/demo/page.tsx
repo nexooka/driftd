@@ -200,88 +200,38 @@ export default function DemoPage() {
   const [modalStatus, setModalStatus] = useState<'idle' | 'saving' | 'done'>('idle')
   const [modalError, setModalError] = useState('')
 
-  const handleFetchPhoto = async (idx: number, name: string, city: string) => {
+  const handleFetchPhoto = async (idx: number, _name: string, _city: string) => {
     // Already loaded — just open the modal
     if (stopPhotos[idx] && stopPhotos[idx] !== 'loading') {
       if (stopPhotos[idx] !== 'notfound') setPhotoModal(idx)
       return
     }
     if (stopPhotos[idx] === 'loading') return
+
+    const stop = route?.stops[idx]
+    if (!stop?.lat || !stop?.lng) {
+      setStopPhotos(p => ({ ...p, [idx]: 'notfound' }))
+      return
+    }
+
     setStopPhotos(p => ({ ...p, [idx]: 'loading' }))
+    const key = process.env.NEXT_PUBLIC_GOOGLE_STREET_VIEW_KEY
+    if (!key) { setStopPhotos(p => ({ ...p, [idx]: 'notfound' })); return }
+
     try {
-      let found: string | null = null
-      const queries = [`${name} ${city}`, name]
-
-      // Wikipedia helper
-      const wikiSearch = async (lang: string, q: string) => {
-        const url = `https://${lang}.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(q)}&gsrlimit=5&prop=pageimages&format=json&pithumbsize=1200&origin=*`
-        const res = await fetch(url)
-        const data = await res.json()
-        const pages = data?.query?.pages
-        if (!pages) return null
-        const sorted = Object.values(pages as Record<string, any>).sort((a: any, b: any) => a.index - b.index)
-        for (const page of sorted) {
-          if (page?.thumbnail?.source) return page.thumbnail.source as string
-        }
-        return null
+      // Check if Street View imagery exists at this location
+      const meta = await fetch(
+        `https://maps.googleapis.com/maps/api/streetview/metadata?location=${stop.lat},${stop.lng}&source=outdoor&key=${key}`
+      )
+      const { status } = await meta.json()
+      if (status !== 'OK') {
+        setStopPhotos(p => ({ ...p, [idx]: 'notfound' }))
+        return
       }
-
-      // 1. English Wikipedia
-      for (const q of queries) {
-        found = await wikiSearch('en', q)
-        if (found) break
-      }
-
-      // 2. Local-language Wikipedia (better coverage for niche spots)
-      if (!found) {
-        const langMap: Record<string, string> = { Prague: 'cs', Berlin: 'de', Warsaw: 'pl', Kraków: 'pl' }
-        const localLang = langMap[city]
-        if (localLang) {
-          for (const q of queries) {
-            found = await wikiSearch(localLang, q)
-            if (found) break
-          }
-        }
-      }
-
-      // 3. Wikimedia Commons (huge library, millions of photos)
-      if (!found) {
-        for (const q of queries) {
-          const url = `https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(q)}&gsrnamespace=6&gsrlimit=8&prop=imageinfo&iiprop=url&iiurlwidth=1200&format=json&origin=*`
-          const res = await fetch(url)
-          const data = await res.json()
-          const pages = data?.query?.pages
-          if (pages) {
-            const sorted = Object.values(pages as Record<string, any>).sort((a: any, b: any) => a.index - b.index)
-            for (const page of sorted) {
-              const thumbUrl = page?.imageinfo?.[0]?.thumburl
-              if (thumbUrl && !thumbUrl.endsWith('.svg') && !thumbUrl.includes('Icon') && !thumbUrl.includes('icon')) {
-                found = thumbUrl; break
-              }
-            }
-          }
-          if (found) break
-        }
-      }
-
-      // 4. Commons search with just the street/neighborhood as fallback
-      if (!found) {
-        const fallbackQ = `${city} street photography`
-        const url = `https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(fallbackQ)}&gsrnamespace=6&gsrlimit=5&prop=imageinfo&iiprop=url&iiurlwidth=1200&format=json&origin=*`
-        const res = await fetch(url)
-        const data = await res.json()
-        const pages = data?.query?.pages
-        if (pages) {
-          const sorted = Object.values(pages as Record<string, any>).sort((a: any, b: any) => a.index - b.index)
-          for (const page of sorted) {
-            const thumbUrl = page?.imageinfo?.[0]?.thumburl
-            if (thumbUrl && !thumbUrl.endsWith('.svg')) { found = thumbUrl; break }
-          }
-        }
-      }
-
-      setStopPhotos(p => ({ ...p, [idx]: found ?? 'notfound' }))
-      if (found) setPhotoModal(idx)
+      // Build the image URL — outdoor source, wide FOV, slight upward pitch
+      const photoUrl = `https://maps.googleapis.com/maps/api/streetview?size=800x500&location=${stop.lat},${stop.lng}&fov=90&pitch=10&source=outdoor&key=${key}`
+      setStopPhotos(p => ({ ...p, [idx]: photoUrl }))
+      setPhotoModal(idx)
     } catch {
       setStopPhotos(p => ({ ...p, [idx]: 'notfound' }))
     }
@@ -618,7 +568,7 @@ export default function DemoPage() {
                             <div className="flex gap-2 mt-4">
                               {stopPhotos[i] !== 'notfound' && (
                               <button
-                                onClick={() => handleFetchPhoto(i, stop.name, route.city)}
+                                onClick={() => handleFetchPhoto(i, '', '')}
                                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.04] border border-white/[0.08] text-warm-gray-400 hover:text-warm-gray-200 hover:border-white/20 transition-all text-xs"
                               >
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
