@@ -368,6 +368,161 @@ Residential, green, home to Letná Park and its legendary beer garden with sunse
 
 ---
 
+### STREET ART & MURALS
+
+**Žižkov street art (Bořivojova Street)**
+- Neighborhood: Žižkov
+- Bořivojova is the spine of lower Žižkov's street art scene. Murals on building ends, smaller paste-ups in doorways, commissioned pieces on blind walls. Walk from Seifertova down to Chelčického for the densest concentration.
+- Vibe: artsy, photogenic, free
+
+**Žižkov TV Tower mural base**
+- Neighborhood: Žižkov
+- The base of the tower and the surrounding park has had rotating art installations. The David Černý babies climbing the tower shaft are visible from the park — walk around the full perimeter for every angle.
+- Vibe: photogenic, unusual, free
+
+**Holešovice mural corridor (Dělnická/Osadní)**
+- Neighborhood: Holešovice
+- The streets around VNITROBLOCK and DOX Centre have a growing concentration of large-format murals on factory walls. Dělnická and Osadní streets in particular. Walk between DOX and Přístav 18600 and count the murals.
+- Vibe: artsy, industrial, photogenic, free
+
+**Královský Pivovar Holešovice mural**
+- Neighborhood: Holešovice (near Pivovar Maják)
+- The exterior walls of the old Holešovice brewery complex have been painted with historic and contemporary pieces. Look for the hops-themed large-format work.
+- Vibe: artsy, industrial, quick stop
+
+**Náplavka riverside graffiti wall**
+- Neighborhood: New Town (along the Vltava)
+- The retaining wall running along the Náplavka riverbank has a long stretch of rotating graffiti and murals. Best viewed from the water level (walk down the stone steps). Combined with the Saturday market, this is one of the richest visual stretches in Prague.
+- Vibe: artsy, photogenic, free
+
+---
+
+### MORE CAFÉS & SPECIALTY
+
+**EMA Espresso Bar**
+- Neighborhood: Holešovice (nám. Míru or Holešovice locations)
+- One of Prague's best specialty coffee shops. Scandinavian-influenced, serious about beans. Usually full of creative Praguers on laptops.
+- Vibe: coffee, chill, hip, work-friendly
+
+**Café Savoy**
+- Neighborhood: Smíchov (Vítězná 5)
+- Beautiful Art Nouveau café from 1893. Original ornate ceiling, traditional Czech pastries and breakfast. Slightly touristy but the interior is genuine — not a reconstruction.
+- Vibe: historic, brunch, romantic, beautiful
+
+**Kavárna Místo**
+- Neighborhood: Žižkov / Vinohrady border (Mánesova 87)
+- Tiny neighborhood café. Regular local crowd, good coffee, quiet. The kind of place where everyone knows each other. Very un-touristy.
+- Vibe: local, chill, coffee, quiet
+
+**Bistro Střecha (rooftop)**
+- Neighborhood: Holešovice (VNITROBLOCK, Tusarova 31)
+- Café/bistro inside VNITROBLOCK with access to a roof terrace. Coffee, simple food, design crowd.
+- Vibe: chill, artsy, design, rooftop
+
+---
+
+### MORE BARS, PUBS & NIGHTLIFE
+
+**Palác Akropolis**
+- Neighborhood: Žižkov (Kubelíkova 27)
+- THE live music venue of Prague. Three floors in a 1920s cultural palace — main stage for concerts (local and international acts), cinema, bar, smaller club downstairs. Czech and international bands, electronic nights, world music. The epicenter of Žižkov's cultural life.
+- Vibe: live music, nightlife, cultural, artsy, Žižkov
+
+**Fraktal**
+- Neighborhood: Letná (Štefánikova 1)
+- Letná bar institution. Two rooms, Czech beer, regular DJs and live music nights, English-speaking bar staff. Where Letná's international residents and Czech creatives mix. Near Strossmayerovo náměstí.
+- Vibe: nightlife, local, music, social
+
+**Pivovar Maják (Lighthouse Brewery)**
+- Neighborhood: Holešovice (Komunardů 32)
+- Craft brewery in Holešovice with a beer garden. Brews unique Czech-style ales. Inside the old Holešovice brewery complex. Popular with locals, barely known to tourists.
+- Vibe: beer, local, foodie, industrial
+
+**Přístav 18600**
+- Neighborhood: Holešovice (Komunardů 32, near the river)
+- Bar/restaurant in an old riverport warehouse. Exposed beams, river views, large outdoor terrace in summer. Name refers to the district's old postcode. Local after-work crowd.
+- Vibe: chill, riverside, summer, local
+
+**La Fabrika**
+- Neighborhood: Holešovice (Komunardů 30)
+- Converted factory venue — café, bar, concert hall, cinema. Very much in the mould of Warsaw's Fabryka Trzciny. Events nearly every night, good cheap drinks during the day.
+- Vibe: artsy, cultural, nightlife, industrial
+
+**Klášterní pivovar Strahov (Strahov Monastery Brewery)**
+- Neighborhood: Hradčany (Strahovské nádvoří 301)
+- Working brewery inside a 12th-century monastery at Strahov. St. Norbert beer brewed on site. Restaurant and beer garden with city views. One of the most atmospheric drinking spots in Prague.
+- Vibe: historic, beer, unique, views, romantic
+
+**Pivovarský dům (Brewing House)**
+- Neighborhood: New Town (Lipová 15)
+- Brewpub with an extraordinary range of house-brewed specialty beers — banana, coffee, nettle, wheat. Czech food, warm interior, non-touristy despite being central.
+- Vibe: beer lovers, foodie, local, unusual
+
+**Vinograf wine bar**
+- Neighborhood: Vinohrady (Mánesova 87 / two locations)
+- Serious Moravian wine bar. 300+ Czech and Slovak labels. Small plates. Where Vinohrady residents go for wine.
+- Vibe: wine, chill, sophisticated, local
+
+---
+
+### MORE MARKETS & SHOPPING
+
+**Jiřák Saturday Market (Jiřího z Poděbrad)**
+- Neighborhood: Vinohrady (Jiřího z Poděbrad square)
+- Saturday morning farmers market on the beautiful square. Bread, honey, vegetables, Czech cheese, smoked meats. Far less touristy than Náplavka. Locals shopping for the week.
+- Vibe: foodie, local, Saturday, neighborhood
+
+**Manifesto Market Florenc (full entry)**
+- Neighborhood: Florenc (near Křižíkova)
+- Open-air food and cultural market in shipping containers at Florenc. 25+ food containers serving cuisine from around the world, multiple bars. Popular with young Prague. Open evenings.
+- Vibe: foodie, social, industrial, evening
+
+---
+
+### MORE MICRO-SPOTS & NICHE
+
+**Strossmayerovo náměstí**
+- Neighborhood: Letná
+- Beautiful, quiet square at the top of Letná hill. Art Nouveau church, residential buildings, neighborhood café terrace. One of the most photogenic squares in Prague that tourists never visit. Trams cross it constantly.
+- Vibe: chill, photogenic, local, residential
+
+**Olšany Cemetery (Olšanské hřbitovy)**
+- Neighborhood: Žižkov/Vinohrady border (Vinohradská 153)
+- Prague's largest cemetery. 19th-century gravestones, old trees, paths through, sculptural monuments. Famous Czechs buried here alongside ordinary Praguers. Less visited than Vyšehrad's Slavín but more atmospheric. Free entry.
+- Vibe: historic, atmospheric, quiet, free
+
+**Vítkov Hill & National Monument**
+- Neighborhood: Žižkov
+- The Jan Žižka equestrian statue at the top is one of the largest bronze statues in the world. Below it: the National Monument, a massive communist mausoleum that housed the embalmed body of Klement Gottwald. Now a museum. The hill itself is a forested park with views east over Prague.
+- Vibe: historic, unusual, views, free, walk
+
+**Žižkov horse statue (ground level)**
+- Neighborhood: Žižkov (Vítkov)
+- The Jan Žižka statue is so large that standing at the base, the horse's hoof is at eye level. The sculptural detail up close is extraordinary — see it from the base and from 200 meters away for scale.
+- Vibe: unusual, photogenic, free
+
+**Čertovka (Devil's Channel)**
+- Neighborhood: Malá Strana
+- A narrow canal running behind Kampa Island, parallel to the Vltava. Old water mills, weeping willows, the narrowest street in Prague nearby (Vinárna Certovka). Almost nobody except locals walks the whole thing.
+- Vibe: romantic, photogenic, hidden, chill
+
+**Kampa Island**
+- Neighborhood: Malá Strana
+- Small island on the Vltava accessible via a small bridge from Malá Strana. Kampa Museum for modern art, old mill wheel, children's playground with famous Černý sculptures (upside-down children, giant babies), grassy riverbank. Far less crowded than Charles Bridge despite being right next to it.
+- Vibe: chill, romantic, artsy, free (exterior)
+
+**Nuselský most (Nusle Bridge) viewpoint**
+- Neighborhood: Nusle (Táborská)
+- Standing at street level on the Nusle Bridge and looking down into the Nusle Valley below is genuinely vertiginous — 42 meters straight down into a residential valley. The bridge carries the metro line. An unnerving, unique Prague experience.
+- Vibe: unusual, views, brutal, free
+
+**Vzpomínky na Afriku (Memories of Africa)**
+- Neighborhood: Žižkov (Seifertova 39)
+- Not a tourist spot. A local coffee roastery that's been in Žižkov for years. Small, serious, serves the neighborhood. Ethiopian, Kenyan, Colombian. A quiet counterpoint to all the pubs.
+- Vibe: coffee, chill, local, Žižkov
+
+---
+
 ## NOTES FOR ROUTE GENERATION
 
 - Prague is SMALL. You can walk from Old Town to Žižkov in 20 minutes, Vinohrady in 25. Routes can span multiple neighborhoods.

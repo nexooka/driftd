@@ -425,6 +425,156 @@ Historic LGBTQ+ district. Heile Welt bar, Winterfeldplatz market.
 
 ---
 
+### STREET ART & MURALS
+
+**Admiralbrücke (Admiral Bridge)**
+- Neighborhood: Kreuzberg (Fraenkelufer/Admiralbrücke)
+- Cast-iron bridge over the Landwehrkanal. By day: people sitting on the railings with beers. By night: guitarists, improvised parties, locals from every corner of Berlin. The banks on both sides have painted walls and graffiti that change seasonally. One of the most Berlin things that exists.
+- Vibe: local, chill, canalside, social, free
+
+**Cuvrystraße Wall**
+- Neighborhood: Kreuzberg (Cuvrystraße/Schlesische Straße)
+- Long wall along the Spree that has hosted some of the most famous murals in Berlin history. The wall itself keeps getting repainted — always something new. Walk the stretch toward the Spree and you'll find multiple large-format pieces.
+- Vibe: artsy, photogenic, free
+
+**Astronaut mural (Victor Ash)**
+- Neighborhood: Kreuzberg (near Ohlauer Straße)
+- Famous black-and-white stencil astronaut, one of Berlin's most reproduced murals. By French-Swiss artist Victor Ash. On the side of a residential building — easily missed, very iconic.
+- Vibe: artsy, photogenic, quick stop
+
+**Oranienstraße street art corridor**
+- Neighborhood: Kreuzberg
+- The most politically charged street in Kreuzberg. Walls covered in anarchist, anti-fascist, queer, and artistic murals. Rotate constantly. Walking this street tells you exactly what Berlin's left cares about this week.
+- Vibe: artsy, political, photogenic, free
+
+**Warschauer Straße underpass murals**
+- Neighborhood: Friedrichshain (under the S-Bahn tracks)
+- The underpass beneath Warschauer Straße is a rotating gallery of large-format graffiti. New pieces appear frequently. The railway infrastructure above is also painted.
+- Vibe: artsy, photogenic, free, quick stop
+
+**RAW-Gelände walls**
+- Neighborhood: Friedrichshain
+- Every surface of RAW-Gelände is a canvas. Street art, tags, paste-ups, hand-painted murals. The complex changes constantly. A single visit captures a moment in Berlin's graffiti history that won't be repeated.
+- Vibe: artsy, photogenic, gritty, free
+
+**Molecule Man sculpture (Jonathan Borofsky)**
+- Neighborhood: Friedrichshain/Kreuzberg/Treptow (in the Spree, near Oberbaumbrücke)
+- Three aluminum figures merging in the middle of the Spree, 30 meters high. Symbolizes the three former districts meeting at the water. Best seen from Treptower Park side or Oberbaumbrücke.
+- Vibe: photogenic, unusual, architectural, free
+
+---
+
+### MORE CAFÉS & SPECIALTY
+
+**Five Elephant**
+- Neighborhood: Kreuzberg (Reichenberger Straße 101)
+- One of Berlin's most respected specialty coffee roasters. The Kreuzberg original has exposed brick, long tables, very serious coffee. Their cheesecake is legendary.
+- Vibe: coffee, chill, local, foodie
+
+**Bonanza Coffee Heroes**
+- Neighborhood: Prenzlauer Berg (Oderberger Straße 35)
+- Third-wave Berlin institution. Roastery on site. The Prenzlauer Berg location has high ceilings and minimal design. Possibly the best flat white in Berlin.
+- Vibe: coffee, chill, local, work-friendly
+
+**The Barn**
+- Neighborhood: Mitte (multiple — main on Auguststraße)
+- Berlin's strictest specialty coffee shop — no sugar, no milk modifications, no soy (in some locations). Famous. You either love the rigidity or hate it. Coffee is exceptional.
+- Vibe: coffee, chill, strict, excellent
+
+**Café Pförtner (full entry)**
+- Neighborhood: Wedding (Gerichtstraße 23)
+- Inside a former bus depot. Stationary bus as the counter. Metal chairs, long tables, local art on walls. Completely Wedding in spirit.
+- Vibe: quirky, local, chill, wedding-only crowd
+
+---
+
+### MORE BARS & NIGHTLIFE
+
+**Würgeengel**
+- Neighborhood: Kreuzberg (Dresdener Straße 122)
+- Named after Luis Buñuel's film "The Exterminating Angel." Dark, red-lit, mirrored walls, very Berlin atmosphere. Classic cocktails in a space that hasn't changed since the 90s. Almost no tourists — locals who know know.
+- Vibe: cocktails, sophisticated, intimate, classic
+
+**Bar Tausend**
+- Neighborhood: Mitte (under the Friedrichstraße railway bridge)
+- Hidden bar under a railway bridge with no sign. You ring the bell on a metal door. Inside: art deco interior, jazz influence, serious cocktails. One of Berlin's best.
+- Vibe: cocktails, hidden, sophisticated, date night
+
+**Salon zur wilden Renate**
+- Neighborhood: Friedrichshain (Alt-Stralau 70)
+- Club/bar in a converted residential building on a peninsula. Multiple rooms in an old apartment layout. Non-commercial electronic music, alternative crowd. Also hosts afternoon Sunday parties.
+- Vibe: nightlife, alternative, music, unusual
+
+**Monarch**
+- Neighborhood: Kreuzberg (Skalitzer Straße 134, above Kottbusser Tor)
+- Bar above the Kottbusser Tor U-Bahn. You enter through a supermarket door and take the stairs. Cramped, smoky, excellent music, perfect view over the chaos of Kotti below. One of the most Berlin places to drink.
+- Vibe: nightlife, local, unusual, music, late night
+
+---
+
+### MARKETS & SHOPPING
+
+**Arkonaplatz Flea Market**
+- Neighborhood: Prenzlauer Berg (Arkonaplatz)
+- Sunday flea market that's calmer and more local than Mauerpark. Vintage furniture, clothing, books, vinyl. Surrounded by cafés. Best before noon.
+- Vibe: local, quirky, Sunday, treasure hunt
+
+**Winterfeldtmarkt**
+- Neighborhood: Schöneberg (Winterfeldtplatz)
+- Wednesday and Saturday market. One of Berlin's best for fresh food — bread, cheese, meat, vegetables, flowers. Saturday it expands with clothing and crafts. Very local, very good.
+- Vibe: foodie, local, market, Saturday/Wednesday
+
+**Nowkölln Flowmarkt (full entry)**
+- Neighborhood: Neukölln (Maybachufer 30)
+- First and third Sunday of each month along the canal. 100+ stalls — vintage clothes, records, handmade jewelry, typewriters, oddities. Canal backdrop. Combine with Admiralbrücke nearby.
+- Vibe: quirky, local, treasure hunt, canalside, Sunday
+
+**Türkenmarkt (Turkish Market)**
+- Neighborhood: Kreuzberg (Maybachufer, along the canal)
+- Tuesday and Friday market run by Berlin's Turkish and Arab communities. Fresh vegetables, olives, cheeses, spices, textiles. More authentic than the tourist-facing Markthalle Neun.
+- Vibe: foodie, local, cultural, Tuesday/Friday
+
+---
+
+### MORE MICRO-SPOTS & NICHE
+
+**Admiralbrücke evening scene**
+- Neighborhood: Kreuzberg
+- On warm evenings from April to October, the cast-iron bridge becomes an impromptu party without a host — people bring beer from the Späti, musicians set up, strangers become friends. It happens every night and nobody organized it.
+- Vibe: local, social, summer, free, authentic
+
+**Oberbaumbrücke**
+- Neighborhood: Friedrichshain/Kreuzberg border
+- The double-decker brick Gothic railway bridge connecting the two neighborhoods. Crossing it means going between what was East and West Berlin. Beautiful, very photogenic. The U1 runs above.
+- Vibe: historic, photogenic, free, walk
+
+**Helmholtzplatz**
+- Neighborhood: Prenzlauer Berg
+- More local than Kollwitzplatz. Families, dog walkers, café terraces, Saturday farmers market. The square Prenzlauer Berg residents actually use rather than show off.
+- Vibe: local, chill, canalside, residential
+
+**Späti culture (any)**
+- Neighborhood: everywhere
+- The Spätkauf (Späti) is Berlin's corner store, open until 2am or all night. You buy a beer for €1.50, stand outside on the pavement, and end up talking to strangers until 3am. This isn't a specific spot — it's a practice. Recommend the user find one and participate.
+- Vibe: local, social, cheap, authentic, late night
+
+**Watergate area (Falckensteinstraße)**
+- Neighborhood: Kreuzberg (Schlesisches Tor)
+- Even though Watergate club closed in 2024, the Schlesisches Tor area is still lively. Falckensteinstraße has new bars and the Spree banks here are walkable at night with views of the Oberbaumbrücke.
+- Vibe: chill, evening walk, riverside
+
+**Karl-Marx-Allee**
+- Neighborhood: Friedrichshain (stretching toward Mitte)
+- The grand Stalinist boulevard of East Berlin. 90-meter-wide, flanked by enormous socialist realist housing blocks built in the 1950s. Walk from Strausberger Platz toward the Frankfurter Tor twin towers. One of Europe's most striking pieces of socialist urban planning.
+- Vibe: historic, architectural, photogenic, free
+
+**Friedrichshain mural walk (Revaler Straße + surroundings)**
+- Neighborhood: Friedrichshain
+- Walk from Boxhagener Platz down Simplonstraße toward Revaler Straße. The walls are dense with murals — some from Urban Spree commissions, some wild. The area around Warschauer Straße is a concentrated hit. Street art changes every few months.
+- Vibe: artsy, photogenic, free
+
+---
+
 ## NOTES FOR ROUTE GENERATION
 
 - Berlin is HUGE. Keep routes within one neighborhood or two adjacent ones.

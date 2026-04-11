@@ -425,6 +425,166 @@ Diverse southern district with Fort Mokotów (former military fortress turned ve
 
 ---
 
+### STREET ART & MURALS
+
+**Inżynierska Street murals (Praga)**
+- Neighborhood: Praga Północ
+- The stretch of Inżynierska between Stalowa and Środkowa is one of the densest mural corridors in Warsaw. Large-scale works commissioned and wildstyle. Walk slowly — they stack.
+- Vibe: artsy, photogenic, free
+
+**Ząbkowska courtyard murals**
+- Neighborhood: Praga Północ
+- The courtyards behind the tenements along Ząbkowska (especially between nos. 4–20) have painted walls, old Praga residents sitting outside, and layers of old and new graffiti. Enter through any archway.
+- Vibe: artsy, photogenic, local, authentic
+
+**Targowa Street wall (near Różycki bazaar)**
+- Neighborhood: Praga Północ
+- Long stretch of painted tenement facades along Targowa with a mix of photorealist murals and abstract pieces. The butterfly mural near the bazaar is a landmark.
+- Vibe: artsy, photogenic, free
+
+**Mural: "Praga Żyje" (Praga Lives)**
+- Neighborhood: Praga Północ (Brzeska/11 Listopada area)
+- Giant typographic mural on the side of a tenement. Community statement about the neighborhood's survival through gentrification. Very photogenic.
+- Vibe: photogenic, artsy, local statement
+
+**Elektrociepłownia Powiśle (Power Station) murals**
+- Neighborhood: Powiśle (ul. Kruczkowskiego)
+- The walls of the old power station on the Vistula are covered in large-scale graffiti art. The building itself is a brutalist giant slowly being converted into a music venue.
+- Vibe: artsy, industrial, photogenic
+
+**Nowa Praga Street Art Walk (Wileńska/Stalowa triangle)**
+- Neighborhood: Praga Północ
+- The grid of streets around Stalowa, Inżynierska, and Środkowa is Warsaw's densest street art district. Just walk and find: commissioned murals, political pieces, abstract tags, and pre-war building facades.
+- Vibe: artsy, free, local
+
+---
+
+### MORE CAFÉS & SPECIALTY SPOTS
+
+**Charlotte Menora**
+- Neighborhood: Plac Grzybowski (Próżna 12)
+- French-style bakery/café at the edge of the former Jewish quarter. Croissants, tartines, coffee, excellent cakes. The most civilized café on a historically significant square.
+- Vibe: chill, foodie, historic, brunch
+
+**Kawiarnia Karma**
+- Neighborhood: Plac Grzybowski (Próżna 9)
+- Cozy café on Warsaw's quiet historically Jewish square. Simple menu, warm atmosphere, mixed clientele of locals and students. Good for a slow coffee before walking Muranów.
+- Vibe: chill, local, historic
+
+**Stor**
+- Neighborhood: Śródmieście (Krucza 6/14)
+- One of Warsaw's best specialty coffee shops. Scandinavian-influenced minimalism. Top-tier espresso and pour-over.
+- Vibe: chill, coffee, work-friendly
+
+**Nuta Café**
+- Neighborhood: Żoliborz (Rynek Żoliborski)
+- Neighborhood café on the quiet Żoliborz market square. Very local — far from tourist zones. Good for coffee and quiet.
+- Vibe: chill, local, escape
+
+**Relaks**
+- Neighborhood: Wola (Chłodna street area)
+- Milk-bar-meets-café. Socialist-era name, post-industrial space, cheap food and coffee. Where creatives in Wola go.
+- Vibe: chill, affordable, local
+
+---
+
+### MORE BARS & NIGHTLIFE
+
+**Hydrozagadka**
+- Neighborhood: Praga Północ (ul. 11 Listopada 22)
+- One of the best small clubs in Warsaw. Techno and electronic in an old factory. Sound system is top-tier. Not a gimmick — this is where Warsaw's music scene actually gathers.
+- Vibe: nightlife, music, industrial, authentic
+
+**Cud nad Wisłą**
+- Neighborhood: Powiśle (Vistula riverbank)
+- "Miracle on the Vistula" — open-air beach bar and concert space on the river. One of the best summer spots in Warsaw. Cheap drinks, sand, kayaks, live music.
+- Vibe: chill, summer, riverside, social
+
+**Fani (Bar Fani)**
+- Neighborhood: Śródmieście (near Plac Zbawiciela)
+- Classic old-school Warsaw bar. Tiny, dark, cash-only, no frills. Very different crowd from the trendy Zbawiciela scene — older locals who've been coming here for 30 years.
+- Vibe: local, authentic, cheap, no-frills
+
+**Bar Studio**
+- Neighborhood: Śródmieście (Palace of Culture, Plac Defilad 1)
+- Bar inside the Palace of Culture. Not the tourist part — go inside the building, find the Studio. Cheap cocktails, velvet seats, wild mix of Warsaw's cultural elite and ordinary people. The building itself is worth exploring.
+- Vibe: historic, cocktails, quirky, unique
+
+**Recto Verso Wine Bar**
+- Neighborhood: Saska Kępa (Praga Południe)
+- Natural wines, small plates, good design. The wine bar that Saska Kępa residents go to when they want something local but refined.
+- Vibe: wine, date night, chill, neighborhood
+
+**Piękny Pies ("Beautiful Dog")**
+- Neighborhood: Praga Północ (Stalowa 10)
+- Praga neighborhood bar. Name means Beautiful Dog. Craft beers, good vibe, tables spill onto the street in summer. Very local crowd.
+- Vibe: casual, beer, local, summer
+
+---
+
+### MARKETS & FOOD HALLS
+
+**Hala Banacha**
+- Neighborhood: Ochota (Banacha 1)
+- Working market hall named after a mathematician. Mostly wholesale/retail but with incredible food stalls — fresh bread, pierogi, meats, cheeses, dried mushrooms. Completely untouristy. Very real Warsaw.
+- Vibe: foodie, local, authentic, morning
+
+**Nocny Market (Night Market)**
+- Neighborhood: Powiśle (near the viaduct, seasonal)
+- Warsaw's best street food night market, runs spring through autumn. Dozens of vendors, cheap beer, outdoor seating under the railway viaduct. Where locals spend Friday evenings.
+- Vibe: foodie, social, summer/spring, cheap
+
+**Hala Mirowska (full entry)**
+- Neighborhood: Wola (Mirów, Pl. Mirowski 1)
+- One of two 19th-century iron-and-glass market halls still standing in Warsaw. The covered hall has butchers, fishmongers, cheese vendors. Outside: flower stalls, seasonal produce. Alive since 1902. Nothing has changed.
+- Vibe: foodie, local, historic, morning
+
+**Bazar na Kole (Koło Antique Market)**
+- Neighborhood: Wola (ul. Obozowa 99, tram stop Koło)
+- Europe's largest outdoor antique/flea market. Open Saturdays and Sundays until around 2pm. Old cameras, Soviet medals, communist-era posters, vinyl, telescopes, weird furniture. Real treasure hunt.
+- Vibe: quirky, local, weekend, cheap, treasure hunt
+
+---
+
+### MORE QUIRKY & MICRO-SPOTS
+
+**MDM District (Marszałkowska Dzielnica Mieszkaniowa)**
+- Neighborhood: Śródmieście (Marszałkowska/Konstytucji)
+- Stalinist "gift" to Warsaw — enormous Soviet-style residential and commercial district from the 1950s. Plac Konstytucji at its center has a heroic worker frieze on the Supersam building corner. Locals walk through it daily without thinking about it. Visitors should stop and stare at what socialist realism actually looks like in person.
+- Vibe: historic, architectural, unusual
+
+**Plac Konstytucji**
+- Neighborhood: Śródmieście
+- Socialist realist square built in 1952. Flanked by symmetrical housing blocks with sculptural reliefs of workers and soldiers. The neon signs added later look surreal against the Soviet pomp. One of the most photographed communist-era spaces in Europe.
+- Vibe: historic, photogenic, architectural
+
+**Palace of Culture & Science (exterior walk)**
+- Neighborhood: Śródmieście (Plac Defilad 1)
+- Don't go to the tourist observation deck — just walk around the base. The Soviet "gift" is genuinely staggering in person. 237 meters, Stalinist Gothic, flanked by four corner towers. The scale only makes sense when you're standing at its feet.
+- Vibe: historic, architectural, photogenic, free (exterior)
+
+**Vistula Boulevards (Bulwary Wiślane)**
+- Neighborhood: Śródmieście/Powiśle (between Świętokrzyski and Poniatowski bridges)
+- Revamped riverbanks with bars, beach chairs, kayak rentals, and the whole city skyline visible across the water. On warm evenings, this is where Warsaw exhales. Food trucks, wine, sunsets.
+- Vibe: chill, sunset, summer, social, free
+
+**Nowy Świat Street at night**
+- Neighborhood: Śródmieście
+- Warsaw's main "walking street" but skip it during tourist hours. Late evening it transforms — locals coming out of galleries, bars, live music drifting from open windows, the Pawilony side-alley buzzing. Walk from Plac Zbawiciela toward the Barbican.
+- Vibe: local, nightlife, evening walk
+
+**The Barbican and Old Town walls (north side)**
+- Neighborhood: Old Town (Nowomiejska)
+- Skip the Old Town Square — too many restaurant signs. Instead walk the northern fortification walls toward the Barbican and drop down to Freta Street in New Town. Where Warsaw's 14th-century layout still shows through. The walls are real (rebuilt after WWII using old photographs).
+- Vibe: historic, free, architectural
+
+**Obwarzanek stands**
+- Neighborhood: everywhere
+- The obwarzanek is Warsaw's street snack — a sesame or poppy seed ring bread. You'll spot the yellow carts with red umbrellas around every major square and metro station. They cost pennies. Eat one.
+- Vibe: local, food, cheap, authentic
+
+---
+
 ## NOTES FOR ROUTE GENERATION
 
 - Warsaw is LARGE. Walking between neighborhoods can take 30+ minutes. Keep routes within one or at most two adjacent neighborhoods.
