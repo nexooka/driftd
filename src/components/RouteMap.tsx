@@ -29,7 +29,6 @@ async function fetchAllLegs(
       const coords: [number, number][] = []
       leg.steps?.forEach((step: any) => {
         step.geometry?.coordinates?.forEach(([lng, lat]: [number, number]) => {
-          // Skip duplicate points at step boundaries
           const last = coords[coords.length - 1]
           if (!last || last[0] !== lat || last[1] !== lng) {
             coords.push([lat, lng])
@@ -43,27 +42,52 @@ async function fetchAllLegs(
   }
 }
 
+/* Interpolate a [lat,lng] position at fraction t (0–1) along a polyline */
+function interpolateAlongPath(
+  points: [number, number][],
+  t: number
+): [number, number] | null {
+  if (points.length < 2) return null
+  // Build cumulative distances
+  const dists: number[] = [0]
+  for (let i = 1; i < points.length; i++) {
+    const [lat1, lng1] = points[i - 1]
+    const [lat2, lng2] = points[i]
+    const d = Math.sqrt((lat2 - lat1) ** 2 + (lng2 - lng1) ** 2)
+    dists.push(dists[i - 1] + d)
+  }
+  const total = dists[dists.length - 1]
+  if (total === 0) return points[0]
+  const target = t * total
+  for (let i = 1; i < points.length; i++) {
+    if (dists[i] >= target) {
+      const seg = dists[i] - dists[i - 1]
+      const frac = seg > 0 ? (target - dists[i - 1]) / seg : 0
+      const [lat1, lng1] = points[i - 1]
+      const [lat2, lng2] = points[i]
+      return [lat1 + (lat2 - lat1) * frac, lng1 + (lng2 - lng1) * frac]
+    }
+  }
+  return points[points.length - 1]
+}
+
 export default function RouteMap({ stops, routeKey }: { stops: MapStop[]; routeKey: number }) {
-  /* ── All state / refs declared first ─────────────────────────────── */
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<any>(null)
-  const segPolysRef = useRef<any[]>([])
+  const segPolysRef = useRef<any[]>([])        // [glow, main] pairs per segment
   const markerElemsRef = useRef<(HTMLElement | null)[]>([])
   const animTimersRef = useRef<ReturnType<typeof setTimeout>[]>([])
+  const dotMarkerRef = useRef<any>(null)
+  const dotRafRef = useRef<number>(0)
+  const allRoutePointsRef = useRef<[number, number][]>([])
   const userClickedRef = useRef(false)
-  const activeStopRef = useRef(stops.length - 1) // always in sync with state
+  const activeStopRef = useRef(stops.length - 1)
 
-  // activeStop: 0-indexed. clicking stop k shows segments 0..k-1 in amber.
   const [activeStop, setActiveStop] = useState(stops.length - 1)
-  // hasInteracted: true once user has clicked a marker
   const [hasInteracted, setHasInteracted] = useState(false)
 
-  /* ── Keep ref in sync with state ─────────────────────────────────── */
-  useEffect(() => {
-    activeStopRef.current = activeStop
-  }, [activeStop])
+  useEffect(() => { activeStopRef.current = activeStop }, [activeStop])
 
-  /* ── Reset everything on new route ───────────────────────────────── */
   useEffect(() => {
     userClickedRef.current = false
     activeStopRef.current = stops.length - 1
@@ -71,31 +95,34 @@ export default function RouteMap({ stops, routeKey }: { stops: MapStop[]; routeK
     setHasInteracted(false)
   }, [routeKey, stops.length])
 
-  /* ── Update map visuals on user interaction ───────────────────────── */
+  /* Update visuals on user interaction */
   useEffect(() => {
     if (!userClickedRef.current) return
-
-    // Stop the reveal animation
     animTimersRef.current.forEach(clearTimeout)
     animTimersRef.current = []
 
-    segPolysRef.current.forEach((poly, i) => {
-      if (!poly) return
+    // Hide traveling dot in segment mode
+    if (dotMarkerRef.current) {
+      dotMarkerRef.current.setStyle({ opacity: 0, fillOpacity: 0 })
+    }
+
+    segPolysRef.current.forEach(([glow, main], i) => {
       const active = i < activeStop
-      poly.setStyle({
+      if (glow) glow.setStyle({
         color: active ? '#fbbf24' : '#1e1e1e',
-        opacity: active ? 0.92 : 0.45,
-        weight: active ? 3.5 : 2,
+        opacity: active ? 0.13 : 0,
+      })
+      if (main) main.setStyle({
+        color: active ? '#fbbf24' : '#1e1e1e',
+        opacity: active ? 0.88 : 0.3,
       })
     })
-
     markerElemsRef.current.forEach((el, i) => {
-      if (!el) return
-      el.style.opacity = i <= activeStop ? '1' : '0.28'
+      if (el) el.style.opacity = i <= activeStop ? '1' : '0.28'
     })
   }, [activeStop])
 
-  /* ── Map setup (remounts only on new route) ───────────────────────── */
+  /* Map setup */
   useEffect(() => {
     if (!containerRef.current) return
     if (!stops.length || stops.some(s => !s.lat || !s.lng)) return
@@ -105,11 +132,10 @@ export default function RouteMap({ stops, routeKey }: { stops: MapStop[]; routeK
     markerElemsRef.current = []
     animTimersRef.current.forEach(clearTimeout)
     animTimersRef.current = []
+    cancelAnimationFrame(dotRafRef.current)
+    allRoutePointsRef.current = []
 
-    if (mapRef.current) {
-      mapRef.current.remove()
-      mapRef.current = null
-    }
+    if (mapRef.current) { mapRef.current.remove(); mapRef.current = null }
 
     import('leaflet').then(async (L) => {
       if (destroyed || !containerRef.current) return
@@ -142,34 +168,94 @@ export default function RouteMap({ stops, routeKey }: { stops: MapStop[]; routeK
         .addAttribution('© <a href="https://carto.com" style="color:#555">CARTO</a> © <a href="https://openstreetmap.org" style="color:#555">OSM</a>')
         .addTo(map)
 
-      // Single OSRM call → per-leg geometry (avoids rate-limiting N parallel calls)
       const segmentCoords = await fetchAllLegs(latlngs)
-
       if (destroyed) return
 
-      // Draw all segments initially invisible — animation will reveal them
-      const polys: any[] = segmentCoords.map((coords, i) => {
-        if (coords?.length) {
-          return L.polyline(coords, { color: '#fbbf24', opacity: 0, weight: 3.5 }).addTo(map)
-        }
-        return L.polyline(
-          [[stops[i].lat, stops[i].lng], [stops[i + 1].lat, stops[i + 1].lng]],
-          { color: '#fbbf24', opacity: 0, weight: 2.5, dashArray: '8 5' }
-        ).addTo(map)
+      // Flatten all route points for the traveling dot
+      const allPoints: [number, number][] = []
+      segmentCoords.forEach((coords, i) => {
+        const pts = coords ?? [[latlngs[i][0], latlngs[i][1]], [latlngs[i + 1][0], latlngs[i + 1][1]]] as [number, number][]
+        pts.forEach((p, j) => {
+          if (j === 0 && allPoints.length > 0) return // skip duplicate junction
+          allPoints.push(p)
+        })
       })
-      segPolysRef.current = polys
+      allRoutePointsRef.current = allPoints
 
-      // Sequential reveal animation: each segment fades in 380ms after the previous
-      polys.forEach((poly, i) => {
+      // Draw segments: each is [glow polyline, main polyline], start opacity 0
+      const pairs: any[] = segmentCoords.map((coords, i) => {
+        const pts = coords?.length
+          ? coords
+          : [[stops[i].lat, stops[i].lng], [stops[i + 1].lat, stops[i + 1].lng]] as [number, number][]
+        const isDash = !coords?.length
+
+        const glow = L.polyline(pts, {
+          color: '#fbbf24',
+          opacity: 0,
+          weight: 14,
+          smoothFactor: 0,
+          lineCap: 'round',
+          lineJoin: 'round',
+        }).addTo(map)
+
+        const main = L.polyline(pts, {
+          color: '#fbbf24',
+          opacity: 0,
+          weight: 2.5,
+          smoothFactor: 0,
+          lineCap: 'round',
+          lineJoin: 'round',
+          ...(isDash ? { dashArray: '8 6' } : {}),
+        }).addTo(map)
+
+        return [glow, main]
+      })
+      segPolysRef.current = pairs
+
+      // Sequential reveal animation
+      pairs.forEach(([glow, main], i) => {
         const timer = setTimeout(() => {
           if (!destroyed && !userClickedRef.current) {
-            poly.setStyle({ opacity: 0.92 })
+            glow.setStyle({ opacity: 0.13 })
+            main.setStyle({ opacity: 0.88 })
           }
         }, 150 + i * 380)
         animTimersRef.current.push(timer)
       })
 
-      // Draw numbered markers
+      // Traveling dot (appears after route fully revealed)
+      const dot = L.circleMarker(latlngs[0], {
+        radius: 5,
+        color: '#fbbf24',
+        fillColor: '#fbbf24',
+        fillOpacity: 0,
+        opacity: 0,
+        weight: 2,
+      }).addTo(map)
+      dotMarkerRef.current = dot
+
+      const dotDelay = 150 + pairs.length * 380 + 400
+      const dotTimer = setTimeout(() => {
+        if (destroyed || userClickedRef.current) return
+        dot.setStyle({ fillOpacity: 0.95, opacity: 0 }) // fill only, no border ring
+
+        const duration = Math.max(18000, allPoints.length * 80) // ~18-35s per loop
+        let startTime: number | null = null
+
+        const animateDot = (ts: number) => {
+          if (destroyed || userClickedRef.current) return
+          if (!startTime) startTime = ts
+          const elapsed = ts - startTime
+          const t = (elapsed % duration) / duration
+          const pos = interpolateAlongPath(allPoints, t)
+          if (pos) dot.setLatLng(pos)
+          dotRafRef.current = requestAnimationFrame(animateDot)
+        }
+        dotRafRef.current = requestAnimationFrame(animateDot)
+      }, dotDelay)
+      animTimersRef.current.push(dotTimer)
+
+      // Draw markers
       stops.forEach((stop, i) => {
         const isFirst = i === 0
         const size = isFirst ? 36 : 28
@@ -198,7 +284,6 @@ export default function RouteMap({ stops, routeKey }: { stops: MapStop[]; routeK
           .on('click', () => {
             userClickedRef.current = true
             setHasInteracted(true)
-            // Clicking last stop when full route visible → no-op
             if (i === stops.length - 1 && activeStopRef.current === stops.length - 1) return
             setActiveStop(i)
           })
@@ -220,10 +305,8 @@ export default function RouteMap({ stops, routeKey }: { stops: MapStop[]; routeK
       destroyed = true
       animTimersRef.current.forEach(clearTimeout)
       animTimersRef.current = []
-      if (mapRef.current) {
-        mapRef.current.remove()
-        mapRef.current = null
-      }
+      cancelAnimationFrame(dotRafRef.current)
+      if (mapRef.current) { mapRef.current.remove(); mapRef.current = null }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [routeKey])
