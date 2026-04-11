@@ -267,16 +267,25 @@ export default function DemoPage() {
     }
   }
 
+  /* Google Maps URL */
+  const googleMapsUrl = route
+    ? (() => {
+        const pts = route.stops.filter(s => s.lat && s.lng)
+        if (pts.length < 2) return null
+        return `https://www.google.com/maps/dir/${pts.map(s => `${s.lat},${s.lng}`).join('/')}/`
+      })()
+    : null
+
   /* Save email */
   const saveEmail = async () => {
     if (!modalEmail || modalStatus === 'saving') return
     setModalStatus('saving')
     setModalError('')
     try {
-      const res = await fetch('/api/waitlist', {
+      const res = await fetch('/api/send-route', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: modalEmail, city }),
+        body: JSON.stringify({ email: modalEmail, route }),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error ?? 'error saving.')
@@ -510,7 +519,7 @@ export default function DemoPage() {
 
           {/* Actions */}
           <section className="max-w-7xl mx-auto px-6 md:px-10 pb-20">
-            <div className="flex flex-col sm:flex-row gap-4 items-center">
+            <div className="flex flex-col sm:flex-row gap-4 items-center flex-wrap">
               <button
                 onClick={() => generate(true)}
                 className="btn-outline-amber px-8 py-4"
@@ -521,6 +530,20 @@ export default function DemoPage() {
                 </svg>
                 not feeling it? drift again
               </button>
+              {googleMapsUrl && (
+                <a
+                  href={googleMapsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-outline px-8 py-4 inline-flex items-center gap-2"
+                >
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" className="opacity-70">
+                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round"/>
+                    <circle cx="12" cy="9" r="2.5" stroke="currentColor" strokeWidth="1.6"/>
+                  </svg>
+                  open in google maps
+                </a>
+              )}
               <button
                 onClick={() => { setShowModal(true); setModalStatus('idle'); setModalError('') }}
                 className="btn-primary px-8 py-4"
@@ -568,7 +591,7 @@ export default function DemoPage() {
                 <>
                   <h3 className="font-display text-2xl font-bold text-warm-white mb-2">save your drift</h3>
                   <p className="text-warm-gray-400 text-sm leading-relaxed mb-6">
-                    we'll email you this route and let you know when driftd launches in {city.toLowerCase()}.
+                    we'll send your full route — all stops, walk times, and a google maps link — straight to your inbox. free.
                   </p>
                   <div className="flex flex-col sm:flex-row gap-3">
                     <input
