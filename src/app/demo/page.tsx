@@ -189,11 +189,58 @@ export default function DemoPage() {
   const [showEnd, setShowEnd] = useState(false)
   const [showNotes, setShowNotes] = useState(false)
 
+  // Per-stop photo + info panels
+  const [stopPhotos, setStopPhotos] = useState<Record<number, string | 'loading' | 'notfound'>>({})
+  const [stopInfos, setStopInfos] = useState<Record<number, string | 'loading'>>({})
+
   // Email modal
   const [showModal, setShowModal] = useState(false)
   const [modalEmail, setModalEmail] = useState('')
   const [modalStatus, setModalStatus] = useState<'idle' | 'saving' | 'done'>('idle')
   const [modalError, setModalError] = useState('')
+
+  const handleFetchPhoto = async (idx: number, name: string, city: string) => {
+    if (stopPhotos[idx]) return
+    setStopPhotos(p => ({ ...p, [idx]: 'loading' }))
+    try {
+      const queries = [`${name} ${city}`, name]
+      let found: string | null = null
+      for (const q of queries) {
+        const url = `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(q)}&prop=pageimages&format=json&pithumbsize=700&origin=*`
+        const res = await fetch(url)
+        const data = await res.json()
+        const pages = data?.query?.pages
+        if (!pages) continue
+        const page: any = Object.values(pages)[0]
+        if (page?.thumbnail?.source) { found = page.thumbnail.source; break }
+      }
+      setStopPhotos(p => ({ ...p, [idx]: found ?? 'notfound' }))
+    } catch {
+      setStopPhotos(p => ({ ...p, [idx]: 'notfound' }))
+    }
+  }
+
+  const handleFetchInfo = async (idx: number, stop: RouteStop) => {
+    if (stopInfos[idx]) return
+    setStopInfos(p => ({ ...p, [idx]: 'loading' }))
+    try {
+      const res = await fetch('/api/stop-info', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: stop.name,
+          city: route?.city ?? '',
+          address: stop.address,
+          tagline: stop.tagline,
+          description: stop.description,
+        }),
+      })
+      const data = await res.json()
+      setStopInfos(p => ({ ...p, [idx]: data.info ?? '— no extra info found' }))
+    } catch {
+      setStopInfos(p => ({ ...p, [idx]: '— couldn\'t load info right now' }))
+    }
+  }
 
   const resultRef = useRef<HTMLDivElement>(null)
 
@@ -263,6 +310,8 @@ export default function DemoPage() {
       if (!res.ok) throw new Error(data.error ?? 'generation failed.')
       setRoute(data)
       setPrevStops(data.stops.map((s: RouteStop) => s.name))
+      setStopPhotos({})
+      setStopInfos({})
       setMapKey(k => k + 1)
       setView('result')
     } catch (e) {
@@ -456,6 +505,58 @@ export default function DemoPage() {
                           <p className="text-warm-gray-400 text-sm italic mt-1">
                             {stop.why_this_spot}
                           </p>
+
+                          {/* Photo + Info buttons */}
+                          {stop.time_at_stop_minutes > 0 && (
+                            <div className="flex gap-2 mt-4">
+                              <button
+                                onClick={() => handleFetchPhoto(i, stop.name, route.city)}
+                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.04] border border-white/[0.08] text-warm-gray-400 hover:text-warm-gray-200 hover:border-white/20 transition-all text-xs"
+                              >
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                                  <rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="12" cy="12" r="3.5"/><path d="M8 5l1.5-2h5L16 5"/>
+                                </svg>
+                                {stopPhotos[i] === 'loading' ? 'looking for the best shot...' : 'see photo'}
+                              </button>
+                              <button
+                                onClick={() => handleFetchInfo(i, stop)}
+                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.04] border border-white/[0.08] text-warm-gray-400 hover:text-warm-gray-200 hover:border-white/20 transition-all text-xs"
+                              >
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                                  <path d="M12 2l1.5 4.5L18 8l-4.5 1.5L12 14l-1.5-4.5L6 8l4.5-1.5z"/><path d="M19 15l.75 2.25L22 18l-2.25.75L19 21l-.75-2.25L16 18l2.25-.75z"/>
+                                </svg>
+                                {stopInfos[i] === 'loading' ? 'finding out more...' : 'more info'}
+                              </button>
+                            </div>
+                          )}
+
+                          {/* Photo panel */}
+                          {stopPhotos[i] && stopPhotos[i] !== 'loading' && (
+                            <div className="mt-4">
+                              {stopPhotos[i] === 'notfound' ? (
+                                <p className="text-warm-gray-600 text-xs italic">no photo found for this spot.</p>
+                              ) : (
+                                <img
+                                  src={stopPhotos[i] as string}
+                                  alt={stop.name}
+                                  className="w-full rounded-xl object-cover"
+                                  style={{ maxHeight: '220px' }}
+                                />
+                              )}
+                            </div>
+                          )}
+
+                          {/* More info panel */}
+                          {stopInfos[i] && stopInfos[i] !== 'loading' && (
+                            <div className="mt-4 pt-4 border-t border-white/[0.06]">
+                              {(stopInfos[i] as string).split('\n').filter(l => l.trim()).map((line, li) => (
+                                <p key={li} className="text-warm-gray-400 text-xs leading-relaxed mb-1.5">
+                                  {line}
+                                </p>
+                              ))}
+                            </div>
+                          )}
+
                           {/* End of drift badge */}
                           {isLast && (
                             <div className="flex items-center gap-2 text-amber-400/50 text-xs mt-4">
