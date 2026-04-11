@@ -228,7 +228,7 @@ export default function DemoPage() {
     if (!city) return 'pick a city first.'
     if (!vibes.length) return 'pick at least one vibe.'
     if (minutes < 20) return 'minimum 20 minutes — we need a bit of time to work with.'
-    if (minutes > 480) return 'maximum 8 hours. take a break.'
+    if (minutes > 240) return 'maximum 4 hours for now.'
     if (!startPt.trim()) return 'where are you starting from?'
     return ''
   }
@@ -674,7 +674,7 @@ export default function DemoPage() {
                 <CityPattern city={c}/>
                 <div className="relative z-10">
                   <p className="font-display font-black text-warm-white text-xl mb-1">{c.toLowerCase()}</p>
-                  <p className="text-warm-gray-500 text-xs">{CITY_SUB[c]}</p>
+                  <p className="text-warm-gray-400 text-xs">{CITY_SUB[c]}</p>
                 </div>
                 {city === c && (
                   <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-amber-400 flex items-center justify-center z-10">
@@ -720,14 +720,14 @@ export default function DemoPage() {
             <input
               type="number"
               min={20}
-              max={480}
+              max={240}
               value={minutes}
               onChange={e => setMinutes(Number(e.target.value))}
               className="w-28 bg-white/[0.04] border border-white/10 rounded-xl px-4 py-3 text-warm-white text-center text-xl font-display font-bold focus:border-amber-400/35 transition-all"
             />
             <span className="text-warm-gray-500 text-sm">minutes</span>
           </div>
-          <p className="text-warm-gray-600 text-xs mt-2">be precise — we'll respect your time (within a few minutes)</p>
+          <p className="text-warm-gray-600 text-xs mt-2">max 4 hours · the longer the route, the longer it takes to generate</p>
         </div>
 
         {/* 4. Starting point */}
