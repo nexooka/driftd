@@ -34,7 +34,7 @@ ROUTE GEOMETRY — NO BACKTRACKING:
 15. For regeneration requests: pick a completely different neighborhood or angle. Never repeat previous stops.
 
 STARTING POINT:
-16. CRITICAL: Stop #1 MUST be at or within a 2-minute walk (under 150m) of the user's stated starting point. The user is physically standing there — stop #1 is something interesting right where they start. Never begin the route somewhere that requires a long walk to reach.
+16. CRITICAL: If geocoded coordinates are provided, Stop #1's lat/lng MUST match them exactly (copy-paste those coordinates). If no coordinates are given, stop #1 must be within 100m of the stated address. The user is physically at that location — never start the route somewhere requiring a long walk to reach.
 
 COORDINATES & ADDRESSES:
 17. Provide accurate latitude and longitude for each stop. These will be plotted on a real map. Be precise — wrong coordinates will put stops in the wrong location.
@@ -79,7 +79,26 @@ function parseRoute(text: string) {
   return JSON.parse(s.slice(start, end + 1))
 }
 
-/* ── Haversine walking time estimate (server-side fallback) ──────────── */
+/* ── Geocode starting address via Nominatim ──────────────────────────── */
+async function geocodeStart(address: string, city: string): Promise<{ lat: number; lng: number } | null> {
+  try {
+    const q = encodeURIComponent(`${address}, ${city}`)
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/search?q=${q}&format=json&limit=1`,
+      {
+        headers: { 'User-Agent': 'driftd/1.0 (route generator)' },
+        signal: AbortSignal.timeout(5000),
+      }
+    )
+    const data = await res.json()
+    if (!data?.[0]) return null
+    return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) }
+  } catch {
+    return null
+  }
+}
+
+/* ── Haversine distance ──────────────────────────────────────────────── */
 function haversineMeters(lat1: number, lng1: number, lat2: number, lng2: number): number {
   const R = 6371000
   const dLat = (lat2 - lat1) * Math.PI / 180
@@ -89,8 +108,9 @@ function haversineMeters(lat1: number, lng1: number, lat2: number, lng2: number)
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
 }
 
-function enrichWalkingTimes(stops: any[]) {
-  if (stops.length < 2) return
+/* ── Replace AI walking estimates with haversine, then fix total time ── */
+function enrichAndAdjust(stops: any[], targetMinutes: number) {
+  if (stops.length < 2) return { totalWalkingMinutes: 0, totalWalkingMeters: 0 }
 
   let totalWalkingMinutes = 0
   let totalWalkingMeters = 0
@@ -98,9 +118,7 @@ function enrichWalkingTimes(stops: any[]) {
   stops.slice(0, -1).forEach((stop, i) => {
     const next = stops[i + 1]
     if (stop.lat && stop.lng && next.lat && next.lng) {
-      // straight-line × 1.35 detour factor → realistic street distance
       const meters = Math.round(haversineMeters(stop.lat, stop.lng, next.lat, next.lng) * 1.35)
-      // 83 m/min ≈ avg walking pace (5 km/h)
       const minutes = Math.max(1, Math.round(meters / 83))
       stops[i].walk_to_next_minutes = minutes
       stops[i].walk_to_next_meters = meters
@@ -111,9 +129,20 @@ function enrichWalkingTimes(stops: any[]) {
     }
   })
 
-  // Clear walk fields on last stop
   stops[stops.length - 1].walk_to_next_minutes = null
   stops[stops.length - 1].walk_to_next_meters = null
+
+  // ── Adjust time_at_stop_minutes so the route total matches targetMinutes ──
+  const totalAtStops = stops.reduce((s, st) => s + (st.time_at_stop_minutes ?? 8), 0)
+  const currentTotal = totalWalkingMinutes + totalAtStops
+
+  if (Math.abs(currentTotal - targetMinutes) > 5) {
+    const remaining = Math.max(stops.length * 2, targetMinutes - totalWalkingMinutes)
+    const scale = remaining / totalAtStops
+    stops.forEach(st => {
+      st.time_at_stop_minutes = Math.max(2, Math.round((st.time_at_stop_minutes ?? 8) * scale))
+    })
+  }
 
   return { totalWalkingMinutes, totalWalkingMeters }
 }
@@ -137,6 +166,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: `knowledge file for ${city} not found.` }, { status: 500 })
   }
 
+  // Geocode starting address for precision
+  const startCoords = await geocodeStart(start, city)
+  const startCoordsNote = startCoords
+    ? `- Starting coordinates (geocoded): lat ${startCoords.lat.toFixed(6)}, lng ${startCoords.lng.toFixed(6)}\n  ↳ Stop #1 MUST be placed at EXACTLY these coordinates (or within 50m). This is non-negotiable.`
+    : ''
+
   const isDriftAgain = previousStops.length > 0
   const avoidNote = isDriftAgain
     ? `\nREGENERATION — user has seen this route. AVOID THESE STOPS ENTIRELY: ${previousStops.join(', ')}. Choose a different neighborhood or angle.`
@@ -148,13 +183,14 @@ ${knowledge}
 USER REQUEST:
 - City: ${city}
 - Vibes: ${vibes.join(', ')}
-- Time available: ${minutes} minutes
+- Time available: ${minutes} minutes (HARD LIMIT — your route must fit within this time)
 - Starting from: ${start}
+${startCoordsNote}
 - Needs to end at: ${end?.trim() || 'anywhere — drift wherever'}
 - Extra notes: ${notes?.trim() || 'none'}
 ${avoidNote}
 
-Generate a walking route. Remember: aim for ${Math.round(minutes / 8)} stops minimum. Output ONLY the JSON.`
+Generate a walking route. Aim for ${Math.round(minutes / 8)} stops minimum. Output ONLY the JSON.`
 
   const client = new Anthropic()
   let attempt = 0
@@ -170,12 +206,10 @@ Generate a walking route. Remember: aim for ${Math.round(minutes / 8)} stops min
       const text = response.content[0].type === 'text' ? response.content[0].text : ''
       const route = parseRoute(text)
 
-      // Replace AI-guessed walking times with haversine-based estimates
-      const walking = enrichWalkingTimes(route.stops)
-      if (walking) {
-        route.total_walking_minutes = walking.totalWalkingMinutes
-        route.total_walking_meters = walking.totalWalkingMeters
-      }
+      // Replace AI walking guesses with haversine, then scale stop times to hit target
+      const walking = enrichAndAdjust(route.stops, minutes)
+      route.total_walking_minutes = walking.totalWalkingMinutes
+      route.total_walking_meters = walking.totalWalkingMeters
 
       return NextResponse.json(route)
     } catch (err) {
