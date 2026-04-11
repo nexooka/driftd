@@ -192,6 +192,7 @@ export default function DemoPage() {
   // Per-stop photo + info panels
   const [stopPhotos, setStopPhotos] = useState<Record<number, string | 'loading' | 'notfound'>>({})
   const [stopInfos, setStopInfos] = useState<Record<number, string | 'loading'>>({})
+  const [photoModal, setPhotoModal] = useState<number | null>(null)
 
   // Email modal
   const [showModal, setShowModal] = useState(false)
@@ -200,25 +201,54 @@ export default function DemoPage() {
   const [modalError, setModalError] = useState('')
 
   const handleFetchPhoto = async (idx: number, name: string, city: string) => {
-    if (stopPhotos[idx]) return
+    // Already loaded — just open the modal
+    if (stopPhotos[idx] && stopPhotos[idx] !== 'loading') {
+      if (stopPhotos[idx] !== 'notfound') setPhotoModal(idx)
+      return
+    }
+    if (stopPhotos[idx] === 'loading') return
     setStopPhotos(p => ({ ...p, [idx]: 'loading' }))
     try {
-      const queries = [`${name} ${city}`, name]
       let found: string | null = null
+      const queries = [`${name} ${city}`, name]
+
+      // 1. Wikipedia search (good for landmarks and named venues)
       for (const q of queries) {
-        // Use generator=search so we don't need an exact article title
-        const url = `https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(q)}&gsrlimit=3&prop=pageimages&format=json&pithumbsize=700&origin=*`
+        const url = `https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(q)}&gsrlimit=5&prop=pageimages&format=json&pithumbsize=1200&origin=*`
         const res = await fetch(url)
         const data = await res.json()
         const pages = data?.query?.pages
-        if (!pages) continue
-        // Pick the first result that has a thumbnail
-        for (const page of Object.values(pages) as any[]) {
-          if (page?.thumbnail?.source) { found = page.thumbnail.source; break }
+        if (pages) {
+          // Sort by index (relevance order) and pick first with image
+          const sorted = Object.values(pages as Record<string, any>).sort((a: any, b: any) => a.index - b.index)
+          for (const page of sorted) {
+            if (page?.thumbnail?.source) { found = page.thumbnail.source; break }
+          }
         }
         if (found) break
       }
+
+      // 2. Wikimedia Commons search (huge library, covers niche spots too)
+      if (!found) {
+        for (const q of queries) {
+          const url = `https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(q)}&gsrnamespace=6&gsrlimit=5&prop=imageinfo&iiprop=url&iiurlwidth=1200&format=json&origin=*`
+          const res = await fetch(url)
+          const data = await res.json()
+          const pages = data?.query?.pages
+          if (pages) {
+            const sorted = Object.values(pages as Record<string, any>).sort((a: any, b: any) => a.index - b.index)
+            for (const page of sorted) {
+              const url = page?.imageinfo?.[0]?.thumburl
+              // Skip SVG/icons
+              if (url && !url.endsWith('.svg') && !url.includes('Icon')) { found = url; break }
+            }
+          }
+          if (found) break
+        }
+      }
+
       setStopPhotos(p => ({ ...p, [idx]: found ?? 'notfound' }))
+      if (found) setPhotoModal(idx)
     } catch {
       setStopPhotos(p => ({ ...p, [idx]: 'notfound' }))
     }
@@ -316,6 +346,7 @@ export default function DemoPage() {
       setPrevStops(data.stops.map((s: RouteStop) => s.name))
       setStopPhotos({})
       setStopInfos({})
+      setPhotoModal(null)
       setMapKey(k => k + 1)
       setView('result')
     } catch (e) {
@@ -388,6 +419,34 @@ export default function DemoPage() {
     return (
       <main className="min-h-screen bg-[#0a0a0a]">
         <Navbar />
+
+        {/* Photo lightbox modal */}
+        {photoModal !== null && stopPhotos[photoModal] && stopPhotos[photoModal] !== 'loading' && stopPhotos[photoModal] !== 'notfound' && (
+          <div
+            className="fixed inset-0 z-[9999] flex items-center justify-center p-4 md:p-10"
+            style={{ background: 'rgba(0,0,0,0.88)' }}
+            onClick={() => setPhotoModal(null)}
+          >
+            <div className="relative max-w-3xl w-full" onClick={e => e.stopPropagation()}>
+              <button
+                onClick={() => setPhotoModal(null)}
+                className="absolute -top-10 right-0 text-warm-gray-400 hover:text-warm-white transition-colors text-sm flex items-center gap-1.5"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                close
+              </button>
+              <img
+                src={stopPhotos[photoModal] as string}
+                alt={route.stops[photoModal]?.name ?? ''}
+                className="w-full rounded-2xl object-contain"
+                style={{ maxHeight: '80vh' }}
+              />
+              <p className="text-center text-warm-gray-500 text-xs mt-3">
+                {route.stops[photoModal]?.name}
+              </p>
+            </div>
+          </div>
+        )}
 
         <div ref={resultRef}>
           {/* Header */}
@@ -513,6 +572,7 @@ export default function DemoPage() {
                           {/* Photo + Info buttons */}
                           {stop.time_at_stop_minutes > 0 && (
                             <div className="flex gap-2 mt-4">
+                              {stopPhotos[i] !== 'notfound' && (
                               <button
                                 onClick={() => handleFetchPhoto(i, stop.name, route.city)}
                                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.04] border border-white/[0.08] text-warm-gray-400 hover:text-warm-gray-200 hover:border-white/20 transition-all text-xs"
@@ -520,8 +580,9 @@ export default function DemoPage() {
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                                   <rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="12" cy="12" r="3.5"/><path d="M8 5l1.5-2h5L16 5"/>
                                 </svg>
-                                {stopPhotos[i] === 'loading' ? 'looking for the best shot...' : 'see photo'}
+                                {stopPhotos[i] === 'loading' ? 'looking for a photo...' : stopPhotos[i] ? 'see photo' : 'see photo'}
                               </button>
+                              )}
                               <button
                                 onClick={() => handleFetchInfo(i, stop)}
                                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.04] border border-white/[0.08] text-warm-gray-400 hover:text-warm-gray-200 hover:border-white/20 transition-all text-xs"
@@ -531,22 +592,6 @@ export default function DemoPage() {
                                 </svg>
                                 {stopInfos[i] === 'loading' ? 'finding out more...' : 'more info'}
                               </button>
-                            </div>
-                          )}
-
-                          {/* Photo panel */}
-                          {stopPhotos[i] && stopPhotos[i] !== 'loading' && (
-                            <div className="mt-4">
-                              {stopPhotos[i] === 'notfound' ? (
-                                <p className="text-warm-gray-600 text-xs italic">no photo found for this spot.</p>
-                              ) : (
-                                <img
-                                  src={stopPhotos[i] as string}
-                                  alt={stop.name}
-                                  className="w-full rounded-xl object-cover"
-                                  style={{ maxHeight: '220px' }}
-                                />
-                              )}
                             </div>
                           )}
 
