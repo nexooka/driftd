@@ -91,10 +91,10 @@ const CITY_BG: Record<string, string> = {
   Berlin: 'from-slate-800/60 to-zinc-900/50',
   Prague: 'from-violet-950/50 to-amber-950/40',
 }
-const CITY_SUB: Record<string, string> = {
-  Warsaw: "poland's rebellious capital",
-  Berlin: 'where walls became art',
-  Prague: 'cobblestones & absinthe',
+const CITY_COUNTRY: Record<string, string> = {
+  Warsaw: 'poland',
+  Berlin: 'germany',
+  Prague: 'czech republic',
 }
 
 /* ── Map helpers ─────────────────────────────────────────────────────── */
@@ -674,7 +674,7 @@ export default function DemoPage() {
                 <CityPattern city={c}/>
                 <div className="relative z-10">
                   <p className="font-display font-black text-warm-white text-xl mb-1">{c.toLowerCase()}</p>
-                  <p className="text-warm-gray-400 text-xs">{CITY_SUB[c]}</p>
+                  <p className="text-warm-gray-400 text-xs tracking-wide">{CITY_COUNTRY[c]}</p>
                 </div>
                 {city === c && (
                   <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-amber-400 flex items-center justify-center z-10">
@@ -722,7 +722,7 @@ export default function DemoPage() {
               min={20}
               max={240}
               value={minutes}
-              onChange={e => setMinutes(Number(e.target.value))}
+              onChange={e => setMinutes(Math.min(240, Math.max(0, Number(e.target.value))))}
               className="w-28 bg-white/[0.04] border border-white/10 rounded-xl px-4 py-3 text-warm-white text-center text-xl font-display font-bold focus:border-amber-400/35 transition-all"
             />
             <span className="text-warm-gray-500 text-sm">minutes</span>
