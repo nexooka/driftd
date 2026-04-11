@@ -356,17 +356,88 @@ Historic LGBTQ+ district. Heile Welt bar, Winterfeldplatz market.
 
 ---
 
+### MORE NICHE NEIGHBORHOODS & MICRO-SPOTS
+
+**Wedding — the real anti-tourist district**
+- Neighborhood: Wedding (north of Mitte)
+- The neighborhood Berliners send each other to when they want to escape gentrification. North African shops, Turkish bakeries, community gardens, super cheap food. Gerichtstraße has amazing turn-of-the-century tenements with elaborate decorative plasterwork that nobody goes to see.
+- Key spots: Gerichtstraße (architecture walk), Leopoldplatz (real local square), Nettelbeckplatz
+
+**Gerichtstraße**
+- Neighborhood: Wedding
+- One of Wedding's most beautiful streets — ornate 1900s tenements with sculptural facades, and if you enter the Gründerzeitviertel (the back courtyards accessible via the arched entrances), you find the typical Berlin Hinterhof culture — multiple courtyard layers, gardens, artists.
+- Vibe: architectural, local, free, quick stop
+
+**Humboldthain Park**
+- Neighborhood: Wedding
+- Massive park with a flak tower ruin from WWII, rose garden, outdoor swimming pool. The flak tower is covered in vegetation and you can get a guided tour of the bunker inside. Free to walk up the hill.
+- Vibe: historic, unusual, free, chill
+
+**Nettelbeckplatz**
+- Neighborhood: Wedding
+- Quiet local square with a good café scene (try Dachluke or Café Weinstein nearby). Not on any tourist map. Real Wedding neighborhood energy.
+- Vibe: local, chill, residential
+
+**Moabit — the underrated neighbor**
+- Neighborhood: Moabit
+- Between Mitte and Wedding. Industrial, immigrant, working class. The Arminiusmarkthalle is here (proper local market, way less touristy than Markthalle Neun). Also has some good canal-side walks and Ullsteinhaus (art deco).
+- Key spots: Arminiusstraße 2-4 (market), Alt-Moabit along the Spree canal
+
+**Görlitzer Park (honest assessment)**
+- Neighborhood: Kreuzberg
+- Notorious, chaotic, and beloved. Massive park that is also a known open drug market and outdoor party space coexisting. BBQ culture, dog walking, sunbathing, random concerts. A genuine cross-section of Berlin.
+- Vibe: unique, local, complex, outdoors
+
+**Lausitzer Platz**
+- Neighborhood: Kreuzberg
+- Small square with a church ruin turned community garden. Surrounded by bars and cafés frequented by long-term Kreuzberg residents (not tourists). Peaceful.
+- Vibe: local, chill, canalside
+
+**Landwehrkanal towpath**
+- Neighborhood: Kreuzberg (between Schlesisches Tor and Kottbusser Brücke)
+- Towpath alongside the canal. Locals sit on the banks drinking beer in summer. Rosa-Luxemburg-Ufer has great views and benches. Combines with Viktoriapark for a good walking arc.
+- Vibe: chill, canalside, local, summer
+
+**Revaler Straße (Club Mile)**
+- Neighborhood: Friedrichshain (Revaler Straße 99)
+- Stretch of alternative culture: Cassiopeia, Urban Spree, skateparks, graffiti, container bars. By day: mural photography. By night: live music and club culture.
+- Vibe: artsy, nightlife, photogenic, gritty
+
+**Urban Spree**
+- Neighborhood: Friedrichshain (Revaler Straße 99)
+- Gallery, bar, concert space, beer garden, tattoo shop, and street art hub in a former industrial space. Concept store, rotating exhibitions. Beer garden is great in summer.
+- Vibe: artsy, social, beer, photogenic
+
+**Boxhagener Platz (Boxi)**
+- Neighborhood: Friedrichshain
+- The heart of Friedrichshain's neighborhood life. Weekend flea market (Saturday+Sunday), cafés surrounding the square, playground, locals reading. Great starting point for Friedrichshain exploration.
+- Vibe: local, chill, social, market on weekends
+
+**Potsdamer Straße arts corridor**
+- Neighborhood: Schöneberg/Tiergarten
+- Potsdamer Straße between Gleisdreieck and Nollendorfplatz has transformed into one of Berlin's best contemporary art strips. Gallery Weekend brings the whole art world here. Many galleries open Mon-Sat for free. Anna Jill Lüpertz, Contemporary Fine Arts, Gerhardsen Gerner.
+- Vibe: artsy, sophisticated, gallery hop, free
+
+**Rixdorf village square**
+- Neighborhood: Neukölln (Richardplatz)
+- A preserved Bohemian village square absorbed by Berlin — Richardplatz is cobblestone, lined by the blacksmith's forge (still operating), the 18th-century Bethlehem Church, and an old pub. Completely unlike anything else in Berlin.
+- Vibe: historic, unusual, chill, hidden
+
+---
+
 ## NOTES FOR ROUTE GENERATION
 
 - Berlin is HUGE. Keep routes within one neighborhood or two adjacent ones.
-- Kreuzberg + Neukölln = easy combo for alternative routes.
-- Friedrichshain is best as its own thing (or with the Kreuzberg riverside).
-- Mitte is most central but least "local" — mix it with Prenzlauer Berg.
+- Kreuzberg + Neukölln = easy combo for alternative routes. Walk the Landwehrkanal towpath to connect them.
+- Friedrichshain: use Boxhagener Platz as anchor, then RAW-Gelände or Revaler Str.
+- Wedding + Moabit: the "truly off tourist trail" combo. Great for niche seekers.
+- Prenzlauer Berg: Helmholtzplatz over Mauerpark (Mauerpark is actually touristy now).
+- Mitte is most central but least "local" — mix it with Prenzlauer Berg or add to Moabit.
 - Berliners are cold at first but warm up quickly. They don't do small talk.
 - Cash is still important — many Spätis and bars don't take cards.
 - Späti (Spätkauf) culture is huge. Late-night convenience stores where everyone hangs out drinking beers outside. Part of the experience.
-- Thursday night is prime — Street Food Thursday at Markthalle Neun, Berlin Spoken Word at Du Beast.
-- Sunday is flea market day (Mauerpark, Nowkölln Flowmarkt, Boxi).
-- Don't recommend clubs for routes — they require planning, queues, dress codes, and specific energy.
-- Mention Berlin-specific things: "Prost" for cheers, eye contact mandatory, Mexikaner shots, everyone smokes indoors in many bars.
+- Thursday night: Street Food Thursday at Markthalle Neun, Berlin Spoken Word at Du Beast.
+- Sunday: flea markets at Mauerpark, Nowkölln Flowmarkt (canalside), Boxi.
+- Don't recommend clubs for routes — they require planning, queues, dress codes, specific energy.
+- Mention Berlin-specific things: "Prost" with eye contact mandatory, Mexikaner shots, everyone smokes indoors in many bars.
 - Berlin's bars often allow dogs. Mention this if relevant.

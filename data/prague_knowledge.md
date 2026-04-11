@@ -314,16 +314,69 @@ Residential, green, home to Letná Park and its legendary beer garden with sunse
 
 ---
 
+### MORE NICHE NEIGHBORHOODS & MICRO-SPOTS
+
+**Nusle**
+- Neighborhood: Nusle (south of Vyšehrad)
+- Completely overlooked by tourists. Communist-era panelák (concrete apartment block) district with a valley cutting through it — the Nuselský bridge spans the valley (the highest bridge in Prague, dark history). The valley below (Nusle Valley / Václavka) has small paths through it, bizarre sculptures, communist-era underpasses.
+- Vibe: unusual, local, brutalist, free
+
+**Vítkov Hill**
+- Neighborhood: Žižkov
+- A forested hill in Žižkov with the giant equestrian statue of Jan Žižka — one of the largest bronze statues in the world. Most tourists have no idea it exists. From the top: sweeping views of Prague's eastern suburbs. Enter from the Žižkov side past the National Monument (now a huge communist-era mausoleum, weirdly fascinating).
+- Vibe: historic, unusual, views, free
+
+**Náměstí Míru (Peace Square)**
+- Neighborhood: Vinohrady
+- The heart of Vinohrady. Beautiful neo-Gothic church of St. Ludmila, lined with café terraces, farmers market on Saturdays and Fridays. Where Vinohrady locals meet. The tram lines crossing it make it very photogenic.
+- Vibe: chill, local, photogenic, café culture
+
+**Žižkov street art walk (lower Žižkov)**
+- Neighborhood: Žižkov (Seifertova, Bořivojova, Chelčického)
+- The streets around the TV Tower and lower Žižkov are scattered with street art — some commissioned, some not. Bořivojova Street has a concentration of good pieces. The TV Tower babies are visible from most angles.
+- Vibe: artsy, photogenic, free, walk
+
+**Braník Brewery area**
+- Neighborhood: Braník (south Prague, on the Vltava)
+- The old Braník Brewery (Pivovary Lobkowicz) sits on the river with a terrace that opens in summer. Almost no tourists. The riverside walk from Braník north toward Podolí passes rock-cut steps, a former quarry, and wild banks of the Vltava.
+- Vibe: beer, riverside, local, escape
+
+**Náplavka evening scene**
+- Neighborhood: along the Vltava (New Town bank)
+- Everyone knows Náplavka for the Saturday market. But on warm evenings all week, people bring their own wine, beer, and food and sit on the stone steps going down to the river. Completely free. Locals from all over Prague. One of the best atmospheres in the city.
+- Vibe: chill, summer, social, free, sunset
+
+**Ořechovka**
+- Neighborhood: Prague 6 (above Dejvice)
+- One of Prague's wealthiest garden districts — built in the 1920s-30s for artists and intellectuals. Beautiful villas by Czech functionalist architects. Completely unknown to tourists. A 30-minute walk from Hradčanská metro.
+- Vibe: architectural, chill, escape, residential
+
+**Dejvice**
+- Neighborhood: Dejvice (Prague 6)
+- The neighborhood around Vítězné náměstí (Victory Square) has a very different vibe from central Prague. Embassies, pre-war apartment blocks, Czech Military HQ. No tourists, great cafés, independent bookshops. The roundabout at Vítězné náměstí is one of the most elegant squares in Prague.
+- Vibe: local, chill, architectural, elegant
+
+**Hergetova Cihelna courtyard area**
+- Neighborhood: Malá Strana (right bank of the Vltava)
+- Skip the restaurant, but walk through the Malá Strana riverside strip between the Charles Bridge and Mánesův most. You'll find tiny streets, water mills, the Čertovka (Devil's Channel), and locked courtyards that occasionally open. Very few tourists make it here even though it's right next to Charles Bridge.
+- Vibe: photogenic, romantic, historic, quick walk
+
+**Holešovice street art + VNITROBLOCK**
+- Neighborhood: Holešovice
+- VNITROBLOCK is a design/food/coworking space inside a converted factory. Better than most concept spaces — Czech design brands, good coffee, outdoor courtyard. Walk the surrounding blocks (Dělnická, Osadní) for murals and factory conversions. DOX Centre is nearby.
+- Vibe: artsy, design, foodie, local creative scene
+
+---
+
 ## NOTES FOR ROUTE GENERATION
 
 - Prague is SMALL. You can walk from Old Town to Žižkov in 20 minutes, Vinohrady in 25. Routes can span multiple neighborhoods.
-- The best anti-tourist routes: Žižkov + Vinohrady, or Karlín + Holešovice, or Vyšehrad + Vinohrady.
-- AVOID routing through Old Town Square, Charles Bridge, or the Castle during the day — too crowded.
-- Do route people UP to Vyšehrad, Riegrovy Sady, or Letná — tourists rarely climb hills.
+- GREAT anti-tourist routes: Žižkov + Vinohrady, or Karlín + Holešovice, or Vyšehrad + Nusle, or Dejvice + Ořechovka.
+- AVOID routing through Old Town Square, Charles Bridge, or the Castle during the day — too crowded, too touristy.
+- Do route people UP to Vyšehrad, Riegrovy Sady, Vítkov Hill, or Letná — tourists rarely climb hills.
 - Beer is cheaper than water in Prague and better than beer anywhere else in the world. Embrace it.
 - Czechs are reserved but appreciate when visitors try Czech ("ahoj" for hi, "děkuji" for thanks, "na zdraví" for cheers).
 - Cash is still common in cheaper places. ATMs everywhere but beware Euronet (scam rates) — use a Czech bank ATM.
-- Tipping: round up or add 10% if the service was good.
 - Don't put ice in beer. Don't ask for a menu in English at U Vystřelenýho Oka. Know your audience.
 - Prague is magic at night — route some evening walks through Vyšehrad, Letná, or Vinohrady's quiet streets.
 - In summer, ALL routes should include a beer garden or outdoor spot.

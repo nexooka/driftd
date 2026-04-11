@@ -350,11 +350,89 @@ Diverse southern district with Fort Mokotów (former military fortress turned ve
 
 ---
 
+### MORE NICHE NEIGHBORHOODS & MICRO-SPOTS
+
+**Muranów — former Jewish ghetto**
+- Neighborhood: Muranów (north of Śródmieście)
+- Built on the rubble of the Warsaw Ghetto, the modernist housing blocks here literally sit on top of a destroyed world. Blue-and-white street markers show the outline of the old ghetto walls. Ulica Próżna is the only intact pre-war Jewish street in Warsaw — one side of the street survived, the other didn't.
+- Key spot: Próżna 9-14 (crumbling pre-war facades, on purpose — left as a memorial)
+- Vibe: historic, moving, under the radar
+
+**Ulica Próżna**
+- Neighborhood: Muranów / Śródmieście border (behind Plac Grzybowski)
+- The last intact pre-war Jewish street in Warsaw. Deliberately left partially in ruin. One of the most haunting spots in the city — pre-war tenements next to modern Warsaw. Ghost of the old city.
+- Vibe: historic, unusual, melancholy, poignant
+
+**Plac Grzybowski**
+- Neighborhood: Muranów / Śródmieście border
+- Warsaw's other square — no tourists, lots of life. Jewish historical significance, surrounded by pre- and post-war buildings in jarring contrast. Good cafés nearby (Między Nami, Karma).
+- Vibe: local, historic, chill
+
+**Filtry (Historic Water Filtration Plant)**
+- Neighborhood: Ochota (Al. Niepodległości)
+- Beautiful late-19th century red-brick water filtration complex. You can walk through the grounds for free. Stunning industrial Victorian architecture that feels completely out of place in Warsaw.
+- Vibe: architectural, unusual, industrial history, free
+
+**Plac Narutowicza**
+- Neighborhood: Ochota
+- The main square of Ochota — beloved by locals, ignored by tourists. Surrounded by pre-war architecture, indie shops, cheap eats, and student energy. Feels like a different city.
+- Vibe: local, chill, student energy, real Warsaw
+
+**Stara Ochota**
+- Neighborhood: Ochota (south of Filtrowa/Raszyńska)
+- Pre-war residential streets that survived WWII. Beautiful functionalist architecture from the 1920s–30s. Quiet, tree-lined, zero tourists. Walk along Filtrowa, Krzywickiego, Akademicka.
+- Vibe: architectural, chill, residential
+
+**Marymont**
+- Neighborhood: Marymont (north, above Żoliborz)
+- Ultra-quiet former fishing village absorbed into Warsaw. Wooden houses, orchards, small paths down to the Vistula. One of the most local neighborhoods in the city — barely any tourists ever come here.
+- Vibe: escape, chill, nature, ultra-local
+
+**Skaryszewski Park (Park im. Ignacego Jana Paderewskiego)**
+- Neighborhood: Praga Południe (Saska Kępa side)
+- Beautiful park on the Praga side of the Vistula with a lake, fountains, modernist sculptures, rose garden. Often overlooked in favor of bigger parks. Locals walk dogs and row on the lake.
+- Vibe: chill, romantic, escape
+
+**Bazar Różyckiego — the courtyard**
+- Neighborhood: Praga Północ (Targowa/Ząbkowska corner)
+- The covered inner courtyard of the bazaar, not just the street stalls. Look past the vegetable vendors to find the permanent indoor stalls with old Praga characters selling lighters, Soviet coins, used books. Pure sociological gold.
+- Vibe: quirky, local, photogenic
+
+**Ulica Ząbkowska**
+- Neighborhood: Praga Północ
+- The main artery of gentrifying Praga. Best approached from the quieter end (off Targowa) and walking toward the Vistula. Mix of old Praga bars (W Oparach Absurdu at no. 6) and newer spots. Check the side streets — courtyards with murals hidden inside.
+- Vibe: artsy, nightlife, local
+
+**Winoblisko**
+- Neighborhood: Praga Północ
+- Natural wine warehouse and bar. Over 1,000 natural wines, terracotta tones, converted old shop. Spawned the adjacent Blisko Bar. The wine crowd in Warsaw comes here.
+- Vibe: wine, chill, hip, date night
+
+**Kawiarnia Między Nami**
+- Neighborhood: Plac Grzybowski, Śródmieście
+- Warsaw's LGBTQ+ café institution. Mixed crowd, gallery space, board games, relaxed vibe. Excellent coffee, one of the most welcoming spots in the city.
+- Vibe: chill, inclusive, artsy, chill
+
+**Chmury**
+- Neighborhood: Śródmieście (near Plac Zbawiciela)
+- Cloud-themed cocktail bar inside a basement. Intimate, moody, serious cocktails. One of the hidden gems of the Zbawiciel area.
+- Vibe: cocktails, date night, intimate
+
+**Warszawa Powiśle Train Station Café**
+- Neighborhood: Powiśle (ul. Kruczkowskiego 3B)
+- Former suburban train station turned bar/café. Green, brutalist building next to the river. Outdoor terrace by the tracks. Almost always has live music or a DJ on weekends.
+- Vibe: artsy, romantic, riverside, music
+
+---
+
 ## NOTES FOR ROUTE GENERATION
 
 - Warsaw is LARGE. Walking between neighborhoods can take 30+ minutes. Keep routes within one or at most two adjacent neighborhoods.
-- Praga Północ + Praga Południe (Saska Kępa) works well as a combined "alternative" route.
-- Śródmieście + Powiśle works for a central route covering hidden spots near the center.
+- Praga Północ: use Ząbkowska as the spine, explore courtyards off it.
+- Śródmieście + Powiśle: Plac Zbawiciela → Powiśle waterfront is a great linear route.
+- Muranów + Plac Grzybowski + Wola: Jewish history route, very emotional and niche.
+- Ochota: Filtry + Plac Narutowicza + Stara Ochota — totally off tourist trail.
+- Saska Kępa (Praga Południe): Francuska street → Skaryszewski Park → Hałas Coffee.
 - Avoid sending people on routes that cross the Vistula unless they're OK with a bridge walk or tram ride.
 - Always include at least one food/drink stop for every hour of route.
 - Lean into the history — Warsaw was destroyed and rebuilt, this is what makes it unique. Every stop has a story about survival, rebellion, or reinvention.

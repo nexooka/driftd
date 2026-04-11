@@ -12,6 +12,7 @@ interface RouteStop {
   number: number
   name: string
   neighborhood: string
+  address?: string
   lat?: number
   lng?: number
   description: string
@@ -395,7 +396,7 @@ export default function DemoPage() {
                         {stop.number}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="flex flex-wrap items-center gap-2 mb-2">
+                        <div className="flex flex-wrap items-center gap-2 mb-1.5">
                           <h3 className="font-display font-bold text-warm-white text-lg md:text-xl">
                             {stop.name}
                           </h3>
@@ -403,6 +404,14 @@ export default function DemoPage() {
                             {stop.neighborhood}
                           </span>
                         </div>
+                        {stop.address && (
+                          <p className="text-warm-gray-500 text-xs mb-2 flex items-center gap-1">
+                            <svg width="10" height="12" viewBox="0 0 10 12" fill="none" className="shrink-0 opacity-60">
+                              <path d="M5 0C2.8 0 1 1.8 1 4c0 3 4 8 4 8s4-5 4-8c0-2.2-1.8-4-4-4zm0 5.5A1.5 1.5 0 1 1 5 2.5a1.5 1.5 0 0 1 0 3z" fill="currentColor"/>
+                            </svg>
+                            {stop.address}
+                          </p>
+                        )}
                         <p className="text-warm-gray-300 text-sm leading-relaxed mb-3" style={{ fontWeight: 300 }}>
                           {stop.description}
                         </p>
