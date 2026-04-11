@@ -416,7 +416,7 @@ export default function DemoPage() {
                           </div>
                           {/* Tagline */}
                           {stop.tagline && (
-                            <p className="text-amber-400/70 text-[13px] font-medium mb-2 leading-snug">
+                            <p className="text-amber-400/70 text-sm font-medium mb-2.5 leading-snug">
                               {stop.tagline}
                             </p>
                           )}
@@ -434,7 +434,7 @@ export default function DemoPage() {
                             {stop.description}
                           </p>
                           {/* Why */}
-                          <p className="text-warm-gray-500 text-xs italic">
+                          <p className="text-warm-gray-400 text-sm italic mt-1">
                             {stop.why_this_spot}
                           </p>
                           {/* End of drift badge */}
@@ -453,23 +453,23 @@ export default function DemoPage() {
 
                     {/* ── Walk connector (between stops) ── */}
                     {!isLast && stop.walk_to_next_minutes !== null && (
-                      <div style={walkStyle} className="flex items-start gap-4 px-5 md:px-7 py-3 my-1 rounded-xl bg-white/[0.015] border border-white/[0.03]">
-                        {/* Walking icon */}
-                        <div className="mt-0.5 flex-shrink-0">
-                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" className="text-warm-gray-600">
-                            <circle cx="12" cy="4" r="2" stroke="currentColor" strokeWidth="1.6"/>
-                            <path d="M10 8.5l-2 4 3 1-1 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-                            <path d="M14 8.5l1.5 3.5-2.5 1 1 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-                            <path d="M8 14l-1.5 4.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
-                            <path d="M16 14l1.5 4.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
-                          </svg>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-warm-gray-400 text-sm font-medium">
-                            {fmtWalkingLeg(stop.walk_to_next_minutes, stop.walk_to_next_meters)}
-                          </p>
+                      <div style={walkStyle} className="relative my-2 mx-1 rounded-2xl overflow-hidden">
+                        {/* Left accent bar */}
+                        <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-white/[0.08] rounded-full" />
+                        <div className="pl-5 pr-5 py-4 bg-white/[0.02]">
+                          <div className="flex items-center gap-3 mb-1">
+                            {/* Footsteps icon */}
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="text-warm-gray-500 shrink-0">
+                              <circle cx="12" cy="3.5" r="1.5" stroke="currentColor" strokeWidth="1.5"/>
+                              <path d="M9.5 8l-2 4.5 3.5 1L10 19" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                              <path d="M14.5 8l2 4-3 1.5 1 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                            <span className="text-warm-gray-300 text-base font-medium">
+                              {fmtWalkingLeg(stop.walk_to_next_minutes, stop.walk_to_next_meters)}
+                            </span>
+                          </div>
                           {stop.walk_note && (
-                            <p className="text-warm-gray-600 text-xs italic mt-0.5 leading-relaxed">
+                            <p className="text-warm-gray-500 text-sm italic leading-relaxed pl-7">
                               {stop.walk_note}
                             </p>
                           )}

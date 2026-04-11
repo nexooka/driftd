@@ -9,21 +9,37 @@ interface MapStop {
   lng: number
 }
 
-async function fetchSegment(
-  lat1: number, lng1: number,
-  lat2: number, lng2: number
-): Promise<[number, number][] | null> {
+/* One OSRM call for the full route → per-leg geometry via steps */
+async function fetchAllLegs(
+  latlngs: [number, number][]
+): Promise<([number, number][] | null)[]> {
+  const n = latlngs.length
+  if (n < 2) return []
   try {
+    const coordStr = latlngs.map(([lat, lng]) => `${lng},${lat}`).join(';')
     const res = await fetch(
-      `https://router.project-osrm.org/route/v1/foot/${lng1},${lat1};${lng2},${lat2}?overview=full&geometries=geojson`,
-      { signal: AbortSignal.timeout(5000) }
+      `https://router.project-osrm.org/route/v1/foot/${coordStr}?overview=false&steps=true&geometries=geojson`,
+      { signal: AbortSignal.timeout(10000) }
     )
     const data = await res.json()
-    const coords = data.routes?.[0]?.geometry?.coordinates
-    if (!coords?.length) return null
-    return coords.map(([lng, lat]: [number, number]) => [lat, lng] as [number, number])
+    const legs: any[] = data.routes?.[0]?.legs
+    if (!legs?.length) return new Array(n - 1).fill(null)
+
+    return legs.map(leg => {
+      const coords: [number, number][] = []
+      leg.steps?.forEach((step: any) => {
+        step.geometry?.coordinates?.forEach(([lng, lat]: [number, number]) => {
+          // Skip duplicate points at step boundaries
+          const last = coords[coords.length - 1]
+          if (!last || last[0] !== lat || last[1] !== lng) {
+            coords.push([lat, lng])
+          }
+        })
+      })
+      return coords.length > 1 ? coords : null
+    })
   } catch {
-    return null
+    return new Array(n - 1).fill(null)
   }
 }
 
@@ -126,13 +142,8 @@ export default function RouteMap({ stops, routeKey }: { stops: MapStop[]; routeK
         .addAttribution('© <a href="https://carto.com" style="color:#555">CARTO</a> © <a href="https://openstreetmap.org" style="color:#555">OSM</a>')
         .addTo(map)
 
-      // Fetch all stop-to-stop walking segments in parallel
-      const segmentCoords = await Promise.all(
-        stops.slice(0, -1).map((stop, i) => {
-          const next = stops[i + 1]
-          return fetchSegment(stop.lat, stop.lng, next.lat, next.lng)
-        })
-      )
+      // Single OSRM call → per-leg geometry (avoids rate-limiting N parallel calls)
+      const segmentCoords = await fetchAllLegs(latlngs)
 
       if (destroyed) return
 
