@@ -185,6 +185,10 @@ export default function DemoPage() {
   const [visibleStops, setVisibleStops] = useState<boolean[]>([])
   const [pinnedWalk, setPinnedWalk] = useState<number | null>(null)
 
+  // Optional field toggles
+  const [showEnd, setShowEnd] = useState(false)
+  const [showNotes, setShowNotes] = useState(false)
+
   // Email modal
   const [showModal, setShowModal] = useState(false)
   const [modalEmail, setModalEmail] = useState('')
@@ -713,21 +717,30 @@ export default function DemoPage() {
 
         {/* 3. Time */}
         <div className="mb-10">
-          <label className="text-[11px] tracking-[0.15em] uppercase text-amber-400/60 font-medium block mb-4">
+          <label className="text-[11px] tracking-[0.15em] uppercase text-amber-400/60 font-medium block mb-5">
             03 — how many minutes do you have?
           </label>
-          <div className="flex items-center gap-4">
-            <input
-              type="number"
-              min={20}
-              max={240}
-              value={minutes}
-              onChange={e => setMinutes(Math.min(240, Math.max(0, Number(e.target.value))))}
-              className="w-28 bg-white/[0.04] border border-white/10 rounded-xl px-4 py-3 text-warm-white text-center text-xl font-display font-bold focus:border-amber-400/35 transition-all"
-            />
-            <span className="text-warm-gray-500 text-sm">minutes</span>
+          <div className="flex items-center gap-5 mb-3">
+            <span className="font-display font-black text-warm-white text-3xl w-16 text-center tabular-nums">{minutes}</span>
+            <span className="text-warm-gray-500 text-sm">min</span>
           </div>
-          <p className="text-warm-gray-600 text-xs mt-2">max 4 hours · the longer the route, the longer it takes to generate</p>
+          <input
+            type="range"
+            min={20}
+            max={240}
+            step={5}
+            value={minutes}
+            onChange={e => setMinutes(Number(e.target.value))}
+            className="drift-slider"
+            style={{
+              background: `linear-gradient(to right, #fbbf24 0%, #fbbf24 ${((minutes - 20) / 220) * 100}%, #1e1e1e ${((minutes - 20) / 220) * 100}%, #1e1e1e 100%)`
+            }}
+          />
+          <div className="flex justify-between mt-2">
+            <span className="text-warm-gray-600 text-xs">20 min</span>
+            <span className="text-warm-gray-600 text-xs">the longer the route, the longer it takes to generate</span>
+            <span className="text-warm-gray-600 text-xs">4 hrs</span>
+          </div>
         </div>
 
         {/* 4. Starting point */}
@@ -744,33 +757,67 @@ export default function DemoPage() {
           />
         </div>
 
-        {/* 5. End point (optional) */}
-        <div className="mb-8">
-          <label className="text-[11px] tracking-[0.15em] uppercase text-amber-400/60 font-medium block mb-4">
-            05 — where do you need to end up? <span className="normal-case text-warm-gray-600">(optional)</span>
-          </label>
-          <input
-            type="text"
-            placeholder="leave blank to drift wherever"
-            value={endPt}
-            onChange={e => setEndPt(e.target.value)}
-            className="w-full bg-white/[0.04] border border-white/10 rounded-xl px-5 py-4 text-warm-white placeholder-warm-gray-500 focus:border-amber-400/35 transition-all text-sm"
-          />
+        {/* 5. End point (optional, collapsible) */}
+        <div className="mb-5">
+          {!showEnd ? (
+            <button
+              onClick={() => setShowEnd(true)}
+              className="flex items-center gap-2 text-warm-gray-500 hover:text-warm-gray-300 transition-colors text-sm group"
+            >
+              <span className="w-5 h-5 rounded-full border border-white/15 flex items-center justify-center group-hover:border-white/30 transition-colors text-xs">+</span>
+              add destination
+              <span className="text-warm-gray-600 text-xs">(optional)</span>
+            </button>
+          ) : (
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <label className="text-[11px] tracking-[0.15em] uppercase text-amber-400/60 font-medium">
+                  destination
+                </label>
+                <button onClick={() => { setShowEnd(false); setEndPt('') }} className="text-warm-gray-600 hover:text-warm-gray-400 text-xs transition-colors">remove</button>
+              </div>
+              <input
+                autoFocus
+                type="text"
+                placeholder="leave blank to drift wherever"
+                value={endPt}
+                onChange={e => setEndPt(e.target.value)}
+                className="w-full bg-white/[0.04] border border-white/10 rounded-xl px-5 py-4 text-warm-white placeholder-warm-gray-500 focus:border-amber-400/35 transition-all text-sm"
+              />
+            </div>
+          )}
         </div>
 
-        {/* 6. Notes (optional) */}
+        {/* 6. Notes (optional, collapsible) */}
         <div className="mb-10">
-          <label className="text-[11px] tracking-[0.15em] uppercase text-amber-400/60 font-medium block mb-4">
-            06 — anything we should know? <span className="normal-case text-warm-gray-600">(optional)</span>
-          </label>
-          <textarea
-            placeholder="e.g. 'must include street art', 'no churches', 'coffee stop along the way'"
-            value={notes}
-            onChange={e => setNotes(e.target.value.slice(0, 200))}
-            rows={3}
-            className="w-full bg-white/[0.04] border border-white/10 rounded-xl px-5 py-4 text-warm-white placeholder-warm-gray-500 focus:border-amber-400/35 transition-all text-sm resize-none"
-          />
-          <p className="text-warm-gray-600 text-xs mt-1 text-right">{notes.length}/200</p>
+          {!showNotes ? (
+            <button
+              onClick={() => setShowNotes(true)}
+              className="flex items-center gap-2 text-warm-gray-500 hover:text-warm-gray-300 transition-colors text-sm group"
+            >
+              <span className="w-5 h-5 rounded-full border border-white/15 flex items-center justify-center group-hover:border-white/30 transition-colors text-xs">+</span>
+              add special requests
+              <span className="text-warm-gray-600 text-xs">(optional)</span>
+            </button>
+          ) : (
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <label className="text-[11px] tracking-[0.15em] uppercase text-amber-400/60 font-medium">
+                  special requests
+                </label>
+                <button onClick={() => { setShowNotes(false); setNotes('') }} className="text-warm-gray-600 hover:text-warm-gray-400 text-xs transition-colors">remove</button>
+              </div>
+              <textarea
+                autoFocus
+                placeholder="e.g. 'must include street art', 'no churches', 'coffee stop along the way'"
+                value={notes}
+                onChange={e => setNotes(e.target.value.slice(0, 200))}
+                rows={3}
+                className="w-full bg-white/[0.04] border border-white/10 rounded-xl px-5 py-4 text-warm-white placeholder-warm-gray-500 focus:border-amber-400/35 transition-all text-sm resize-none"
+              />
+              <p className="text-warm-gray-600 text-xs mt-1 text-right">{notes.length}/200</p>
+            </div>
+          )}
         </div>
 
         {/* Error */}
