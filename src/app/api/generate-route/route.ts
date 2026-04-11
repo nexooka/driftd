@@ -34,13 +34,20 @@ ROUTE GEOMETRY — TIGHT CLUSTER, NO BACKTRACKING:
 9. All stops must be geographically clustered — they will be reordered server-side using a nearest-neighbor algorithm. Your job is to pick stops that are ALL CLOSE TO EACH OTHER, not to order them perfectly. Focus on geographic density, not sequence.
 10. CLUSTER TEST: Draw a bounding box around all your stops. For a 60-min route it should be no bigger than ~1km × 1km. For 120 min, ~1.5km × 1.5km. If any stop falls outside that box, replace it with something closer.
 11. NEVER place a stop far away just because it's interesting — if it's more than 15 min walk from the cluster, skip it. The walk to and from kills the time budget.
-12. Still pick stop #1 at/near the user's starting point. The rest can be in any order — they'll be optimally sorted.
+12. Stop #2 onward can be in any order — they'll be optimally sorted server-side.
 13. If they specified an end point, route toward it as a straight shot. If they gave constraints in notes, follow them strictly.
 14. Match vibe tags. If they said "artsy + chill" — no loud bars, lots of cafés and street art.
 15. For regeneration requests: pick a completely different neighborhood or angle. Never repeat previous stops.
 
-STARTING POINT:
-16. CRITICAL: If geocoded coordinates are provided, Stop #1's lat/lng MUST match them exactly (copy-paste those coordinates). If no coordinates are given, stop #1 must be within 100m of the stated address. The user is physically at that location — never start the route somewhere requiring a long walk to reach.
+STARTING POINT — THIS IS NON-NEGOTIABLE:
+16. Stop #1 MUST be the user's EXACT starting address — not a café near it, not an attraction nearby, not somewhere "close". The literal address or location the user typed. If they typed their home address, stop #1 IS their home. If they typed a street corner, stop #1 IS that corner.
+   - name: use the address as-is, or a clean label like "Balbinowa 39" or "Warschauer Str. / Revaler Str."
+   - address: copy the user's starting address exactly
+   - lat/lng: use the geocoded coordinates provided below EXACTLY — copy-paste them, do not round or adjust
+   - tagline: "your starting point"
+   - description: one sentence — where the drift kicks off from, what the immediate surroundings feel like
+   - time_at_stop_minutes: 0
+   The interesting stops begin at stop #2. Stop #1 is purely the departure point.
 
 COORDINATES & ADDRESSES:
 17. Provide accurate latitude and longitude for each stop. These will be plotted on a real map. Be precise — wrong coordinates will put stops in the wrong location.
@@ -304,11 +311,25 @@ Generate a walking route. Aim for ${Math.round(minutes / 8)} stops minimum. Outp
       const text = response.content[0].type === 'text' ? response.content[0].text : ''
       const route = parseRoute(text)
 
+      // ── ENFORCE stop #1 = user's exact starting location ──────────────
+      // Claude is instructed to do this, but we enforce it server-side so
+      // it is IMPOSSIBLE for stop #1 to be somewhere the user didn't type.
+      if (route.stops?.length > 0) {
+        const s0 = route.stops[0]
+        s0.address = start
+        s0.time_at_stop_minutes = 0
+        if (startCoords) {
+          s0.lat = startCoords.lat
+          s0.lng = startCoords.lng
+        }
+      }
+
       // Reorder stops into shortest-path order (nearest-neighbor from start)
       route.stops = reorderStops(route.stops)
 
       // Fix AI-hallucinated coordinates with real Nominatim geocoding
-      await geocodeStops(route.stops, city)
+      // Skip stop #1 — its coordinates are already locked to the user's input
+      await geocodeStops(route.stops.slice(1), city)
 
       // Replace AI walking guesses with haversine, trim if needed, scale to target
       const walking = enrichAndAdjust(route.stops, minutes)
