@@ -26,21 +26,28 @@ export async function GET(req: NextRequest) {
         locationBias: {
           circle: {
             center: { latitude: parseFloat(lat), longitude: parseFloat(lng) },
-            radius: 300,
+            radius: 500,
           },
         },
       }),
     })
 
     const searchData = await searchRes.json()
+    console.log('[stop-photo] search status:', searchRes.status, 'body:', JSON.stringify(searchData).slice(0, 300))
+
     const photoName = searchData?.places?.[0]?.photos?.[0]?.name
-    if (!photoName) return new NextResponse(null, { status: 404 })
+    if (!photoName) {
+      console.log('[stop-photo] no photo found for:', name)
+      return new NextResponse(null, { status: 404 })
+    }
 
     // ── Step 2: get the photo URI ─────────────────────────────────────────
     const mediaRes = await fetch(
       `https://places.googleapis.com/v1/${photoName}/media?maxWidthPx=1200&skipHttpRedirect=true&key=${key}`
     )
     const mediaData = await mediaRes.json()
+    console.log('[stop-photo] media status:', mediaRes.status, 'photoUri:', mediaData?.photoUri?.slice(0, 80))
+
     const photoUri = mediaData?.photoUri
     if (!photoUri) return new NextResponse(null, { status: 404 })
 
@@ -55,7 +62,8 @@ export async function GET(req: NextRequest) {
         'Cache-Control': 'public, max-age=86400',
       },
     })
-  } catch {
+  } catch (err) {
+    console.log('[stop-photo] error:', err)
     return new NextResponse(null, { status: 500 })
   }
 }
