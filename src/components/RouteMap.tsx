@@ -161,11 +161,11 @@ export default function RouteMap({ stops, routeKey }: { stops: MapStop[]; routeK
         const main = L.polyline(pts, {
           color: '#fbbf24',
           opacity: 0,
-          weight: 2.5,
+          weight: isDash ? 1.5 : 2.5,
           smoothFactor: 0,
           lineCap: 'round',
           lineJoin: 'round',
-          ...(isDash ? { dashArray: '8 6' } : {}),
+          ...(isDash ? { dashArray: '3 9' } : {}),
         }).addTo(map)
 
         if (!isDash) {
@@ -191,8 +191,8 @@ export default function RouteMap({ stops, routeKey }: { stops: MapStop[]; routeK
         const isDash = !segmentCoords[i]?.length
         const timer = setTimeout(() => {
           if (destroyed || userClickedRef.current) return
-          glow.setStyle({ opacity: 0.13 })
-          main.setStyle({ opacity: 0.88 })
+          if (!isDash) glow.setStyle({ opacity: 0.13 })
+          main.setStyle({ opacity: isDash ? 0.25 : 0.88 })
           if (!isDash) {
             const pathEl = segPathElemsRef.current[i]
             if (pathEl) {

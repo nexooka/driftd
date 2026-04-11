@@ -201,6 +201,38 @@ function haversineMeters(lat1: number, lng1: number, lat2: number, lng2: number)
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
 }
 
+/* ── Remove stops that cause excessively long walks ─────────────────── */
+// Runs after geocoding so coordinates are accurate. Iteratively finds the
+// walk with the longest duration and removes the stop at the far end of it.
+// Never removes stop #0 (user's start) or #1 (first real stop).
+function removeOutlierStops(stops: any[]): any[] {
+  const MAX_WALK_MIN = 22
+
+  const walkMin = (i: number) => {
+    const s = stops[i], n = stops[i + 1]
+    if (!s?.lat || !s?.lng || !n?.lat || !n?.lng) return 0
+    const meters = Math.round(haversineMeters(s.lat, s.lng, n.lat, n.lng) * 1.35)
+    return Math.max(1, Math.round(meters / 83))
+  }
+
+  let changed = true
+  while (changed && stops.length > 3) {
+    changed = false
+    let worstMin = 0, worstIdx = -1
+    for (let i = 0; i < stops.length - 1; i++) {
+      const w = walkMin(i)
+      if (w > worstMin) { worstMin = w; worstIdx = i }
+    }
+    if (worstMin > MAX_WALK_MIN && worstIdx >= 1) {
+      // Remove the stop at the far end of the long walk (the outlier)
+      stops.splice(worstIdx + 1, 1)
+      stops.forEach((s, i) => { s.number = i + 1 })
+      changed = true
+    }
+  }
+  return stops
+}
+
 /* ── Replace AI walking estimates with haversine, trim stops, fix totals ─ */
 function enrichAndAdjust(stops: any[], targetMinutes: number) {
   if (stops.length < 2) return { totalWalkingMinutes: 0, totalWalkingMeters: 0 }
@@ -229,12 +261,10 @@ function enrichAndAdjust(stops: any[], targetMinutes: number) {
 
   let { totalWalkingMinutes, totalWalkingMeters } = computeWalking()
 
-  // ── Step 2: trim stops from the end until walking fits ──
-  // Each stop needs at least 3 min. If walking alone leaves < 3 min/stop, trim.
+  // ── Step 2: if total walking still blows the budget, trim from the end ──
   while (stops.length > 3) {
     const minNeededForStops = stops.length * 3
     if (totalWalkingMinutes + minNeededForStops <= targetMinutes + 10) break
-    // Remove last stop and the walk leading to it
     const trimmedWalk = stops[stops.length - 2].walk_to_next_minutes ?? 0
     const trimmedMeters = stops[stops.length - 2].walk_to_next_meters ?? 0
     stops.pop()
@@ -338,7 +368,7 @@ ${startCoordsNote}
 - Extra notes: ${notes?.trim() || 'none'}
 ${avoidNote}
 
-Generate a walking route. Aim for ${Math.round(minutes / 8)} stops minimum. Output ONLY the JSON.`
+Generate a walking route. Target ${Math.round(minutes / 12)}–${Math.round(minutes / 9)} stops — pack the route, use micro-stops to fill gaps. Output ONLY the JSON.`
 
   const client = new Anthropic()
   let attempt = 0
@@ -374,6 +404,10 @@ Generate a walking route. Aim for ${Math.round(minutes / 8)} stops minimum. Outp
       // Fix AI-hallucinated coordinates with real Nominatim geocoding
       // Skip stop #1 — its coordinates are already locked to the user's input
       await geocodeStops(route.stops.slice(1), city)
+
+      // Remove any stop whose geocoded position causes a walk >22 min from
+      // its neighbours — these are outliers that would create huge gaps on the map
+      route.stops = removeOutlierStops(route.stops)
 
       // Replace AI walking guesses with haversine, trim if needed, scale to target
       const walking = enrichAndAdjust(route.stops, minutes)
