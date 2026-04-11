@@ -231,7 +231,7 @@ export default function DemoPage() {
   const validate = () => {
     if (!city) return 'pick a city first.'
     if (!vibes.length) return 'pick at least one vibe.'
-    if (minutes < 20) return 'minimum 20 minutes — we need a bit of time to work with.'
+    if (minutes < 10) return 'minimum 10 minutes — we need a bit of time to work with.'
     if (minutes > 240) return 'maximum 4 hours for now.'
     if (!startPt.trim()) return 'where are you starting from?'
     return ''
@@ -737,7 +737,7 @@ export default function DemoPage() {
             }}
           />
           <div className="flex justify-between mt-2">
-            <span className="text-warm-gray-600 text-xs">20 min</span>
+            <span className="text-warm-gray-600 text-xs">10 min</span>
             <span className="text-warm-gray-600 text-xs">the longer the route, the longer it takes to generate</span>
             <span className="text-warm-gray-600 text-xs">4 hrs</span>
           </div>
