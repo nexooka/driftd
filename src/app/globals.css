@@ -163,6 +163,20 @@ body {
   animation-play-state: paused;
 }
 
+@keyframes marquee-reverse {
+  0%   { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
+}
+.animate-marquee-reverse {
+  animation: marquee-reverse 35s linear infinite;
+  will-change: transform;
+  display: flex;
+  width: max-content;
+}
+.animate-marquee-reverse:hover {
+  animation-play-state: paused;
+}
+
 /* ── Map route draw ────────────────────────────────── */
 @keyframes drawRoute {
   to { stroke-dashoffset: 0; }

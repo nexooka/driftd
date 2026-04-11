@@ -64,7 +64,7 @@ export default function AICompanion() {
   const activeMode = MODES.find(m => m.id === activeInfo)
 
   return (
-    <section id="features" className="relative py-28 md:py-36 overflow-hidden" style={{ background: '#0e0b07' }}>
+    <section id="features" className="relative py-28 md:py-36 bg-[#0a0a0a] overflow-hidden">
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-400/20 to-transparent" />
       <div
         className="blob absolute opacity-12 pointer-events-none"

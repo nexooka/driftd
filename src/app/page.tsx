@@ -2,6 +2,7 @@ import Navbar from '@/components/Navbar'
 import HeroSection from '@/components/HeroSection'
 import TickerBar from '@/components/TickerBar'
 import HowItWorks from '@/components/HowItWorks'
+import FeatureTicker from '@/components/FeatureTicker'
 import MapDemo from '@/components/MapDemo'
 import AICompanion from '@/components/AICompanion'
 import Manifesto from '@/components/Manifesto'
@@ -18,6 +19,7 @@ export default function Home() {
       <HeroSection />
       <TickerBar />
       <HowItWorks />
+      <FeatureTicker />
       <MapDemo />
       <AICompanion />
       <Manifesto />
