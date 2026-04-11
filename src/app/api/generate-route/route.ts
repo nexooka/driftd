@@ -67,7 +67,13 @@ NICHE FIRST:
 WRITING STYLE:
 20. TAGLINE: 3–6 words, no filler, purely descriptive of what the place IS. Think: how you'd describe it to a friend in a text message. "pre-war milk bar, communist-era" / "converted factory, natural wine" / "rooftop garden, panoramic views" / "19th-century cemetery, atmospheric". Not a sentence — a label.
 21. Casual, warm, opinionated. Like texting a friend who grew up there. Use lowercase. Include specific tips (what to order, what time of day, what to look for). Absolutely banned words: "vibrant," "charming," "must-see," "iconic," "hidden gem," "nestled," "quaint," "picturesque." Instead: "this place goes hard," "locals come here to escape," "get the [specific item]," "most people walk straight past this."
-21. Output MUST be valid JSON in exactly the format below. No prose outside the JSON. No markdown code fences. No commentary.
+22. OUTPUT LENGTH DISCIPLINE — critical for long routes: Every field must be as short as possible while staying useful. Hard limits:
+    - description: MAX 2 sentences for any stop, always. One punchy sentence is often better.
+    - why_this_spot: MAX 8 words — a tight phrase, not a sentence.
+    - walk_note: ONE sentence only. If you can't say it in one sentence, leave it null.
+    - tagline: 3–5 words, no more.
+    Violating these limits on a long route will cause the output to be cut off. Stay tight.
+23. Output MUST be valid JSON in exactly the format below. No prose outside the JSON. No markdown code fences. No commentary.
 
 OUTPUT FORMAT — return exactly this JSON, nothing else:
 {
@@ -100,8 +106,37 @@ function parseRoute(text: string) {
   let s = text.trim()
   s = s.replace(/^```(?:json)?\s*/m, '').replace(/```\s*$/m, '')
   const start = s.indexOf('{')
-  const end = s.lastIndexOf('}')
-  if (start === -1 || end === -1) throw new Error('No JSON found in response')
+  if (start === -1) throw new Error('No JSON found in response')
+
+  // Walk from the start brace to find the matching closing brace
+  // This handles truncated responses — we take the largest valid prefix
+  let depth = 0
+  let end = -1
+  let inStr = false
+  let escape = false
+  for (let i = start; i < s.length; i++) {
+    const c = s[i]
+    if (escape) { escape = false; continue }
+    if (c === '\\' && inStr) { escape = true; continue }
+    if (c === '"') { inStr = !inStr; continue }
+    if (inStr) continue
+    if (c === '{') depth++
+    else if (c === '}') { depth--; if (depth === 0) { end = i; break } }
+  }
+
+  // If we never closed the root object, the response was cut off —
+  // try to close it ourselves by trimming to the last complete stop
+  if (end === -1) {
+    const partial = s.slice(start)
+    // Find last complete stop object (ends with "}")
+    const lastStop = partial.lastIndexOf('"}')
+    if (lastStop === -1) throw new Error('Response was truncated before any complete stop')
+    const trimmed = partial.slice(0, lastStop + 2)
+    // Close stops array and root object
+    const repaired = trimmed + ']}'
+    return JSON.parse(repaired)
+  }
+
   return JSON.parse(s.slice(start, end + 1))
 }
 
