@@ -60,7 +60,7 @@ WRITING STYLE:
 OUTPUT FORMAT — return exactly this JSON, nothing else:
 {
   "city": "Warsaw",
-  "intro": "2–3 sentence personal intro. mention the specific neighborhood(s), why this angle works for their vibe and time.",
+  "intro": "2–3 sentence personal intro. mention the specific neighborhood(s) and why this angle works for their vibe and time. NEVER reference specific stop numbers or stop names — the route may be adjusted after generation.",
   "total_minutes": 45,
   "vibes": ["artsy", "chill"],
   "stops": [

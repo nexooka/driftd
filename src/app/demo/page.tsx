@@ -183,6 +183,7 @@ export default function DemoPage() {
   const [prevStops, setPrevStops] = useState<string[]>([])
   const [mapKey, setMapKey] = useState(0)
   const [visibleStops, setVisibleStops] = useState<boolean[]>([])
+  const [pinnedWalk, setPinnedWalk] = useState<number | null>(null)
 
   // Email modal
   const [showModal, setShowModal] = useState(false)
@@ -453,27 +454,38 @@ export default function DemoPage() {
 
                     {/* ── Walk connector (between stops) ── */}
                     {!isLast && stop.walk_to_next_minutes !== null && (
-                      <div style={walkStyle} className="relative my-2 mx-1 rounded-2xl overflow-hidden">
-                        {/* Left accent bar */}
-                        <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-white/[0.08] rounded-full" />
-                        <div className="pl-5 pr-5 py-4 bg-white/[0.02]">
-                          <div className="flex items-center gap-3 mb-1">
-                            {/* Footsteps icon */}
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="text-warm-gray-500 shrink-0">
-                              <circle cx="12" cy="3.5" r="1.5" stroke="currentColor" strokeWidth="1.5"/>
-                              <path d="M9.5 8l-2 4.5 3.5 1L10 19" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                              <path d="M14.5 8l2 4-3 1.5 1 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                            </svg>
-                            <span className="text-warm-gray-300 text-base font-medium">
-                              {fmtWalkingLeg(stop.walk_to_next_minutes, stop.walk_to_next_meters)}
-                            </span>
-                          </div>
+                      <div
+                        style={walkStyle}
+                        className="group relative my-2 mx-1 rounded-xl bg-white/[0.025] border border-white/[0.04] px-5 py-2.5 cursor-default"
+                        onMouseEnter={() => stop.walk_note && setPinnedWalk(i)}
+                        onMouseLeave={() => setPinnedWalk(null)}
+                        onClick={() => stop.walk_note && setPinnedWalk(pinnedWalk === i ? null : i)}
+                      >
+                        <div className="flex items-center gap-3">
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" className="text-warm-gray-500 shrink-0">
+                            <circle cx="12" cy="3.5" r="1.5" stroke="currentColor" strokeWidth="1.5"/>
+                            <path d="M9.5 8l-2 4.5 3.5 1L10 19" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M14.5 8l2 4-3 1.5 1 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                          <span className="text-white/75 text-base font-medium">
+                            {fmtWalkingLeg(stop.walk_to_next_minutes, stop.walk_to_next_meters)}
+                          </span>
                           {stop.walk_note && (
-                            <p className="text-warm-gray-500 text-sm italic leading-relaxed pl-7">
-                              {stop.walk_note}
-                            </p>
+                            <span className="ml-auto text-[10px] text-warm-gray-600 group-hover:text-warm-gray-500 transition-colors tracking-wide select-none">
+                              {pinnedWalk === i ? 'hide ↑' : 'about this walk'}
+                            </span>
                           )}
                         </div>
+                        {stop.walk_note && (
+                          <div
+                            className="overflow-hidden transition-all duration-300 ease-out"
+                            style={{ maxHeight: pinnedWalk === i ? '120px' : '0px', opacity: pinnedWalk === i ? 1 : 0 }}
+                          >
+                            <p className="text-warm-gray-400 text-sm italic leading-relaxed pt-2 pl-[23px]">
+                              {stop.walk_note}
+                            </p>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
