@@ -136,6 +136,7 @@ export default function HowItWorks() {
         </div>
       </div>
 
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-400/15 to-transparent" />
     </section>
   )
 }

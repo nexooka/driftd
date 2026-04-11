@@ -64,7 +64,8 @@ export default function AICompanion() {
   const activeMode = MODES.find(m => m.id === activeInfo)
 
   return (
-    <section id="features" className="relative py-28 md:py-36 bg-[#0a0a0a] overflow-hidden">
+    <section id="features" className="relative py-28 md:py-36 overflow-hidden" style={{ background: '#0e0b07' }}>
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-400/20 to-transparent" />
       <div
         className="blob absolute opacity-12 pointer-events-none"
         style={{
@@ -112,9 +113,9 @@ export default function AICompanion() {
           {/* Right: mode cards */}
           <div className="flex flex-col gap-4">
             <FadeIn direction="right">
-              <div className="flex items-center gap-3 mb-2">
-                <span className="text-[11px] tracking-[0.2em] uppercase text-warm-gray-500 font-medium">3 ai modes</span>
-                <div className="flex-1 h-px bg-white/[0.06]" />
+              <div className="flex items-center gap-3 mb-3">
+                <span className="text-sm tracking-[0.15em] uppercase text-warm-gray-200 font-semibold">3 ai modes</span>
+                <div className="flex-1 h-px bg-white/10" />
               </div>
             </FadeIn>
             {MODES.map((mode, i) => (
