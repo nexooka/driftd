@@ -202,11 +202,12 @@ function haversineMeters(lat1: number, lng1: number, lat2: number, lng2: number)
 }
 
 /* ── Remove stops that cause excessively long walks ─────────────────── */
-// Runs after geocoding so coordinates are accurate. Iteratively finds the
-// walk with the longest duration and removes the stop at the far end of it.
-// Never removes stop #0 (user's start) or #1 (first real stop).
-function removeOutlierStops(stops: any[]): any[] {
-  const MAX_WALK_MIN = 22
+// Only removes a stop when the walk it causes is genuinely an outlier AND
+// we still have enough stops to give a meaningful route.
+// Never removes stop #0 (user's start). Preserves at least minutes/25 stops.
+function removeOutlierStops(stops: any[], targetMinutes: number): any[] {
+  const MAX_WALK_MIN = 28
+  const MIN_STOPS = Math.max(4, Math.floor(targetMinutes / 25))
 
   const walkMin = (i: number) => {
     const s = stops[i], n = stops[i + 1]
@@ -216,7 +217,7 @@ function removeOutlierStops(stops: any[]): any[] {
   }
 
   let changed = true
-  while (changed && stops.length > 3) {
+  while (changed && stops.length > MIN_STOPS) {
     changed = false
     let worstMin = 0, worstIdx = -1
     for (let i = 0; i < stops.length - 1; i++) {
@@ -224,7 +225,6 @@ function removeOutlierStops(stops: any[]): any[] {
       if (w > worstMin) { worstMin = w; worstIdx = i }
     }
     if (worstMin > MAX_WALK_MIN && worstIdx >= 1) {
-      // Remove the stop at the far end of the long walk (the outlier)
       stops.splice(worstIdx + 1, 1)
       stops.forEach((s, i) => { s.number = i + 1 })
       changed = true
@@ -405,14 +405,19 @@ Generate a walking route. Target ${Math.round(minutes / 12)}–${Math.round(minu
       // Skip stop #1 — its coordinates are already locked to the user's input
       await geocodeStops(route.stops.slice(1), city)
 
-      // Remove any stop whose geocoded position causes a walk >22 min from
-      // its neighbours — these are outliers that would create huge gaps on the map
-      route.stops = removeOutlierStops(route.stops)
+      // Remove outlier stops that cause very long walks, but keep enough stops
+      // to fill the requested time (min MAX(4, minutes/25) stops preserved)
+      route.stops = removeOutlierStops(route.stops, minutes)
 
       // Replace AI walking guesses with haversine, trim if needed, scale to target
       const walking = enrichAndAdjust(route.stops, minutes)
       route.total_walking_minutes = walking.totalWalkingMinutes
       route.total_walking_meters = walking.totalWalkingMeters
+
+      // Always reflect the true computed total — never trust Claude's guess
+      route.total_minutes = route.stops.reduce(
+        (sum: number, s: any) => sum + (s.time_at_stop_minutes ?? 0) + (s.walk_to_next_minutes ?? 0), 0
+      )
 
       return NextResponse.json(route)
     } catch (err) {
