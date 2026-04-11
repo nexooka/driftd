@@ -142,7 +142,7 @@ export default function AICompanion() {
                     {/* Info button */}
                     <button
                       onClick={() => setActiveInfo(mode.id)}
-                      className="flex-shrink-0 w-6 h-6 rounded-full border border-white/10 flex items-center justify-center text-warm-gray-500 hover:text-warm-gray-300 hover:border-white/20 transition-colors"
+                      className="flex-shrink-0 w-6 h-6 rounded-full border border-white/30 flex items-center justify-center text-warm-gray-200 hover:text-warm-white hover:border-white/60 transition-colors"
                       aria-label={`learn more about ${mode.label}`}
                     >
                       <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
@@ -173,7 +173,7 @@ export default function AICompanion() {
                     </div>
                   ) : (
                     <div className="relative z-10">
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/[0.03] border border-white/[0.07] text-warm-gray-500 text-[11px] font-medium">
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/[0.06] border border-white/20 text-warm-gray-300 text-[11px] font-medium">
                         coming later this year
                       </span>
                     </div>
