@@ -48,7 +48,6 @@ function interpolateAlongPath(
   t: number
 ): [number, number] | null {
   if (points.length < 2) return null
-  // Build cumulative distances
   const dists: number[] = [0]
   for (let i = 1; i < points.length; i++) {
     const [lat1, lng1] = points[i - 1]
@@ -74,7 +73,8 @@ function interpolateAlongPath(
 export default function RouteMap({ stops, routeKey }: { stops: MapStop[]; routeKey: number }) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<any>(null)
-  const segPolysRef = useRef<any[]>([])        // [glow, main] pairs per segment
+  const segPolysRef = useRef<any[]>([])          // [glow, main] pairs
+  const segPathElemsRef = useRef<(SVGPathElement | null)[]>([])  // main SVG path elements
   const markerElemsRef = useRef<(HTMLElement | null)[]>([])
   const animTimersRef = useRef<ReturnType<typeof setTimeout>[]>([])
   const dotMarkerRef = useRef<any>(null)
@@ -95,16 +95,11 @@ export default function RouteMap({ stops, routeKey }: { stops: MapStop[]; routeK
     setHasInteracted(false)
   }, [routeKey, stops.length])
 
-  /* Update visuals on user interaction */
+  /* Update segment colors on user interaction */
   useEffect(() => {
-    if (!userClickedRef.current) return
+    if (!hasInteracted) return
     animTimersRef.current.forEach(clearTimeout)
     animTimersRef.current = []
-
-    // Hide traveling dot in segment mode
-    if (dotMarkerRef.current) {
-      dotMarkerRef.current.setStyle({ opacity: 0, fillOpacity: 0 })
-    }
 
     segPolysRef.current.forEach(([glow, main], i) => {
       const active = i < activeStop
@@ -112,15 +107,24 @@ export default function RouteMap({ stops, routeKey }: { stops: MapStop[]; routeK
         color: active ? '#fbbf24' : '#1e1e1e',
         opacity: active ? 0.13 : 0,
       })
-      if (main) main.setStyle({
-        color: active ? '#fbbf24' : '#1e1e1e',
-        opacity: active ? 0.88 : 0.3,
-      })
+      if (main) {
+        // Remove draw animation, switch to plain opacity control
+        const pathEl = segPathElemsRef.current[i]
+        if (pathEl) {
+          pathEl.style.transition = 'none'
+          pathEl.style.strokeDasharray = 'none'
+          pathEl.style.strokeDashoffset = '0'
+        }
+        main.setStyle({
+          color: active ? '#fbbf24' : '#1e1e1e',
+          opacity: active ? 0.88 : 0.3,
+        })
+      }
     })
     markerElemsRef.current.forEach((el, i) => {
       if (el) el.style.opacity = i <= activeStop ? '1' : '0.28'
     })
-  }, [activeStop])
+  }, [activeStop, hasInteracted])
 
   /* Map setup */
   useEffect(() => {
@@ -129,6 +133,7 @@ export default function RouteMap({ stops, routeKey }: { stops: MapStop[]; routeK
 
     let destroyed = false
     segPolysRef.current = []
+    segPathElemsRef.current = []
     markerElemsRef.current = []
     animTimersRef.current.forEach(clearTimeout)
     animTimersRef.current = []
@@ -171,18 +176,18 @@ export default function RouteMap({ stops, routeKey }: { stops: MapStop[]; routeK
       const segmentCoords = await fetchAllLegs(latlngs)
       if (destroyed) return
 
-      // Flatten all route points for the traveling dot
+      // Flatten all route points for the dot
       const allPoints: [number, number][] = []
       segmentCoords.forEach((coords, i) => {
         const pts = coords ?? [[latlngs[i][0], latlngs[i][1]], [latlngs[i + 1][0], latlngs[i + 1][1]]] as [number, number][]
         pts.forEach((p, j) => {
-          if (j === 0 && allPoints.length > 0) return // skip duplicate junction
+          if (j === 0 && allPoints.length > 0) return
           allPoints.push(p)
         })
       })
       allRoutePointsRef.current = allPoints
 
-      // Draw segments: each is [glow polyline, main polyline], start opacity 0
+      // Draw segments — start invisible
       const pairs: any[] = segmentCoords.map((coords, i) => {
         const pts = coords?.length
           ? coords
@@ -208,42 +213,67 @@ export default function RouteMap({ stops, routeKey }: { stops: MapStop[]; routeK
           ...(isDash ? { dashArray: '8 6' } : {}),
         }).addTo(map)
 
+        // Prepare stroke-dashoffset draw animation on the SVG path
+        if (!isDash) {
+          requestAnimationFrame(() => {
+            const pathEl = main.getElement() as SVGPathElement | null
+            segPathElemsRef.current[i] = pathEl
+            if (pathEl) {
+              try {
+                const len = pathEl.getTotalLength()
+                pathEl.style.strokeDasharray = `${len}`
+                pathEl.style.strokeDashoffset = `${len}`
+              } catch {}
+            }
+          })
+        }
+
         return [glow, main]
       })
       segPolysRef.current = pairs
 
-      // Sequential reveal animation
+      // Sequential reveal — glow fades in, main line draws itself
       pairs.forEach(([glow, main], i) => {
+        const isDash = !segmentCoords[i]?.length
+        const delay = 200 + i * 420
+
         const timer = setTimeout(() => {
-          if (!destroyed && !userClickedRef.current) {
-            glow.setStyle({ opacity: 0.13 })
-            main.setStyle({ opacity: 0.88 })
+          if (destroyed || userClickedRef.current) return
+          glow.setStyle({ opacity: 0.13 })
+          main.setStyle({ opacity: 0.88 })
+
+          if (!isDash) {
+            const pathEl = segPathElemsRef.current[i]
+            if (pathEl) {
+              pathEl.style.transition = 'stroke-dashoffset 0.72s ease-out'
+              pathEl.style.strokeDashoffset = '0'
+            }
           }
-        }, 150 + i * 380)
+        }, delay)
         animTimersRef.current.push(timer)
       })
 
-      // Traveling dot (appears after route fully revealed)
+      // Traveling dot — always loops, never stopped by click
       const dot = L.circleMarker(latlngs[0], {
-        radius: 5,
-        color: '#fbbf24',
+        radius: 4.5,
+        color: 'transparent',
         fillColor: '#fbbf24',
         fillOpacity: 0,
         opacity: 0,
-        weight: 2,
+        weight: 0,
       }).addTo(map)
       dotMarkerRef.current = dot
 
-      const dotDelay = 150 + pairs.length * 380 + 400
+      const dotDelay = 200 + pairs.length * 420 + 300
       const dotTimer = setTimeout(() => {
-        if (destroyed || userClickedRef.current) return
-        dot.setStyle({ fillOpacity: 0.95, opacity: 0 }) // fill only, no border ring
+        if (destroyed) return
+        dot.setStyle({ fillOpacity: 0.9 })
 
-        const duration = Math.max(18000, allPoints.length * 80) // ~18-35s per loop
+        const duration = Math.max(9000, allPoints.length * 45)
         let startTime: number | null = null
 
         const animateDot = (ts: number) => {
-          if (destroyed || userClickedRef.current) return
+          if (destroyed) return
           if (!startTime) startTime = ts
           const elapsed = ts - startTime
           const t = (elapsed % duration) / duration
@@ -255,36 +285,50 @@ export default function RouteMap({ stops, routeKey }: { stops: MapStop[]; routeK
       }, dotDelay)
       animTimersRef.current.push(dotTimer)
 
-      // Draw markers
+      // Draw markers with permanent labels
       stops.forEach((stop, i) => {
         const isFirst = i === 0
-        const size = isFirst ? 36 : 28
-        const anchor = isFirst ? 18 : 14
+        const isLast = i === stops.length - 1
+        const size = isLast ? 40 : isFirst ? 36 : 28
+        const anchor = isLast ? 20 : isFirst ? 18 : 14
 
-        const markerHtml = isFirst
-          ? `<div style="width:36px;height:36px;position:relative;display:flex;align-items:center;justify-content:center;cursor:pointer">
-               <div style="position:absolute;inset:0;border-radius:50%;background:rgba(251,191,36,0.18);border:1.5px solid rgba(251,191,36,0.45)"></div>
-               <div style="width:24px;height:24px;background:#fbbf24;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#0a0a0a;font-family:ui-sans-serif,system-ui;box-shadow:0 2px 14px rgba(251,191,36,0.65)">1</div>
-             </div>`
-          : `<div style="width:28px;height:28px;background:#fbbf24;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#0a0a0a;font-family:ui-sans-serif,system-ui;box-shadow:0 2px 10px rgba(251,191,36,0.45);cursor:pointer">${i + 1}</div>`
+        let markerHtml: string
+        if (isFirst) {
+          markerHtml = `
+            <div style="width:36px;height:36px;position:relative;display:flex;align-items:center;justify-content:center;cursor:pointer">
+              <div style="position:absolute;inset:0;border-radius:50%;background:rgba(251,191,36,0.18);border:1.5px solid rgba(251,191,36,0.45)"></div>
+              <div style="width:24px;height:24px;background:#fbbf24;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#0a0a0a;font-family:ui-sans-serif,system-ui;box-shadow:0 2px 14px rgba(251,191,36,0.65)">1</div>
+            </div>`
+        } else if (isLast) {
+          markerHtml = `
+            <div style="width:40px;height:40px;position:relative;display:flex;align-items:center;justify-content:center;cursor:pointer">
+              <div class="stop-ping" style="position:absolute;inset:0;border-radius:50%;border:2px solid rgba(251,191,36,0.55)"></div>
+              <div style="position:absolute;inset:5px;border-radius:50%;background:rgba(251,191,36,0.14);border:1px solid rgba(251,191,36,0.32)"></div>
+              <div style="width:26px;height:26px;background:#fbbf24;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#0a0a0a;font-family:ui-sans-serif,system-ui;box-shadow:0 2px 18px rgba(251,191,36,0.75)">${stops.length}</div>
+            </div>`
+        } else {
+          markerHtml = `
+            <div style="width:28px;height:28px;background:#fbbf24;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#0a0a0a;font-family:ui-sans-serif,system-ui;box-shadow:0 2px 10px rgba(251,191,36,0.45);cursor:pointer">${i + 1}</div>`
+        }
 
         const icon = L.divIcon({
           html: markerHtml,
           className: '',
           iconSize: [size, size],
           iconAnchor: [anchor, anchor],
-          popupAnchor: [0, -anchor - 4],
         })
 
         const marker = L.marker([stop.lat, stop.lng], { icon })
-          .bindPopup(
-            `<div style="font-family:ui-sans-serif,system-ui;font-size:13px;font-weight:600;color:#111;padding:2px 0">${stop.name}</div>`,
-            { className: 'driftd-popup', maxWidth: 200 }
-          )
+          .bindTooltip(stop.name, {
+            permanent: true,
+            direction: 'right',
+            className: 'drift-label',
+            offset: [anchor + 5, 0],
+          })
           .on('click', () => {
             userClickedRef.current = true
             setHasInteracted(true)
-            if (i === stops.length - 1 && activeStopRef.current === stops.length - 1) return
+            if (i === activeStopRef.current) return
             setActiveStop(i)
           })
           .addTo(map)
@@ -315,11 +359,18 @@ export default function RouteMap({ stops, routeKey }: { stops: MapStop[]; routeK
 
   return (
     <div className="space-y-2">
-      <div
-        ref={containerRef}
-        className="w-full rounded-2xl overflow-hidden border border-white/[0.06]"
-        style={{ height: '420px', background: '#0a0a0a' }}
-      />
+      <div className="relative">
+        <div
+          ref={containerRef}
+          className="w-full rounded-2xl overflow-hidden border border-white/[0.06]"
+          style={{ height: '420px', background: '#0a0a0a' }}
+        />
+        {/* Edge vignette — blends map into page background */}
+        <div
+          className="absolute inset-0 rounded-2xl pointer-events-none"
+          style={{ boxShadow: 'inset 0 0 90px 35px #0a0a0a', zIndex: 500 }}
+        />
+      </div>
       <div className="flex items-center justify-between px-1 h-5">
         <p className="text-[10px] text-warm-gray-600 tracking-wide">
           tap a stop marker to walk the route step by step
