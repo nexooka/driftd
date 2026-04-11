@@ -206,13 +206,17 @@ export default function DemoPage() {
       const queries = [`${name} ${city}`, name]
       let found: string | null = null
       for (const q of queries) {
-        const url = `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(q)}&prop=pageimages&format=json&pithumbsize=700&origin=*`
+        // Use generator=search so we don't need an exact article title
+        const url = `https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(q)}&gsrlimit=3&prop=pageimages&format=json&pithumbsize=700&origin=*`
         const res = await fetch(url)
         const data = await res.json()
         const pages = data?.query?.pages
         if (!pages) continue
-        const page: any = Object.values(pages)[0]
-        if (page?.thumbnail?.source) { found = page.thumbnail.source; break }
+        // Pick the first result that has a thumbnail
+        for (const page of Object.values(pages) as any[]) {
+          if (page?.thumbnail?.source) { found = page.thumbnail.source; break }
+        }
+        if (found) break
       }
       setStopPhotos(p => ({ ...p, [idx]: found ?? 'notfound' }))
     } catch {

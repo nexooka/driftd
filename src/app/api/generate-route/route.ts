@@ -33,9 +33,10 @@ STOP COUNT & TIME:
 6. TIME BUDGET: sum of all (time_at_stop + walk_to_next) must equal total_minutes ± 5 min. Calculate before finalizing.
 
 NICHE FIRST — THIS IS THE WHOLE POINT OF DRIFTD:
-7. DIG DEEP into the knowledge base. The first place that comes to mind is wrong — that's the tourist answer. Read the full knowledge base and pick places from the BOTTOM of each section, the ones nobody talks about. If a spot has appeared on any "top 10" list or travel blog, skip it. The goal is: user shows a local the route and the local says "damn, how did you find that?"
-8. Anti-repeat rule: never use the same stop twice across regenerations. Never pick the "obvious" representative of a category — if the knowledge base has 8 cafés, don't pick the most famous one. Pick the third or fourth most obscure one.
-9. Banned unless user explicitly requests: any major landmark, any place that appears in mainstream travel content, any chain or franchise, anything a tourist would already know.
+7. DIG DEEP into the knowledge base. The first place that comes to mind is wrong — that's the tourist answer. Read the full knowledge base and pick places from the bottom of each section, the ones nobody talks about. The goal is: user shows a local the route and the local says "damn, how did you find that?"
+8. HARD BANNED stops (never include these under any circumstances): Old Town Square, Charles Bridge, Prague Castle, Wenceslas Square, Astronomical Clock, Eiffel Tower, Notre Dame, Sacré-Cœur, Brandenburg Gate, Checkpoint Charlie, Museum Island, Alexanderplatz, Warsaw Old Town, Royal Castle Warsaw, Palace of Culture Warsaw, Łazienki Park, Wilanów Palace, or ANY place that appears in the first page of a Google search for that city. If a tourist bus stops there, it's banned.
+9. Anti-repeat: if the knowledge base has 8 cafés, never pick the most famous one. Pick the third or fourth most obscure entry.
+10. When in doubt between a famous spot and a niche one — always pick the niche one. Every time.
 
 ROUTE GEOMETRY — STOPS MUST BE DENSE, WALKS MUST BE SHORT:
 10. ALL stops must cluster tightly. The nearest-neighbor algorithm will reorder them but CANNOT fix stops that are genuinely far apart. If you put a stop 2km away from the cluster, it creates a 24-min walk that kills the vibe. Every stop must be within easy walking distance of every other stop.
@@ -207,7 +208,7 @@ function haversineMeters(lat1: number, lng1: number, lat2: number, lng2: number)
 // Never removes stop #0 (user's start). Preserves at least minutes/25 stops.
 function removeOutlierStops(stops: any[], targetMinutes: number): any[] {
   const MAX_WALK_MIN = 28
-  const MIN_STOPS = Math.max(4, Math.floor(targetMinutes / 25))
+  const MIN_STOPS = Math.max(5, Math.floor(targetMinutes / 14)) // e.g. 90min→6, 120min→8, 180min→12
 
   const walkMin = (i: number) => {
     const s = stops[i], n = stops[i + 1]
@@ -262,9 +263,10 @@ function enrichAndAdjust(stops: any[], targetMinutes: number) {
   let { totalWalkingMinutes, totalWalkingMeters } = computeWalking()
 
   // ── Step 2: if total walking still blows the budget, trim from the end ──
-  while (stops.length > 3) {
+  const minStops = Math.max(3, Math.floor(targetMinutes / 20))
+  while (stops.length > minStops) {
     const minNeededForStops = stops.length * 3
-    if (totalWalkingMinutes + minNeededForStops <= targetMinutes + 10) break
+    if (totalWalkingMinutes + minNeededForStops <= targetMinutes + 15) break
     const trimmedWalk = stops[stops.length - 2].walk_to_next_minutes ?? 0
     const trimmedMeters = stops[stops.length - 2].walk_to_next_meters ?? 0
     stops.pop()
