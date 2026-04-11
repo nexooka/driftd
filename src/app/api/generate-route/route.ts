@@ -30,11 +30,11 @@ LOWKEY BIAS:
 7. Actively avoid the top tourist attractions. If a place appears in every "top 10" listicle, skip it UNLESS the user explicitly asked for 'historic' AND it's genuinely unmissable. Prefer: independent cafés nobody's heard of, local bars, lesser-known street art, residential courtyards, neighborhood squares, canal/riverside spots, bookshops, vinyl shops, anything that makes the user feel like an insider.
 8. When the user says a short time (e.g. 24 or 45 min), pick a TIGHT GEOGRAPHIC AREA — one or two adjacent neighborhoods. Don't spread the route across the whole city.
 
-ROUTE GEOMETRY — NO BACKTRACKING:
-9. CRITICAL: Before placing stops, mentally sketch the route on a map. Pick a clear DIRECTION OF TRAVEL (e.g. "we'll head north through Praga then loop slightly east"). Every stop must advance along that direction — never double back.
-10. The route must look like a natural walking line or gentle arc, NOT a zigzag. Imagine drawing a line through all stops on a map — it should feel like a river, not a scribble. If any stop would require walking back past a previous stop, it belongs earlier in the list or should be replaced.
-11. CLUSTER TEST: Your first 3 stops should be geographically close to each other. Your last 3 stops should be in a clearly different area. They should NOT overlap.
-12. ORDERING RULE: Sort all candidate stops by their position along the direction of travel before numbering them. This is non-negotiable. A stop that is "further along the route" must always have a higher number.
+ROUTE GEOMETRY — TIGHT CLUSTER, NO BACKTRACKING:
+9. All stops must be geographically clustered — they will be reordered server-side using a nearest-neighbor algorithm. Your job is to pick stops that are ALL CLOSE TO EACH OTHER, not to order them perfectly. Focus on geographic density, not sequence.
+10. CLUSTER TEST: Draw a bounding box around all your stops. For a 60-min route it should be no bigger than ~1km × 1km. For 120 min, ~1.5km × 1.5km. If any stop falls outside that box, replace it with something closer.
+11. NEVER place a stop far away just because it's interesting — if it's more than 15 min walk from the cluster, skip it. The walk to and from kills the time budget.
+12. Still pick stop #1 at/near the user's starting point. The rest can be in any order — they'll be optimally sorted.
 13. If they specified an end point, route toward it as a straight shot. If they gave constraints in notes, follow them strictly.
 14. Match vibe tags. If they said "artsy + chill" — no loud bars, lots of cafés and street art.
 15. For regeneration requests: pick a completely different neighborhood or angle. Never repeat previous stops.
@@ -176,6 +176,45 @@ function enrichAndAdjust(stops: any[], targetMinutes: number) {
   return { totalWalkingMinutes, totalWalkingMeters }
 }
 
+/* ── Nearest-neighbor reorder (greedy TSP, O(n²)) ───────────────────── */
+// Keeps stop[0] fixed (user's starting location), reorders the rest so
+// total walking distance is minimised — eliminates backtracking.
+function reorderStops(stops: any[]): any[] {
+  if (stops.length <= 2) return stops
+
+  const withCoords = (s: any) => s.lat && s.lng
+
+  const result: any[] = [stops[0]] // starting stop is always fixed
+  const pool: any[] = stops.slice(1)
+
+  while (pool.length > 0) {
+    const cur = result[result.length - 1]
+    if (!withCoords(cur)) {
+      result.push(...pool.splice(0, 1))
+      continue
+    }
+
+    // Find closest unvisited stop to current position
+    let bestIdx = 0
+    let bestDist = Infinity
+    pool.forEach((s, i) => {
+      if (!withCoords(s)) return
+      const d = haversineMeters(cur.lat, cur.lng, s.lat, s.lng)
+      if (d < bestDist) { bestDist = d; bestIdx = i }
+    })
+
+    result.push(...pool.splice(bestIdx, 1))
+  }
+
+  // Renumber and clear walk_notes (they were written for the old order)
+  result.forEach((s, i) => {
+    s.number = i + 1
+    s.walk_note = null
+  })
+
+  return result
+}
+
 export async function POST(req: NextRequest) {
   const { city, vibes, minutes, start, end, notes, previousStops = [] } = await req.json()
 
@@ -235,7 +274,10 @@ Generate a walking route. Aim for ${Math.round(minutes / 8)} stops minimum. Outp
       const text = response.content[0].type === 'text' ? response.content[0].text : ''
       const route = parseRoute(text)
 
-      // Replace AI walking guesses with haversine, then scale stop times to hit target
+      // Reorder stops into shortest-path order (nearest-neighbor from start)
+      route.stops = reorderStops(route.stops)
+
+      // Replace AI walking guesses with haversine, trim if needed, scale to target
       const walking = enrichAndAdjust(route.stops, minutes)
       route.total_walking_minutes = walking.totalWalkingMinutes
       route.total_walking_meters = walking.totalWalkingMeters
