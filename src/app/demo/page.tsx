@@ -726,14 +726,14 @@ export default function DemoPage() {
           </div>
           <input
             type="range"
-            min={20}
+            min={10}
             max={240}
             step={5}
             value={minutes}
             onChange={e => setMinutes(Number(e.target.value))}
             className="drift-slider"
             style={{
-              background: `linear-gradient(to right, #fbbf24 0%, #fbbf24 ${((minutes - 20) / 220) * 100}%, #1e1e1e ${((minutes - 20) / 220) * 100}%, #1e1e1e 100%)`
+              background: `linear-gradient(to right, #fbbf24 0%, #fbbf24 ${((minutes - 10) / 230) * 100}%, #1e1e1e ${((minutes - 10) / 230) * 100}%, #1e1e1e 100%)`
             }}
           />
           <div className="flex justify-between mt-2">
@@ -762,11 +762,11 @@ export default function DemoPage() {
           {!showEnd ? (
             <button
               onClick={() => setShowEnd(true)}
-              className="flex items-center gap-2 text-warm-gray-500 hover:text-warm-gray-300 transition-colors text-sm group"
+              className="flex items-center gap-2 text-warm-gray-400 hover:text-warm-gray-200 transition-colors text-sm group"
             >
-              <span className="w-5 h-5 rounded-full border border-white/15 flex items-center justify-center group-hover:border-white/30 transition-colors text-xs">+</span>
+              <span className="w-5 h-5 rounded-full border border-white/25 flex items-center justify-center group-hover:border-white/45 transition-colors text-xs">+</span>
               add destination
-              <span className="text-warm-gray-600 text-xs">(optional)</span>
+              <span className="text-warm-gray-500 text-xs">(optional)</span>
             </button>
           ) : (
             <div>
@@ -793,11 +793,11 @@ export default function DemoPage() {
           {!showNotes ? (
             <button
               onClick={() => setShowNotes(true)}
-              className="flex items-center gap-2 text-warm-gray-500 hover:text-warm-gray-300 transition-colors text-sm group"
+              className="flex items-center gap-2 text-warm-gray-400 hover:text-warm-gray-200 transition-colors text-sm group"
             >
-              <span className="w-5 h-5 rounded-full border border-white/15 flex items-center justify-center group-hover:border-white/30 transition-colors text-xs">+</span>
+              <span className="w-5 h-5 rounded-full border border-white/25 flex items-center justify-center group-hover:border-white/45 transition-colors text-xs">+</span>
               add special requests
-              <span className="text-warm-gray-600 text-xs">(optional)</span>
+              <span className="text-warm-gray-500 text-xs">(optional)</span>
             </button>
           ) : (
             <div>
