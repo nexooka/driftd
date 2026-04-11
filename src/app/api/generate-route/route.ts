@@ -12,14 +12,19 @@ KNOWLEDGE BASE RULES:
 4. When using training knowledge for any private business, apply maximum scrutiny. If there is even a 10% chance the name is wrong or the place closed, skip it and use the knowledge base instead.
 
 STOP COUNT & TIME:
-4. Generate ENOUGH stops to genuinely fill the time. Use this as a guide:
-   - 20–40 min: 4–5 stops
-   - 40–60 min: 5–7 stops
-   - 60–90 min: 7–10 stops
-   - 90–180 min: 10–14 stops
-   Include a mix of MAIN STOPS (8–15 min) and MICRO-STOPS (2–4 min — a mural, a courtyard entrance, an interesting facade, a canal view). Micro-stops are things you walk past and pause at, not sit-down experiences.
-5. Keep walking time between stops TIGHT. In dense European city neighborhoods, stops should be 3–10 min walk apart. Don't space them so far that walking dominates the time.
-6. Match the user's total time PRECISELY: sum of all (time_at_stop + walk_to_next) should equal total_minutes ± 5 min.
+4. Generate ENOUGH stops to fill the time — but NEVER too many:
+   - 20–35 min: 3–4 stops
+   - 35–60 min: 4–6 stops
+   - 60–90 min: 6–9 stops
+   - 90–180 min: 9–14 stops
+   Include a mix of MAIN STOPS (8–15 min) and MICRO-STOPS (2–4 min — a mural, a courtyard, an interesting facade). Micro-stops are walk-past-and-pause, not sit-down.
+5. GEOGRAPHIC DISTANCE IS CRITICAL. Your walk_to_next_minutes estimates will be REPLACED by real haversine calculations (at 83m/min walking pace). What matters is actual geographic distance between stop coordinates:
+   - 300m apart = ~5 min walk ✓ good
+   - 500m apart = ~8 min walk ✓ acceptable
+   - 800m apart = ~13 min walk ⚠ use only if the walk itself is interesting
+   - 1000m+ apart = ~20+ min walk ✗ too far for a tight route
+   For a 50-min route: all stops must cluster within a ~600m radius. For a 90-min route: ~1km radius. Do not scatter stops across a neighborhood — keep them walkable from each other.
+6. TIME BUDGET: sum of all (time_at_stop + walk_to_next) must equal total_minutes ± 5 min. Do the math: if you have 5 stops averaging 6 min at each and 5-min walks between, that's (5×6) + (4×5) = 50 min. Calculate before finalizing.
 
 LOWKEY BIAS:
 7. Actively avoid the top tourist attractions. If a place appears in every "top 10" listicle, skip it UNLESS the user explicitly asked for 'historic' AND it's genuinely unmissable. Prefer: independent cafés nobody's heard of, local bars, lesser-known street art, residential courtyards, neighborhood squares, canal/riverside spots, bookshops, vinyl shops, anything that makes the user feel like an insider.
@@ -40,6 +45,9 @@ STARTING POINT:
 COORDINATES & ADDRESSES:
 17. Provide accurate latitude and longitude for each stop. These will be plotted on a real map. Be precise — wrong coordinates will put stops in the wrong location.
 18. Include a real street address for each stop. Format: "ul. Ząbkowska 6" (Warsaw), "Eisenbahnstraße 42" (Berlin), "Mánesova 13" (Prague). If you're not confident in the exact house number, give the street name and neighborhood.
+
+WALK NOTES:
+19. When a walk between stops is longer (roughly 7+ minutes), add a "walk_note" field: one casual sentence describing what the walk is like and why it's worth it. Make it feel like a tip from a friend: what to notice, what the street feels like, anything interesting along the way. Example: "the walk takes you along the canal past a row of old boat sheds — it's a nice transition." For short walks, leave walk_note as null.
 
 NICHE FIRST:
 19. Always prefer the most niche, least-known version of a neighborhood. Don't default to the famous streets — pick the streets one block over that only locals know. Think: the back entrance, the adjacent courtyard, the street that runs parallel to the obvious one.
@@ -65,6 +73,7 @@ OUTPUT FORMAT — return exactly this JSON, nothing else:
       "description": "2–4 sentences. what it is, what to do, specific tips.",
       "why_this_spot": "one line — how it fits the vibe",
       "walk_to_next_minutes": 5,
+      "walk_note": null,
       "time_at_stop_minutes": 8
     }
   ],
@@ -109,39 +118,56 @@ function haversineMeters(lat1: number, lng1: number, lat2: number, lng2: number)
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
 }
 
-/* ── Replace AI walking estimates with haversine, then fix total time ── */
+/* ── Replace AI walking estimates with haversine, trim stops, fix totals ─ */
 function enrichAndAdjust(stops: any[], targetMinutes: number) {
   if (stops.length < 2) return { totalWalkingMinutes: 0, totalWalkingMeters: 0 }
 
-  let totalWalkingMinutes = 0
-  let totalWalkingMeters = 0
+  // ── Step 1: compute real walking times via haversine ──
+  const computeWalking = () => {
+    let totalWalkingMinutes = 0
+    let totalWalkingMeters = 0
+    stops.slice(0, -1).forEach((stop, i) => {
+      const next = stops[i + 1]
+      if (stop.lat && stop.lng && next.lat && next.lng) {
+        const meters = Math.round(haversineMeters(stop.lat, stop.lng, next.lat, next.lng) * 1.35)
+        const minutes = Math.max(1, Math.round(meters / 83))
+        stops[i].walk_to_next_minutes = minutes
+        stops[i].walk_to_next_meters = meters
+        totalWalkingMinutes += minutes
+        totalWalkingMeters += meters
+      } else {
+        totalWalkingMinutes += stops[i].walk_to_next_minutes ?? 0
+      }
+    })
+    stops[stops.length - 1].walk_to_next_minutes = null
+    stops[stops.length - 1].walk_to_next_meters = null
+    return { totalWalkingMinutes, totalWalkingMeters }
+  }
 
-  stops.slice(0, -1).forEach((stop, i) => {
-    const next = stops[i + 1]
-    if (stop.lat && stop.lng && next.lat && next.lng) {
-      const meters = Math.round(haversineMeters(stop.lat, stop.lng, next.lat, next.lng) * 1.35)
-      const minutes = Math.max(1, Math.round(meters / 83))
-      stops[i].walk_to_next_minutes = minutes
-      stops[i].walk_to_next_meters = meters
-      totalWalkingMinutes += minutes
-      totalWalkingMeters += meters
-    } else {
-      totalWalkingMinutes += stops[i].walk_to_next_minutes ?? 0
-    }
-  })
+  let { totalWalkingMinutes, totalWalkingMeters } = computeWalking()
 
-  stops[stops.length - 1].walk_to_next_minutes = null
-  stops[stops.length - 1].walk_to_next_meters = null
+  // ── Step 2: trim stops from the end until walking fits ──
+  // Each stop needs at least 3 min. If walking alone leaves < 3 min/stop, trim.
+  while (stops.length > 3) {
+    const minNeededForStops = stops.length * 3
+    if (totalWalkingMinutes + minNeededForStops <= targetMinutes + 10) break
+    // Remove last stop and the walk leading to it
+    const trimmedWalk = stops[stops.length - 2].walk_to_next_minutes ?? 0
+    const trimmedMeters = stops[stops.length - 2].walk_to_next_meters ?? 0
+    stops.pop()
+    stops[stops.length - 1].walk_to_next_minutes = null
+    stops[stops.length - 1].walk_to_next_meters = null
+    totalWalkingMinutes -= trimmedWalk
+    totalWalkingMeters -= trimmedMeters
+  }
 
-  // ── Adjust time_at_stop_minutes so the route total matches targetMinutes ──
+  // ── Step 3: scale time_at_stop_minutes to fill remaining time ──
   const totalAtStops = stops.reduce((s, st) => s + (st.time_at_stop_minutes ?? 8), 0)
-  const currentTotal = totalWalkingMinutes + totalAtStops
-
-  if (Math.abs(currentTotal - targetMinutes) > 5) {
-    const remaining = Math.max(stops.length * 2, targetMinutes - totalWalkingMinutes)
+  const remaining = Math.max(stops.length * 3, targetMinutes - totalWalkingMinutes)
+  if (Math.abs(totalAtStops - remaining) > 5) {
     const scale = remaining / totalAtStops
     stops.forEach(st => {
-      st.time_at_stop_minutes = Math.max(2, Math.round((st.time_at_stop_minutes ?? 8) * scale))
+      st.time_at_stop_minutes = Math.max(3, Math.round((st.time_at_stop_minutes ?? 8) * scale))
     })
   }
 

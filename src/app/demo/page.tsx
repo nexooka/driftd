@@ -19,6 +19,7 @@ interface RouteStop {
   why_this_spot: string
   walk_to_next_minutes: number | null
   walk_to_next_meters?: number | null
+  walk_note?: string | null
   time_at_stop_minutes: number
 }
 interface RouteResult {
@@ -419,11 +420,18 @@ export default function DemoPage() {
                           → {stop.why_this_spot}
                         </p>
                         {stop.walk_to_next_minutes !== null ? (
-                          <div className="flex items-center gap-2 text-warm-gray-500 text-xs mt-1">
-                            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                              <path d="M6 2v8M3 7l3 3 3-3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-                            </svg>
-                            <span>{fmtWalkingLeg(stop.walk_to_next_minutes, stop.walk_to_next_meters)} to next stop</span>
+                          <div className="mt-1 space-y-1">
+                            <div className="flex items-center gap-2 text-warm-gray-500 text-xs">
+                              <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                                <path d="M6 2v8M3 7l3 3 3-3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+                              </svg>
+                              <span>{fmtWalkingLeg(stop.walk_to_next_minutes, stop.walk_to_next_meters)} to next stop</span>
+                            </div>
+                            {stop.walk_note && (
+                              <p className="text-warm-gray-600 text-xs italic pl-5 leading-relaxed">
+                                {stop.walk_note}
+                              </p>
+                            )}
                           </div>
                         ) : (
                           <div className="flex items-center gap-2 text-amber-400/50 text-xs mt-1">
