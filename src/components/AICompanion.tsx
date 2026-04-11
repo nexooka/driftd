@@ -111,6 +111,12 @@ export default function AICompanion() {
 
           {/* Right: mode cards */}
           <div className="flex flex-col gap-4">
+            <FadeIn direction="right">
+              <div className="flex items-center gap-3 mb-2">
+                <span className="text-[11px] tracking-[0.2em] uppercase text-warm-gray-500 font-medium">3 ai modes</span>
+                <div className="flex-1 h-px bg-white/[0.06]" />
+              </div>
+            </FadeIn>
             {MODES.map((mode, i) => (
               <FadeIn key={mode.id} delay={i * 100} direction="right">
                 <div className="card-hover relative flex flex-col p-7 rounded-2xl border border-white/[0.06] bg-[#111] overflow-hidden">
