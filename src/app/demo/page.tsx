@@ -212,38 +212,71 @@ export default function DemoPage() {
       let found: string | null = null
       const queries = [`${name} ${city}`, name]
 
-      // 1. Wikipedia search (good for landmarks and named venues)
-      for (const q of queries) {
-        const url = `https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(q)}&gsrlimit=5&prop=pageimages&format=json&pithumbsize=1200&origin=*`
+      // Wikipedia helper
+      const wikiSearch = async (lang: string, q: string) => {
+        const url = `https://${lang}.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(q)}&gsrlimit=5&prop=pageimages&format=json&pithumbsize=1200&origin=*`
         const res = await fetch(url)
         const data = await res.json()
         const pages = data?.query?.pages
-        if (pages) {
-          // Sort by index (relevance order) and pick first with image
-          const sorted = Object.values(pages as Record<string, any>).sort((a: any, b: any) => a.index - b.index)
-          for (const page of sorted) {
-            if (page?.thumbnail?.source) { found = page.thumbnail.source; break }
-          }
+        if (!pages) return null
+        const sorted = Object.values(pages as Record<string, any>).sort((a: any, b: any) => a.index - b.index)
+        for (const page of sorted) {
+          if (page?.thumbnail?.source) return page.thumbnail.source as string
         }
+        return null
+      }
+
+      // 1. English Wikipedia
+      for (const q of queries) {
+        found = await wikiSearch('en', q)
         if (found) break
       }
 
-      // 2. Wikimedia Commons search (huge library, covers niche spots too)
+      // 2. Local-language Wikipedia (better coverage for niche spots)
+      if (!found) {
+        const langMap: Record<string, string> = { Prague: 'cs', Berlin: 'de', Warsaw: 'pl', Kraków: 'pl' }
+        const localLang = langMap[city]
+        if (localLang) {
+          for (const q of queries) {
+            found = await wikiSearch(localLang, q)
+            if (found) break
+          }
+        }
+      }
+
+      // 3. Wikimedia Commons (huge library, millions of photos)
       if (!found) {
         for (const q of queries) {
-          const url = `https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(q)}&gsrnamespace=6&gsrlimit=5&prop=imageinfo&iiprop=url&iiurlwidth=1200&format=json&origin=*`
+          const url = `https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(q)}&gsrnamespace=6&gsrlimit=8&prop=imageinfo&iiprop=url&iiurlwidth=1200&format=json&origin=*`
           const res = await fetch(url)
           const data = await res.json()
           const pages = data?.query?.pages
           if (pages) {
             const sorted = Object.values(pages as Record<string, any>).sort((a: any, b: any) => a.index - b.index)
             for (const page of sorted) {
-              const url = page?.imageinfo?.[0]?.thumburl
-              // Skip SVG/icons
-              if (url && !url.endsWith('.svg') && !url.includes('Icon')) { found = url; break }
+              const thumbUrl = page?.imageinfo?.[0]?.thumburl
+              if (thumbUrl && !thumbUrl.endsWith('.svg') && !thumbUrl.includes('Icon') && !thumbUrl.includes('icon')) {
+                found = thumbUrl; break
+              }
             }
           }
           if (found) break
+        }
+      }
+
+      // 4. Commons search with just the street/neighborhood as fallback
+      if (!found) {
+        const fallbackQ = `${city} street photography`
+        const url = `https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(fallbackQ)}&gsrnamespace=6&gsrlimit=5&prop=imageinfo&iiprop=url&iiurlwidth=1200&format=json&origin=*`
+        const res = await fetch(url)
+        const data = await res.json()
+        const pages = data?.query?.pages
+        if (pages) {
+          const sorted = Object.values(pages as Record<string, any>).sort((a: any, b: any) => a.index - b.index)
+          for (const page of sorted) {
+            const thumbUrl = page?.imageinfo?.[0]?.thumburl
+            if (thumbUrl && !thumbUrl.endsWith('.svg')) { found = thumbUrl; break }
+          }
         }
       }
 
@@ -423,27 +456,38 @@ export default function DemoPage() {
         {/* Photo lightbox modal */}
         {photoModal !== null && stopPhotos[photoModal] && stopPhotos[photoModal] !== 'loading' && stopPhotos[photoModal] !== 'notfound' && (
           <div
-            className="fixed inset-0 z-[9999] flex items-center justify-center p-4 md:p-10"
-            style={{ background: 'rgba(0,0,0,0.88)' }}
+            className="fixed inset-0 z-[9999] flex items-center justify-center p-4 md:p-12"
+            style={{ background: 'rgba(4,3,2,0.92)', backdropFilter: 'blur(6px)' }}
             onClick={() => setPhotoModal(null)}
           >
-            <div className="relative max-w-3xl w-full" onClick={e => e.stopPropagation()}>
+            <div className="relative max-w-2xl w-full" onClick={e => e.stopPropagation()}>
               <button
                 onClick={() => setPhotoModal(null)}
-                className="absolute -top-10 right-0 text-warm-gray-400 hover:text-warm-white transition-colors text-sm flex items-center gap-1.5"
+                className="absolute -top-9 right-0 text-warm-gray-500 hover:text-warm-gray-200 transition-colors text-xs flex items-center gap-1.5 tracking-wide"
               >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
                 close
               </button>
+
+              {/* Glow ring behind image */}
+              <div className="absolute inset-0 rounded-2xl pointer-events-none" style={{
+                boxShadow: '0 0 0 1px rgba(251,191,36,0.18), 0 0 60px 8px rgba(251,191,36,0.12), 0 0 120px 30px rgba(251,191,36,0.06)',
+              }} />
+
               <img
                 src={stopPhotos[photoModal] as string}
                 alt={route.stops[photoModal]?.name ?? ''}
                 className="w-full rounded-2xl object-contain"
-                style={{ maxHeight: '80vh' }}
+                style={{ maxHeight: '75vh', display: 'block' }}
               />
-              <p className="text-center text-warm-gray-500 text-xs mt-3">
-                {route.stops[photoModal]?.name}
-              </p>
+
+              <div className="mt-3 flex items-center justify-center gap-2">
+                <div className="w-4 h-px bg-amber-400/30" />
+                <p className="text-warm-gray-500 text-xs tracking-wide">
+                  {route.stops[photoModal]?.name}
+                </p>
+                <div className="w-4 h-px bg-amber-400/30" />
+              </div>
             </div>
           </div>
         )}

@@ -225,7 +225,9 @@ function removeOutlierStops(stops: any[], targetMinutes: number): any[] {
       const w = walkMin(i)
       if (w > worstMin) { worstMin = w; worstIdx = i }
     }
-    if (worstMin > MAX_WALK_MIN && worstIdx >= 1) {
+    // Remove the stop at the far end of the worst walk.
+    // worstIdx+1 must exist and must not be stop #0 (the user's start).
+    if (worstMin > MAX_WALK_MIN && worstIdx + 1 < stops.length && worstIdx + 1 > 0) {
       stops.splice(worstIdx + 1, 1)
       stops.forEach((s, i) => { s.number = i + 1 })
       changed = true
