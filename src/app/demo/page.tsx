@@ -317,6 +317,11 @@ export default function DemoPage() {
         <p className="text-warm-gray-400 text-base tracking-wide text-center max-w-xs transition-all duration-500">
           {LOADING_MSGS[loadingIdx]}
         </p>
+        {minutes >= 150 && (
+          <p className="text-warm-gray-600 text-xs text-center max-w-[220px] leading-relaxed">
+            long route — this can take up to a couple minutes. worth the wait.
+          </p>
+        )}
       </div>
     </main>
   )
@@ -738,9 +743,13 @@ export default function DemoPage() {
           />
           <div className="flex justify-between mt-2">
             <span className="text-warm-gray-600 text-xs">10 min</span>
-            <span className="text-warm-gray-600 text-xs">the longer the route, the longer it takes to generate</span>
             <span className="text-warm-gray-600 text-xs">4 hrs</span>
           </div>
+          {minutes >= 150 && (
+            <p className="mt-3 text-xs text-amber-400/70 leading-relaxed">
+              heads up — long drifts take a bit more time to generate (up to a couple minutes). we're building something good.
+            </p>
+          )}
         </div>
 
         {/* 4. Starting point */}
