@@ -201,7 +201,6 @@ export default function DemoPage() {
   const [modalError, setModalError] = useState('')
 
   const handleFetchPhoto = async (idx: number, _name: string, _city: string) => {
-    // Already loaded — just open the modal
     if (stopPhotos[idx] && stopPhotos[idx] !== 'loading') {
       if (stopPhotos[idx] !== 'notfound') setPhotoModal(idx)
       return
@@ -209,28 +208,30 @@ export default function DemoPage() {
     if (stopPhotos[idx] === 'loading') return
 
     const stop = route?.stops[idx]
-    if (!stop?.lat || !stop?.lng) {
-      setStopPhotos(p => ({ ...p, [idx]: 'notfound' }))
-      return
-    }
+    if (!stop?.lat || !stop?.lng) { setStopPhotos(p => ({ ...p, [idx]: 'notfound' })); return }
 
     setStopPhotos(p => ({ ...p, [idx]: 'loading' }))
     const key = process.env.NEXT_PUBLIC_GOOGLE_STREET_VIEW_KEY
-    if (!key) { setStopPhotos(p => ({ ...p, [idx]: 'notfound' })); return }
 
     try {
-      // Check if Street View imagery exists at this location
+      // ── 1. Try Google Places photo (real venue photo, often interior) ───
+      const placesUrl = `/api/stop-photo?name=${encodeURIComponent(stop.name)}&lat=${stop.lat}&lng=${stop.lng}`
+      const placesRes = await fetch(placesUrl)
+      if (placesRes.ok) {
+        setStopPhotos(p => ({ ...p, [idx]: placesUrl }))
+        setPhotoModal(idx)
+        return
+      }
+
+      // ── 2. Fall back to Street View (outdoor shot of the location) ──────
+      if (!key) { setStopPhotos(p => ({ ...p, [idx]: 'notfound' })); return }
       const meta = await fetch(
         `https://maps.googleapis.com/maps/api/streetview/metadata?location=${stop.lat},${stop.lng}&source=outdoor&key=${key}`
       )
       const { status } = await meta.json()
-      if (status !== 'OK') {
-        setStopPhotos(p => ({ ...p, [idx]: 'notfound' }))
-        return
-      }
-      // Build the image URL — outdoor source, wide FOV, slight upward pitch
-      const photoUrl = `https://maps.googleapis.com/maps/api/streetview?size=800x500&location=${stop.lat},${stop.lng}&fov=90&pitch=10&source=outdoor&key=${key}`
-      setStopPhotos(p => ({ ...p, [idx]: photoUrl }))
+      if (status !== 'OK') { setStopPhotos(p => ({ ...p, [idx]: 'notfound' })); return }
+      const svUrl = `https://maps.googleapis.com/maps/api/streetview?size=800x500&location=${stop.lat},${stop.lng}&fov=90&pitch=10&source=outdoor&key=${key}`
+      setStopPhotos(p => ({ ...p, [idx]: svUrl }))
       setPhotoModal(idx)
     } catch {
       setStopPhotos(p => ({ ...p, [idx]: 'notfound' }))
