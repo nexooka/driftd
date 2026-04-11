@@ -16,12 +16,13 @@ KNOWLEDGE BASE RULES — READ CAREFULLY, THESE ARE HARD RULES:
 6. Zero tolerance for: invented café names, made-up bar names, closed venues presented as open, businesses moved to wrong neighborhoods.
 
 STOP COUNT & TIME:
-4. Generate ENOUGH stops to fill the time — but NEVER too many. HARD MAXIMUM: 12 stops regardless of duration:
+4. Generate ENOUGH stops to fill the time — but NEVER too many:
    - 10–35 min: 3–4 stops
    - 35–60 min: 4–6 stops
    - 60–90 min: 6–9 stops
-   - 90–240 min: 9–12 stops (NEVER exceed 12 even for 4 hours — longer routes mean more time at each stop, not more stops)
-   Include a mix of MAIN STOPS (8–20 min) and MICRO-STOPS (2–5 min — a mural, a courtyard, an interesting facade). Micro-stops are walk-past-and-pause, not sit-down.
+   - 90–180 min: 9–14 stops
+   - 180–240 min: 14–20 stops
+   Include a mix of MAIN STOPS (8–15 min) and MICRO-STOPS (2–4 min — a mural, a courtyard, an interesting facade). Micro-stops are walk-past-and-pause, not sit-down.
 5. GEOGRAPHIC DISTANCE IS CRITICAL. Your walk_to_next_minutes estimates will be REPLACED by real haversine calculations (at 83m/min walking pace). What matters is actual geographic distance between stop coordinates:
    - 300m apart = ~5 min walk ✓ good
    - 500m apart = ~8 min walk ✓ acceptable
@@ -266,12 +267,11 @@ export async function POST(req: NextRequest) {
   if (!start?.trim())
     return NextResponse.json({ error: 'starting point required.' }, { status: 400 })
 
-  // Load knowledge file — cap at 14 000 chars to keep prompt size reasonable
+  // Load knowledge file
   const knowledgePath = path.join(process.cwd(), 'data', `${city.toLowerCase()}_knowledge.md`)
   let knowledge: string
   try {
-    const raw = fs.readFileSync(knowledgePath, 'utf-8')
-    knowledge = raw.length > 14000 ? raw.slice(0, 14000) + '\n\n[knowledge base truncated]' : raw
+    knowledge = fs.readFileSync(knowledgePath, 'utf-8')
   } catch {
     return NextResponse.json({ error: `knowledge file for ${city} not found.` }, { status: 500 })
   }
@@ -309,7 +309,7 @@ Generate a walking route. Aim for ${Math.round(minutes / 8)} stops minimum. Outp
     try {
       const response = await client.messages.create({
         model: 'claude-sonnet-4-6',
-        max_tokens: 8000,
+        max_tokens: 8192,
         system: SYSTEM_PROMPT,
         messages: [{ role: 'user', content: userPrompt }],
       })
