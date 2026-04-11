@@ -407,38 +407,47 @@ export default function DemoPage() {
         {/* Photo lightbox modal */}
         {photoModal !== null && stopPhotos[photoModal] && stopPhotos[photoModal] !== 'loading' && stopPhotos[photoModal] !== 'notfound' && (
           <div
-            className="fixed inset-0 z-[9999] flex items-center justify-center p-4 md:p-12"
-            style={{ background: 'rgba(4,3,2,0.92)', backdropFilter: 'blur(6px)' }}
+            className="fixed inset-0 z-[9999] flex items-center justify-center p-4 md:p-16"
+            style={{ background: 'rgba(3,2,1,0.95)', backdropFilter: 'blur(12px) saturate(0.6)' }}
             onClick={() => setPhotoModal(null)}
           >
             <div className="relative max-w-2xl w-full" onClick={e => e.stopPropagation()}>
-              <button
-                onClick={() => setPhotoModal(null)}
-                className="absolute -top-9 right-0 text-warm-gray-500 hover:text-warm-gray-200 transition-colors text-xs flex items-center gap-1.5 tracking-wide"
-              >
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
-                close
-              </button>
 
-              {/* Glow ring behind image */}
-              <div className="absolute inset-0 rounded-2xl pointer-events-none" style={{
-                boxShadow: '0 0 0 1px rgba(251,191,36,0.18), 0 0 60px 8px rgba(251,191,36,0.12), 0 0 120px 30px rgba(251,191,36,0.06)',
+              {/* Ambient glow */}
+              <div className="absolute -inset-6 rounded-3xl pointer-events-none" style={{
+                background: 'radial-gradient(ellipse at center, rgba(251,191,36,0.08) 0%, transparent 70%)',
               }} />
 
-              <img
-                src={stopPhotos[photoModal] as string}
-                alt={route.stops[photoModal]?.name ?? ''}
-                className="w-full rounded-2xl object-contain"
-                style={{ maxHeight: '75vh', display: 'block' }}
-              />
-
-              <div className="mt-3 flex items-center justify-center gap-2">
-                <div className="w-4 h-px bg-amber-400/30" />
-                <p className="text-warm-gray-500 text-xs tracking-wide">
-                  {route.stops[photoModal]?.name}
-                </p>
-                <div className="w-4 h-px bg-amber-400/30" />
+              {/* Image */}
+              <div className="relative rounded-2xl overflow-hidden" style={{
+                boxShadow: '0 0 0 1px rgba(251,191,36,0.12), 0 32px 80px rgba(0,0,0,0.8)',
+              }}>
+                <img
+                  src={stopPhotos[photoModal] as string}
+                  alt={route.stops[photoModal]?.name ?? ''}
+                  className="w-full object-cover"
+                  style={{ maxHeight: '72vh', display: 'block' }}
+                />
+                {/* Name overlay at bottom of photo */}
+                <div className="absolute bottom-0 inset-x-0 px-5 py-4" style={{
+                  background: 'linear-gradient(to top, rgba(0,0,0,0.75) 0%, transparent 100%)',
+                }}>
+                  <p className="text-warm-white text-sm font-semibold tracking-wide">
+                    {route.stops[photoModal]?.name}
+                  </p>
+                  <p className="text-white/40 text-xs mt-0.5">
+                    {route.stops[photoModal]?.neighborhood}
+                  </p>
+                </div>
               </div>
+
+              {/* Close */}
+              <button
+                onClick={() => setPhotoModal(null)}
+                className="absolute -top-10 right-0 text-white/30 hover:text-white/70 transition-colors text-xs tracking-widest uppercase"
+              >
+                esc to close
+              </button>
             </div>
           </div>
         )}
