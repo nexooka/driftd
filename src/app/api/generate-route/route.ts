@@ -80,7 +80,9 @@ OUTPUT FORMAT — return exactly this JSON, nothing else:
     }
   ],
   "time_warning": null
-}`
+}
+
+time_warning rules: set to null in most cases. Only use it when the route genuinely cannot fit within the time limit even after trimming — and if so, write ONE casual sentence max (e.g. "this one runs slightly long — if you're short on time, cut the visit at the park"). NO math, NO stop numbers, NO lists.`
 
 function parseRoute(text: string) {
   let s = text.trim()
@@ -110,23 +112,29 @@ async function nominatim(q: string, countryCode: string): Promise<{ lat: number;
 }
 
 /* ── Geocode each stop to fix AI-hallucinated coordinates ───────────── */
+// Runs up to 4 in parallel with a small stagger to avoid hammering Nominatim.
 async function geocodeStops(stops: any[], city: string): Promise<void> {
   const cc = CITY_COUNTRY[city] ?? ''
-  for (const stop of stops) {
-    await new Promise(r => setTimeout(r, 100)) // respect Nominatim rate limit
+  const CONCURRENCY = 4
+
+  async function fixStop(stop: any, idx: number): Promise<void> {
+    await new Promise(r => setTimeout(r, idx * 80)) // stagger requests
     try {
-      // Try place name first, fall back to address
       let result = await nominatim(`${stop.name}, ${city}`, cc)
       if (!result && stop.address) result = await nominatim(`${stop.address}, ${city}`, cc)
-      if (!result) continue
-      // Sanity check: reject if >3km from Claude's original coords (wrong city/country)
+      if (!result) return
       if (stop.lat && stop.lng) {
         const dist = haversineMeters(stop.lat, stop.lng, result.lat, result.lng)
-        if (dist > 3000) continue
+        if (dist > 3000) return // reject if wrong city
       }
       stop.lat = result.lat
       stop.lng = result.lng
     } catch { /* keep existing coords */ }
+  }
+
+  // Process in batches of CONCURRENCY
+  for (let i = 0; i < stops.length; i += CONCURRENCY) {
+    await Promise.all(stops.slice(i, i + CONCURRENCY).map((s, j) => fixStop(s, j)))
   }
 }
 
@@ -291,7 +299,7 @@ Generate a walking route. Aim for ${Math.round(minutes / 8)} stops minimum. Outp
     try {
       const response = await client.messages.create({
         model: 'claude-sonnet-4-6',
-        max_tokens: 6000,
+        max_tokens: 4000,
         system: SYSTEM_PROMPT,
         messages: [{ role: 'user', content: userPrompt }],
       })
