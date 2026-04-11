@@ -91,23 +91,48 @@ function parseRoute(text: string) {
   return JSON.parse(s.slice(start, end + 1))
 }
 
-/* ── Geocode starting address via Nominatim ──────────────────────────── */
-async function geocodeStart(address: string, city: string): Promise<{ lat: number; lng: number } | null> {
+const CITY_COUNTRY: Record<string, string> = { Warsaw: 'pl', Berlin: 'de', Prague: 'cz' }
+
+/* ── Nominatim lookup (shared helper) ───────────────────────────────── */
+async function nominatim(q: string, countryCode: string): Promise<{ lat: number; lng: number } | null> {
   try {
-    const q = encodeURIComponent(`${address}, ${city}`)
-    const res = await fetch(
-      `https://nominatim.openstreetmap.org/search?q=${q}&format=json&limit=1`,
-      {
-        headers: { 'User-Agent': 'driftd/1.0 (route generator)' },
-        signal: AbortSignal.timeout(5000),
-      }
-    )
+    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=1${countryCode ? `&countrycodes=${countryCode}` : ''}`
+    const res = await fetch(url, {
+      headers: { 'User-Agent': 'driftd/1.0 (route generator)' },
+      signal: AbortSignal.timeout(5000),
+    })
     const data = await res.json()
     if (!data?.[0]) return null
     return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) }
   } catch {
     return null
   }
+}
+
+/* ── Geocode each stop to fix AI-hallucinated coordinates ───────────── */
+async function geocodeStops(stops: any[], city: string): Promise<void> {
+  const cc = CITY_COUNTRY[city] ?? ''
+  for (const stop of stops) {
+    await new Promise(r => setTimeout(r, 100)) // respect Nominatim rate limit
+    try {
+      // Try place name first, fall back to address
+      let result = await nominatim(`${stop.name}, ${city}`, cc)
+      if (!result && stop.address) result = await nominatim(`${stop.address}, ${city}`, cc)
+      if (!result) continue
+      // Sanity check: reject if >3km from Claude's original coords (wrong city/country)
+      if (stop.lat && stop.lng) {
+        const dist = haversineMeters(stop.lat, stop.lng, result.lat, result.lng)
+        if (dist > 3000) continue
+      }
+      stop.lat = result.lat
+      stop.lng = result.lng
+    } catch { /* keep existing coords */ }
+  }
+}
+
+/* ── Geocode starting address via Nominatim ──────────────────────────── */
+async function geocodeStart(address: string, city: string): Promise<{ lat: number; lng: number } | null> {
+  return nominatim(`${address}, ${city}`, CITY_COUNTRY[city] ?? '')
 }
 
 /* ── Haversine distance ──────────────────────────────────────────────── */
@@ -206,10 +231,9 @@ function reorderStops(stops: any[]): any[] {
     result.push(...pool.splice(bestIdx, 1))
   }
 
-  // Renumber and clear walk_notes (they were written for the old order)
+  // Renumber (keep walk_notes — they describe area vibe, not turn-by-turn)
   result.forEach((s, i) => {
     s.number = i + 1
-    s.walk_note = null
   })
 
   return result
@@ -276,6 +300,9 @@ Generate a walking route. Aim for ${Math.round(minutes / 8)} stops minimum. Outp
 
       // Reorder stops into shortest-path order (nearest-neighbor from start)
       route.stops = reorderStops(route.stops)
+
+      // Fix AI-hallucinated coordinates with real Nominatim geocoding
+      await geocodeStops(route.stops, city)
 
       // Replace AI walking guesses with haversine, trim if needed, scale to target
       const walking = enrichAndAdjust(route.stops, minutes)
