@@ -1,9 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    outputFileTracingIncludes: {
-      '/api/generate-route': ['./data/**/*'],
-    },
+  outputFileTracingIncludes: {
+    '/api/generate-route': ['./data/**/*'],
   },
 }
 
