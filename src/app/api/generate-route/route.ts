@@ -164,28 +164,68 @@ async function nominatim(q: string, countryCode: string): Promise<{ lat: number;
 }
 
 /* ── Geocode each stop to fix AI-hallucinated coordinates ───────────── */
-// Fire all stops in parallel, cap the entire operation at 4s so it can
-// never block the response even if Nominatim is slow or rate-limiting.
+// Strategy: always prefer Nominatim over Claude — Claude's coords are
+// unreliable. We try multiple query forms until one hits, then trust it.
+// The old "reject if >3km from Claude's coords" check was backwards:
+// it threw away the correct Nominatim result when Claude was the one wrong.
 async function geocodeStops(stops: any[], city: string): Promise<void> {
   const cc = CITY_COUNTRY[city] ?? ''
 
+  // Build candidate queries from most to least specific.
+  // Handles names like "Grébovka (Havlíčkovy sady)" by also trying
+  // just "Grébovka" and just "Havlíčkovy sady".
+  function queryVariants(stop: any): string[] {
+    const variants: string[] = []
+    const name: string = stop.name ?? ''
+
+    // Full name
+    variants.push(`${name}, ${city}`)
+
+    // Name before first parenthesis  e.g. "Grébovka"
+    const beforeParen = name.replace(/\s*\(.*\)/, '').trim()
+    if (beforeParen && beforeParen !== name) variants.push(`${beforeParen}, ${city}`)
+
+    // Name inside parentheses  e.g. "Havlíčkovy sady"
+    const parenMatch = name.match(/\(([^)]+)\)/)
+    if (parenMatch) variants.push(`${parenMatch[1]}, ${city}`)
+
+    // Address
+    if (stop.address) variants.push(`${stop.address}, ${city}`)
+
+    // Address alone without city prefix duplicated
+    return [...new Set(variants)]
+  }
+
   const work = Promise.allSettled(stops.map(async (stop, idx) => {
-    await new Promise(r => setTimeout(r, idx * 60)) // gentle stagger
+    await new Promise(r => setTimeout(r, idx * 80)) // gentle stagger
     try {
-      let result = await nominatim(`${stop.name}, ${city}`, cc)
-      if (!result && stop.address) result = await nominatim(`${stop.address}, ${city}`, cc)
-      if (!result) return
-      if (stop.lat && stop.lng) {
-        const dist = haversineMeters(stop.lat, stop.lng, result.lat, result.lng)
-        if (dist > 3000) return // reject wrong-city match
+      let result: { lat: number; lng: number } | null = null
+      for (const q of queryVariants(stop)) {
+        result = await nominatim(q, cc)
+        if (result) break
       }
+      if (!result) return
+
+      // Only sanity-check: reject if result is in a completely different country
+      // (>50km from city centre). Never reject just because Claude was wrong.
+      const CITY_CENTRES: Record<string, [number, number]> = {
+        Warsaw: [52.2297, 21.0122],
+        Prague: [50.0755, 14.4378],
+        Berlin: [52.5200, 13.4050],
+      }
+      const centre = CITY_CENTRES[city]
+      if (centre) {
+        const distFromCity = haversineMeters(result.lat, result.lng, centre[0], centre[1])
+        if (distFromCity > 50000) return // clearly wrong country — ignore
+      }
+
       stop.lat = result.lat
       stop.lng = result.lng
     } catch { /* keep existing coords */ }
   }))
 
-  // Hard cap — never block longer than 4s regardless of Nominatim
-  await Promise.race([work, new Promise(r => setTimeout(r, 4000))])
+  // Hard cap — never block longer than 6s regardless of Nominatim
+  await Promise.race([work, new Promise(r => setTimeout(r, 6000))])
 }
 
 /* ── Geocode starting address via Nominatim ──────────────────────────── */
