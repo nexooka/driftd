@@ -232,22 +232,14 @@ body {
 .stop-ping {
   animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
 }
-
-/* ── Map stop labels ───────────────────────────────── */
-.drift-label {
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  color: #e8e0d0 !important;
-  font-size: 11px !important;
-  font-weight: 600 !important;
-  font-family: ui-sans-serif, system-ui, sans-serif !important;
-  white-space: nowrap !important;
-  padding: 0 !important;
-  text-shadow: 0 1px 6px rgba(0,0,0,0.95), 0 0 12px rgba(0,0,0,0.8) !important;
-  letter-spacing: 0.01em;
+@keyframes ping-soft {
+  0%   { transform: scale(1);    opacity: 0.5; }
+  70%  { transform: scale(1.65); opacity: 0; }
+  100% { transform: scale(1.65); opacity: 0; }
 }
-.drift-label::before { display: none !important; }
+.stop-ping-soft {
+  animation: ping-soft 2.8s ease-out infinite;
+}
 
 /* ── Scroll reveal ─────────────────────────────────── */
 .reveal {

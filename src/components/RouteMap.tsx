@@ -42,44 +42,13 @@ async function fetchAllLegs(
   }
 }
 
-/* Interpolate a [lat,lng] position at fraction t (0–1) along a polyline */
-function interpolateAlongPath(
-  points: [number, number][],
-  t: number
-): [number, number] | null {
-  if (points.length < 2) return null
-  const dists: number[] = [0]
-  for (let i = 1; i < points.length; i++) {
-    const [lat1, lng1] = points[i - 1]
-    const [lat2, lng2] = points[i]
-    const d = Math.sqrt((lat2 - lat1) ** 2 + (lng2 - lng1) ** 2)
-    dists.push(dists[i - 1] + d)
-  }
-  const total = dists[dists.length - 1]
-  if (total === 0) return points[0]
-  const target = t * total
-  for (let i = 1; i < points.length; i++) {
-    if (dists[i] >= target) {
-      const seg = dists[i] - dists[i - 1]
-      const frac = seg > 0 ? (target - dists[i - 1]) / seg : 0
-      const [lat1, lng1] = points[i - 1]
-      const [lat2, lng2] = points[i]
-      return [lat1 + (lat2 - lat1) * frac, lng1 + (lng2 - lng1) * frac]
-    }
-  }
-  return points[points.length - 1]
-}
-
 export default function RouteMap({ stops, routeKey }: { stops: MapStop[]; routeKey: number }) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<any>(null)
-  const segPolysRef = useRef<any[]>([])          // [glow, main] pairs
-  const segPathElemsRef = useRef<(SVGPathElement | null)[]>([])  // main SVG path elements
+  const segPolysRef = useRef<any[]>([])
+  const segPathElemsRef = useRef<(SVGPathElement | null)[]>([])
   const markerElemsRef = useRef<(HTMLElement | null)[]>([])
   const animTimersRef = useRef<ReturnType<typeof setTimeout>[]>([])
-  const dotMarkerRef = useRef<any>(null)
-  const dotRafRef = useRef<number>(0)
-  const allRoutePointsRef = useRef<[number, number][]>([])
   const userClickedRef = useRef(false)
   const activeStopRef = useRef(stops.length - 1)
 
@@ -108,7 +77,6 @@ export default function RouteMap({ stops, routeKey }: { stops: MapStop[]; routeK
         opacity: active ? 0.13 : 0,
       })
       if (main) {
-        // Remove draw animation, switch to plain opacity control
         const pathEl = segPathElemsRef.current[i]
         if (pathEl) {
           pathEl.style.transition = 'none'
@@ -137,8 +105,6 @@ export default function RouteMap({ stops, routeKey }: { stops: MapStop[]; routeK
     markerElemsRef.current = []
     animTimersRef.current.forEach(clearTimeout)
     animTimersRef.current = []
-    cancelAnimationFrame(dotRafRef.current)
-    allRoutePointsRef.current = []
 
     if (mapRef.current) { mapRef.current.remove(); mapRef.current = null }
 
@@ -176,17 +142,6 @@ export default function RouteMap({ stops, routeKey }: { stops: MapStop[]; routeK
       const segmentCoords = await fetchAllLegs(latlngs)
       if (destroyed) return
 
-      // Flatten all route points for the dot
-      const allPoints: [number, number][] = []
-      segmentCoords.forEach((coords, i) => {
-        const pts = coords ?? [[latlngs[i][0], latlngs[i][1]], [latlngs[i + 1][0], latlngs[i + 1][1]]] as [number, number][]
-        pts.forEach((p, j) => {
-          if (j === 0 && allPoints.length > 0) return
-          allPoints.push(p)
-        })
-      })
-      allRoutePointsRef.current = allPoints
-
       // Draw segments — start invisible
       const pairs: any[] = segmentCoords.map((coords, i) => {
         const pts = coords?.length
@@ -213,7 +168,6 @@ export default function RouteMap({ stops, routeKey }: { stops: MapStop[]; routeK
           ...(isDash ? { dashArray: '8 6' } : {}),
         }).addTo(map)
 
-        // Prepare stroke-dashoffset draw animation on the SVG path
         if (!isDash) {
           requestAnimationFrame(() => {
             const pathEl = main.getElement() as SVGPathElement | null
@@ -232,16 +186,13 @@ export default function RouteMap({ stops, routeKey }: { stops: MapStop[]; routeK
       })
       segPolysRef.current = pairs
 
-      // Sequential reveal — glow fades in, main line draws itself
+      // Sequential reveal with draw animation
       pairs.forEach(([glow, main], i) => {
         const isDash = !segmentCoords[i]?.length
-        const delay = 200 + i * 420
-
         const timer = setTimeout(() => {
           if (destroyed || userClickedRef.current) return
           glow.setStyle({ opacity: 0.13 })
           main.setStyle({ opacity: 0.88 })
-
           if (!isDash) {
             const pathEl = segPathElemsRef.current[i]
             if (pathEl) {
@@ -249,62 +200,31 @@ export default function RouteMap({ stops, routeKey }: { stops: MapStop[]; routeK
               pathEl.style.strokeDashoffset = '0'
             }
           }
-        }, delay)
+        }, 200 + i * 420)
         animTimersRef.current.push(timer)
       })
 
-      // Traveling dot — always loops, never stopped by click
-      const dot = L.circleMarker(latlngs[0], {
-        radius: 4.5,
-        color: 'transparent',
-        fillColor: '#fbbf24',
-        fillOpacity: 0,
-        opacity: 0,
-        weight: 0,
-      }).addTo(map)
-      dotMarkerRef.current = dot
-
-      const dotDelay = 200 + pairs.length * 420 + 300
-      const dotTimer = setTimeout(() => {
-        if (destroyed) return
-        dot.setStyle({ fillOpacity: 0.9 })
-
-        const duration = Math.max(9000, allPoints.length * 45)
-        let startTime: number | null = null
-
-        const animateDot = (ts: number) => {
-          if (destroyed) return
-          if (!startTime) startTime = ts
-          const elapsed = ts - startTime
-          const t = (elapsed % duration) / duration
-          const pos = interpolateAlongPath(allPoints, t)
-          if (pos) dot.setLatLng(pos)
-          dotRafRef.current = requestAnimationFrame(animateDot)
-        }
-        dotRafRef.current = requestAnimationFrame(animateDot)
-      }, dotDelay)
-      animTimersRef.current.push(dotTimer)
-
-      // Draw markers with permanent labels
+      // Draw markers
       stops.forEach((stop, i) => {
         const isFirst = i === 0
         const isLast = i === stops.length - 1
-        const size = isLast ? 40 : isFirst ? 36 : 28
-        const anchor = isLast ? 20 : isFirst ? 18 : 14
+        const size = (isFirst || isLast) ? 38 : 28
+        const anchor = (isFirst || isLast) ? 19 : 14
 
         let markerHtml: string
         if (isFirst) {
           markerHtml = `
-            <div style="width:36px;height:36px;position:relative;display:flex;align-items:center;justify-content:center;cursor:pointer">
-              <div style="position:absolute;inset:0;border-radius:50%;background:rgba(251,191,36,0.18);border:1.5px solid rgba(251,191,36,0.45)"></div>
+            <div style="width:38px;height:38px;position:relative;display:flex;align-items:center;justify-content:center;cursor:pointer">
+              <div class="stop-ping-soft" style="position:absolute;inset:0;border-radius:50%;border:1.5px solid rgba(251,191,36,0.4)"></div>
+              <div style="position:absolute;inset:5px;border-radius:50%;background:rgba(251,191,36,0.14);border:1px solid rgba(251,191,36,0.3)"></div>
               <div style="width:24px;height:24px;background:#fbbf24;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#0a0a0a;font-family:ui-sans-serif,system-ui;box-shadow:0 2px 14px rgba(251,191,36,0.65)">1</div>
             </div>`
         } else if (isLast) {
           markerHtml = `
-            <div style="width:40px;height:40px;position:relative;display:flex;align-items:center;justify-content:center;cursor:pointer">
-              <div class="stop-ping" style="position:absolute;inset:0;border-radius:50%;border:2px solid rgba(251,191,36,0.55)"></div>
-              <div style="position:absolute;inset:5px;border-radius:50%;background:rgba(251,191,36,0.14);border:1px solid rgba(251,191,36,0.32)"></div>
-              <div style="width:26px;height:26px;background:#fbbf24;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#0a0a0a;font-family:ui-sans-serif,system-ui;box-shadow:0 2px 18px rgba(251,191,36,0.75)">${stops.length}</div>
+            <div style="width:38px;height:38px;position:relative;display:flex;align-items:center;justify-content:center;cursor:pointer">
+              <div class="stop-ping-soft" style="position:absolute;inset:0;border-radius:50%;border:1.5px solid rgba(251,191,36,0.4)"></div>
+              <div style="position:absolute;inset:5px;border-radius:50%;background:rgba(251,191,36,0.14);border:1px solid rgba(251,191,36,0.3)"></div>
+              <div style="width:24px;height:24px;background:#fbbf24;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#0a0a0a;font-family:ui-sans-serif,system-ui;box-shadow:0 2px 14px rgba(251,191,36,0.65)">${stops.length}</div>
             </div>`
         } else {
           markerHtml = `
@@ -316,15 +236,14 @@ export default function RouteMap({ stops, routeKey }: { stops: MapStop[]; routeK
           className: '',
           iconSize: [size, size],
           iconAnchor: [anchor, anchor],
+          popupAnchor: [0, -anchor - 4],
         })
 
         const marker = L.marker([stop.lat, stop.lng], { icon })
-          .bindTooltip(stop.name, {
-            permanent: true,
-            direction: 'right',
-            className: 'drift-label',
-            offset: [anchor + 5, 0],
-          })
+          .bindPopup(
+            `<div style="font-family:ui-sans-serif,system-ui;font-size:13px;font-weight:600;color:#111;padding:2px 0">${stop.name}</div>`,
+            { className: 'driftd-popup', maxWidth: 200 }
+          )
           .on('click', () => {
             userClickedRef.current = true
             setHasInteracted(true)
@@ -349,7 +268,6 @@ export default function RouteMap({ stops, routeKey }: { stops: MapStop[]; routeK
       destroyed = true
       animTimersRef.current.forEach(clearTimeout)
       animTimersRef.current = []
-      cancelAnimationFrame(dotRafRef.current)
       if (mapRef.current) { mapRef.current.remove(); mapRef.current = null }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -365,7 +283,6 @@ export default function RouteMap({ stops, routeKey }: { stops: MapStop[]; routeK
           className="w-full rounded-2xl overflow-hidden border border-white/[0.06]"
           style={{ height: '420px', background: '#0a0a0a' }}
         />
-        {/* Edge vignette — blends map into page background */}
         <div
           className="absolute inset-0 rounded-2xl pointer-events-none"
           style={{ boxShadow: 'inset 0 0 90px 35px #0a0a0a', zIndex: 500 }}
