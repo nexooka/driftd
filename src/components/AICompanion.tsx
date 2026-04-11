@@ -1,3 +1,6 @@
+'use client'
+
+import { useState } from 'react'
 import { FadeIn } from './FadeIn'
 
 const MODES = [
@@ -5,8 +8,11 @@ const MODES = [
     id: 'narration',
     label: 'guided narration',
     tagline: 'your city, as a story',
+    status: 'live' as const,
     description:
       'start a route, put in your headphones, and drift. driftd narrates your walk with stories, history, and local secrets as you pass each spot — not a tour script, but a conversation.',
+    popupDetail:
+      'you pick a neighborhood and a vibe, driftd generates a walking route and narrates each stop as you arrive. stories, context, recommendations — all in real time, all felt like a local friend telling you about their city. no scripted audio, no stiff museum voice. just good conversation.',
     icon: (
       <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
         <path d="M11 2C6.5 2 3 5.2 3 9.5c0 2.2 1 4.2 2.7 5.6L5 19l3.6-1.4c.8.2 1.6.4 2.4.4 4.5 0 8-3.2 8-7.5S15.5 2 11 2Z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
@@ -19,8 +25,11 @@ const MODES = [
     id: 'whats-that',
     label: '"what\'s that?"',
     tagline: 'point and ask anything',
+    status: 'soon' as const,
     description:
       'see a building that catches your eye? ask driftd. it figures out what you\'re looking at and tells you the story behind it — the thing no signpost ever would.',
+    popupDetail:
+      'point your phone at anything — a building, a mural, a market stall, a weird statue — and ask driftd what it is. it uses your location and camera context to figure out exactly what you\'re looking at, then gives you the story behind it. the kind of detail that takes hours of googling, delivered in seconds.',
     icon: (
       <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
         <circle cx="10" cy="10" r="6.5" stroke="currentColor" strokeWidth="1.4" />
@@ -34,8 +43,11 @@ const MODES = [
     id: 'ambient',
     label: 'ambient discovery',
     tagline: 'let curiosity lead',
+    status: 'soon' as const,
     description:
       'not following a route? just walking? driftd watches your location and nudges you when something interesting is nearby. say yes or keep walking — that\'s the whole point.',
+    popupDetail:
+      'no plan, no pressure. just turn it on and walk. driftd runs quietly in the background, tracking where you are, and taps you when something worth knowing about is within reach — a courtyard most people miss, a bar that\'s been there since 1962, a mural that appeared last week. you decide whether to detour or drift on.',
     icon: (
       <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
         <circle cx="11" cy="11" r="3" stroke="currentColor" strokeWidth="1.4" />
@@ -48,6 +60,9 @@ const MODES = [
 ]
 
 export default function AICompanion() {
+  const [activeInfo, setActiveInfo] = useState<string | null>(null)
+  const activeMode = MODES.find(m => m.id === activeInfo)
+
   return (
     <section id="features" className="relative py-28 md:py-36 bg-[#0a0a0a] overflow-hidden">
       <div
@@ -98,9 +113,7 @@ export default function AICompanion() {
           <div className="flex flex-col gap-4">
             {MODES.map((mode, i) => (
               <FadeIn key={mode.id} delay={i * 100} direction="right">
-                <div
-                  className="card-hover relative flex flex-col p-7 rounded-2xl border border-white/[0.06] bg-[#111] overflow-hidden"
-                >
+                <div className="card-hover relative flex flex-col p-7 rounded-2xl border border-white/[0.06] bg-[#111] overflow-hidden">
                   {/* Corner glow */}
                   <div
                     className="absolute -top-10 -right-10 w-28 h-28 rounded-full opacity-50 pointer-events-none"
@@ -117,7 +130,7 @@ export default function AICompanion() {
                     >
                       {mode.icon}
                     </div>
-                    <div>
+                    <div className="flex-1 min-w-0">
                       <p className="text-[10px] tracking-widest uppercase font-medium mb-0.5" style={{ color: mode.accent }}>
                         {mode.label}
                       </p>
@@ -125,11 +138,46 @@ export default function AICompanion() {
                         {mode.tagline}
                       </h3>
                     </div>
+
+                    {/* Info button */}
+                    <button
+                      onClick={() => setActiveInfo(mode.id)}
+                      className="flex-shrink-0 w-6 h-6 rounded-full border border-white/10 flex items-center justify-center text-warm-gray-500 hover:text-warm-gray-300 hover:border-white/20 transition-colors"
+                      aria-label={`learn more about ${mode.label}`}
+                    >
+                      <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
+                        <circle cx="5.5" cy="5.5" r="5" stroke="currentColor" strokeWidth="1"/>
+                        <path d="M5.5 5v3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+                        <circle cx="5.5" cy="3.5" r="0.6" fill="currentColor"/>
+                      </svg>
+                    </button>
                   </div>
 
-                  <p className="text-warm-gray-300 text-sm leading-relaxed relative z-10">
+                  <p className="text-warm-gray-300 text-sm leading-relaxed relative z-10 mb-4">
                     {mode.description}
                   </p>
+
+                  {/* Status badge */}
+                  {mode.status === 'live' ? (
+                    <div className="flex items-center gap-2 relative z-10">
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 text-[11px] font-medium">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                        demo live now
+                      </span>
+                      <a
+                        href="/demo"
+                        className="text-[11px] text-amber-400/70 hover:text-amber-400 transition-colors"
+                      >
+                        try it →
+                      </a>
+                    </div>
+                  ) : (
+                    <div className="relative z-10">
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/[0.03] border border-white/[0.07] text-warm-gray-500 text-[11px] font-medium">
+                        coming later this year
+                      </span>
+                    </div>
+                  )}
 
                   <div
                     className="absolute bottom-0 left-0 right-0 h-px"
@@ -141,6 +189,58 @@ export default function AICompanion() {
           </div>
         </div>
       </div>
+
+      {/* Info modal */}
+      {activeMode && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-6"
+          style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(8px)' }}
+          onClick={e => { if (e.target === e.currentTarget) setActiveInfo(null) }}
+        >
+          <div className="w-full max-w-md rounded-2xl border border-white/[0.08] bg-[#111] p-8 relative">
+            <button
+              onClick={() => setActiveInfo(null)}
+              className="absolute top-5 right-5 text-warm-gray-500 hover:text-warm-gray-300 transition-colors"
+            >
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                <path d="M4 4l10 10M14 4L4 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              </svg>
+            </button>
+
+            {/* Icon + label */}
+            <div className="flex items-center gap-4 mb-5">
+              <div
+                className="flex-shrink-0 p-3 rounded-xl border"
+                style={{ color: activeMode.accent, borderColor: `${activeMode.accent}22`, background: `${activeMode.accent}0d` }}
+              >
+                {activeMode.icon}
+              </div>
+              <div>
+                <p className="text-[10px] tracking-widest uppercase font-medium mb-0.5" style={{ color: activeMode.accent }}>
+                  {activeMode.label}
+                </p>
+                <h3 className="font-display text-xl font-bold text-warm-white">{activeMode.tagline}</h3>
+              </div>
+            </div>
+
+            <p className="text-warm-gray-300 text-sm leading-relaxed mb-6">
+              {activeMode.popupDetail}
+            </p>
+
+            {activeMode.status === 'live' ? (
+              <a
+                href="/demo"
+                className="btn-primary w-full text-center block"
+                onClick={() => setActiveInfo(null)}
+              >
+                try the demo →
+              </a>
+            ) : (
+              <p className="text-warm-gray-500 text-xs text-center">coming later this year</p>
+            )}
+          </div>
+        </div>
+      )}
     </section>
   )
 }
