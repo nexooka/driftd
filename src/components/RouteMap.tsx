@@ -45,10 +45,8 @@ async function fetchAllLegs(
 export default function RouteMap({ stops, routeKey }: { stops: MapStop[]; routeKey: number }) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<any>(null)
-  const segPolysRef = useRef<any[]>([])
-  const segPathElemsRef = useRef<(SVGPathElement | null)[]>([])
+  const segLinesRef = useRef<any[]>([])       // one polyline per segment
   const markerElemsRef = useRef<(HTMLElement | null)[]>([])
-  const animTimersRef = useRef<ReturnType<typeof setTimeout>[]>([])
   const userClickedRef = useRef(false)
   const activeStopRef = useRef(stops.length - 1)
 
@@ -64,30 +62,16 @@ export default function RouteMap({ stops, routeKey }: { stops: MapStop[]; routeK
     setHasInteracted(false)
   }, [routeKey, stops.length])
 
-  /* Update segment colors on user interaction */
+  /* Update segment colors when user taps a marker */
   useEffect(() => {
     if (!hasInteracted) return
-    animTimersRef.current.forEach(clearTimeout)
-    animTimersRef.current = []
-
-    segPolysRef.current.forEach(([glow, main], i) => {
+    segLinesRef.current.forEach((line, i) => {
+      if (!line) return
       const active = i < activeStop
-      if (glow) glow.setStyle({
-        color: active ? '#fbbf24' : '#1e1e1e',
-        opacity: active ? 0.18 : 0,
+      line.setStyle({
+        color: active ? '#fbbf24' : '#333',
+        opacity: active ? 1 : 0.35,
       })
-      if (main) {
-        const pathEl = segPathElemsRef.current[i]
-        if (pathEl) {
-          pathEl.style.transition = 'none'
-          pathEl.style.strokeDasharray = 'none'
-          pathEl.style.strokeDashoffset = '0'
-        }
-        main.setStyle({
-          color: active ? '#fbbf24' : '#1e1e1e',
-          opacity: active ? 0.92 : 0.3,
-        })
-      }
     })
     markerElemsRef.current.forEach((el, i) => {
       if (el) el.style.opacity = i <= activeStop ? '1' : '0.28'
@@ -100,11 +84,8 @@ export default function RouteMap({ stops, routeKey }: { stops: MapStop[]; routeK
     if (!stops.length || stops.some(s => !s.lat || !s.lng)) return
 
     let destroyed = false
-    segPolysRef.current = []
-    segPathElemsRef.current = []
+    segLinesRef.current = []
     markerElemsRef.current = []
-    animTimersRef.current.forEach(clearTimeout)
-    animTimersRef.current = []
 
     if (mapRef.current) { mapRef.current.remove(); mapRef.current = null }
 
@@ -142,64 +123,24 @@ export default function RouteMap({ stops, routeKey }: { stops: MapStop[]; routeK
       const segmentCoords = await fetchAllLegs(latlngs)
       if (destroyed) return
 
-      // Draw segments — start invisible
-      const pairs: any[] = segmentCoords.map((coords, i) => {
-        const pts = coords?.length
+      // One clean line per segment — no glow layer, no SVG tricks
+      segmentCoords.forEach((coords, i) => {
+        const pts: [number, number][] = coords?.length
           ? coords
-          : [[stops[i].lat, stops[i].lng], [stops[i + 1].lat, stops[i + 1].lng]] as [number, number][]
+          : [[stops[i].lat, stops[i].lng], [stops[i + 1].lat, stops[i + 1].lng]]
         const isDash = !coords?.length
 
-        const glow = L.polyline(pts, {
+        const line = L.polyline(pts, {
           color: '#fbbf24',
-          opacity: 0,
-          weight: 16,
-          smoothFactor: 0,
+          opacity: 1,
+          weight: isDash ? 2 : 3.5,
+          smoothFactor: 1,
           lineCap: 'round',
           lineJoin: 'round',
+          ...(isDash ? { dashArray: '4 8' } : {}),
         }).addTo(map)
 
-        const main = L.polyline(pts, {
-          color: '#fbbf24',
-          opacity: 0,
-          weight: isDash ? 2.5 : 4,
-          smoothFactor: 0,
-          lineCap: 'round',
-          lineJoin: 'round',
-          ...(isDash ? { dashArray: '5 8' } : {}),
-        }).addTo(map)
-
-        if (!isDash) {
-          // Use double-rAF so the SVG has been painted before we measure
-          requestAnimationFrame(() => requestAnimationFrame(() => {
-            const pathEl = main.getElement() as SVGPathElement | null
-            segPathElemsRef.current[i] = pathEl
-            if (pathEl) {
-              try {
-                const len = pathEl.getTotalLength()
-                if (len > 0) {
-                  pathEl.style.strokeDasharray = `${len}`
-                  pathEl.style.strokeDashoffset = `${len}`
-                }
-              } catch {}
-            }
-          }))
-        }
-
-        return [glow, main]
-      })
-      segPolysRef.current = pairs
-
-      // Reveal all segments at once after OSRM fetch completes
-      pairs.forEach(([glow, main], i) => {
-        const isDash = !segmentCoords[i]?.length
-        if (!isDash) glow.setStyle({ opacity: 0.18 })
-        main.setStyle({ opacity: isDash ? 0.55 : 0.92 })
-        if (!isDash) {
-          const pathEl = segPathElemsRef.current[i]
-          if (pathEl) {
-            pathEl.style.strokeDashoffset = '0'
-          }
-        }
+        segLinesRef.current[i] = line
       })
 
       // Draw markers
@@ -264,8 +205,6 @@ export default function RouteMap({ stops, routeKey }: { stops: MapStop[]; routeK
 
     return () => {
       destroyed = true
-      animTimersRef.current.forEach(clearTimeout)
-      animTimersRef.current = []
       if (mapRef.current) { mapRef.current.remove(); mapRef.current = null }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
