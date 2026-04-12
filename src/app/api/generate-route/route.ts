@@ -24,13 +24,13 @@ STOP COUNT & TIME:
    - 180–240 min: 15–20 stops
    MAIN STOPS (8–20 min): cafés, bars, galleries, markets — places to linger.
    MICRO-STOPS (2–5 min): murals, courtyards, facades, viewpoints, canal banks — walk past and pause. Use these to fill gaps without long walks.
-5. WALKING TIME IS DEAD TIME. Every minute walking is a minute not exploring. Target 4–7 min walks between stops. If a walk is longer than 10 min, you need either a micro-stop in between OR a different stop choice. Walking distances at 83m/min:
-   - 300m = 4 min ✓ ideal
-   - 500m = 6 min ✓ good
-   - 700m = 8 min ⚠ acceptable if scenic
-   - 900m = 11 min ✗ too far — find something in between
-   - 1200m+ = 15+ min ✗✗ unacceptable — replace the stop
-6. TIME BUDGET: sum of all (time_at_stop + walk_to_next) must equal total_minutes ± 5 min. Calculate before finalizing.
+5. WALKING TIME IS DEAD TIME. Every minute walking is a minute not exploring. Target 4–6 min walks between stops. Walking speed = 83m/min (5 km/h). Real walking distance ≈ straight-line × 1.35 due to streets.
+   - 250m straight = ~4 min ✓ ideal
+   - 400m straight = ~7 min ✓ good
+   - 600m straight = ~10 min ⚠ max acceptable
+   - 900m straight = ~15 min ✗ too far — MUST add a micro-stop between them or replace
+   - 1200m+ straight = 20+ min ✗✗ unacceptable — kill the stop entirely
+6. TIME BUDGET: sum of all (time_at_stop + walk_to_next) must equal total_minutes ± 5 min. Walking is calculated server-side at 83m/min — your walk_to_next_minutes are IGNORED and recalculated. So the only thing that matters is that your stops are CLOSE TOGETHER (under 600m straight-line between any two adjacent stops).
 
 NICHE FIRST — THIS IS THE WHOLE POINT OF DRIFTD:
 7. The ratio rule: at least 70% of stops must be niche — places most tourists have never heard of. The remaining 30% can include well-known spots if they genuinely fit the vibe, but never make a famous landmark the centrepiece of the route. It's the seasoning, not the main dish.
@@ -243,57 +243,26 @@ function haversineMeters(lat1: number, lng1: number, lat2: number, lng2: number)
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
 }
 
-type WalkLeg = { meters: number; minutes: number }
-
-/* ── Fetch real pedestrian walking distances via OSRM (free) ─────────── */
-// Same public OSRM instance used by the client map — no API key, no cost.
-// One call covers all stops. Falls back to null on failure; callers then
-// use haversine.
-async function fetchWalkingLegs(stops: any[]): Promise<WalkLeg[] | null> {
-  const pts = stops.filter((s: any) => s.lat && s.lng)
-  if (pts.length < 2) return null
-
-  try {
-    const coordStr = pts.map((s: any) => `${s.lng},${s.lat}`).join(';')
-    const res = await fetch(
-      `https://router.project-osrm.org/route/v1/foot/${coordStr}?overview=false&steps=false`,
-      { signal: AbortSignal.timeout(8000) }
-    )
-    const data = await res.json()
-    const legs: any[] = data?.routes?.[0]?.legs
-    if (!legs?.length) return null
-
-    return legs.map((leg: any) => ({
-      meters: Math.round(leg.distance ?? 0),
-      minutes: Math.max(1, Math.round((leg.duration ?? 0) / 60)),
-    }))
-  } catch {
-    return null
-  }
-}
-
-/* ── Haversine leg fallback ─────────────────────────────────────────── */
-function haversineLeg(s: any, n: any): WalkLeg {
+/* ── Haversine walking leg estimate ─────────────────────────────────── */
+// 1.35 = straight-line to road-distance correction factor.
+// 83 m/min = 5 km/h walking pace.
+// Both meters and minutes always come from the same formula → always consistent.
+function walkLeg(s: any, n: any): { meters: number; minutes: number } {
   const meters = Math.round(haversineMeters(s.lat, s.lng, n.lat, n.lng) * 1.35)
   return { meters, minutes: Math.max(1, Math.round(meters / 83)) }
 }
 
 /* ── Remove stops that cause excessively long walks ─────────────────── */
-// Uses real Google Maps walking times when available — catches river
-// crossings and other obstacles haversine cannot see.
-// Never removes stop #0 (user's start).
-function removeOutlierStops(stops: any[], targetMinutes: number, walkingLegs: WalkLeg[] | null): any[] {
-  const MAX_WALK_MIN = 20
+// Never removes stop #0 (user's start). Keeps at least minutes/14 stops.
+function removeOutlierStops(stops: any[], targetMinutes: number): any[] {
+  const MAX_WALK_MIN = 22
   const MIN_STOPS = Math.max(5, Math.floor(targetMinutes / 14))
 
-  // Keep a mutable copy so we can update it as stops are removed
-  const legs: WalkLeg[] = walkingLegs
-    ? [...walkingLegs]
-    : stops.slice(0, -1).map((s, i) =>
-        s.lat && s.lng && stops[i + 1]?.lat ? haversineLeg(s, stops[i + 1]) : { meters: 0, minutes: 0 }
-      )
-
-  const walkMin = (i: number) => legs[i]?.minutes ?? 0
+  const walkMin = (i: number) => {
+    const s = stops[i], n = stops[i + 1]
+    if (!s?.lat || !s?.lng || !n?.lat || !n?.lng) return 0
+    return walkLeg(s, n).minutes
+  }
 
   let changed = true
   while (changed && stops.length > MIN_STOPS) {
@@ -304,46 +273,39 @@ function removeOutlierStops(stops: any[], targetMinutes: number, walkingLegs: Wa
       if (w > worstMin) { worstMin = w; worstIdx = i }
     }
     if (worstMin > MAX_WALK_MIN && worstIdx + 1 < stops.length && worstIdx + 1 > 0) {
-      // Remove the stop and merge the two surrounding legs into one haversine estimate
       stops.splice(worstIdx + 1, 1)
       stops.forEach((s, i) => { s.number = i + 1 })
-      const merged = stops[worstIdx]?.lat && stops[worstIdx + 1]?.lat
-        ? haversineLeg(stops[worstIdx], stops[worstIdx + 1])
-        : { meters: 0, minutes: 0 }
-      legs.splice(worstIdx, 2, merged)
       changed = true
     }
   }
   return stops
 }
 
-/* ── Replace AI walking estimates with real times, trim stops, fix totals ─ */
-function enrichAndAdjust(stops: any[], targetMinutes: number, walkingLegs: WalkLeg[] | null) {
+/* ── Replace AI walking guesses with haversine, trim stops, fix totals ─ */
+function enrichAndAdjust(stops: any[], targetMinutes: number) {
   if (stops.length < 2) return { totalWalkingMinutes: 0, totalWalkingMeters: 0 }
 
-  // ── Step 1: apply walking times (Google Maps if available, else haversine) ──
-  const computeWalking = () => {
-    let totalWalkingMinutes = 0
-    let totalWalkingMeters = 0
-    stops.slice(0, -1).forEach((stop, i) => {
-      const next = stops[i + 1]
-      const leg: WalkLeg = walkingLegs?.[i] ??
-        (stop.lat && stop.lng && next.lat && next.lng
-          ? haversineLeg(stop, next)
-          : { meters: 0, minutes: stop.walk_to_next_minutes ?? 0 })
+  // ── Step 1: compute walking times — haversine, always consistent ──
+  let totalWalkingMinutes = 0
+  let totalWalkingMeters = 0
+  stops.slice(0, -1).forEach((stop, i) => {
+    const next = stops[i + 1]
+    if (stop.lat && stop.lng && next.lat && next.lng) {
+      const leg = walkLeg(stop, next)
       stops[i].walk_to_next_minutes = leg.minutes
       stops[i].walk_to_next_meters = leg.meters
       totalWalkingMinutes += leg.minutes
       totalWalkingMeters += leg.meters
-    })
-    stops[stops.length - 1].walk_to_next_minutes = null
-    stops[stops.length - 1].walk_to_next_meters = null
-    return { totalWalkingMinutes, totalWalkingMeters }
-  }
+    } else {
+      stops[i].walk_to_next_minutes = stops[i].walk_to_next_minutes ?? 5
+      stops[i].walk_to_next_meters = null
+      totalWalkingMinutes += stops[i].walk_to_next_minutes
+    }
+  })
+  stops[stops.length - 1].walk_to_next_minutes = null
+  stops[stops.length - 1].walk_to_next_meters = null
 
-  let { totalWalkingMinutes, totalWalkingMeters } = computeWalking()
-
-  // ── Step 2: if total walking blows the budget, trim from the end ──
+  // ── Step 2: if walking blows the budget, trim stops from the end ──
   const minStops = Math.max(3, Math.floor(targetMinutes / 20))
   while (stops.length > minStops) {
     const minNeededForStops = stops.length * 3
@@ -489,18 +451,11 @@ Generate a walking route. Target ${Math.round(minutes / 12)}–${Math.round(minu
       // accurate coordinates, not Claude's hallucinated ones
       route.stops = reorderStops(route.stops)
 
-      // Fetch real pedestrian walking distances via OSRM (free, same as client map).
-      // This catches obstacles haversine can't see: rivers, motorways, dead ends.
-      const legsBeforePrune = await fetchWalkingLegs(route.stops)
+      // Remove stops that cause excessively long walks (haversine-based)
+      route.stops = removeOutlierStops(route.stops, minutes)
 
-      // Remove outlier stops using real walking times (not straight-line guesses)
-      route.stops = removeOutlierStops(route.stops, minutes, legsBeforePrune)
-
-      // Fetch final walking distances for the pruned stop list
-      const walkingLegs = await fetchWalkingLegs(route.stops)
-
-      // Apply real walking times, trim if over budget, scale stop times to fill target
-      const walking = enrichAndAdjust(route.stops, minutes, walkingLegs)
+      // Replace AI walking guesses with haversine, trim if over budget, scale stop times
+      const walking = enrichAndAdjust(route.stops, minutes)
       route.total_walking_minutes = walking.totalWalkingMinutes
       route.total_walking_meters = walking.totalWalkingMeters
 
