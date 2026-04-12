@@ -281,9 +281,14 @@ export default function DemoPage() {
     setTimeout(() => resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50)
   }, [view, route, mapKey])
 
-  /* Escape to close modal */
+  /* Escape to close modals */
   useEffect(() => {
-    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') setShowModal(false) }
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setPhotoModal(null)
+        setShowModal(false)
+      }
+    }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
   }, [])
