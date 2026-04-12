@@ -44,7 +44,7 @@ ROUTE GEOMETRY — STOPS MUST BE DENSE, WALKS MUST BE SHORT:
 12. FILL TIME WITH STOPS, NOT WALKING: For a 3-hour route, the user wants to VISIT many places, not walk for 40 minutes between two stops. If your time budget has gaps, add more micro-stops (a mural, a courtyard, a canal viewpoint, an interesting facade) — NEVER fill time with long walks. A 25-min walk is a failure. A 5-min walk between two good spots is success.
 13. CLUSTER TEST — mandatory before finalizing: pick your tightest stop and your furthest stop. If the straight-line distance between them exceeds 1.2km for a <90min route or 2km for a longer route, you've failed the cluster test. Replace the outlier.
 14. RIVER RULE — critical for cities with rivers (Warsaw/Vistula, Prague/Vltava, Berlin/Spree): NEVER place stops on BOTH sides of a major river. Pick one bank and stay on it for the entire route. Crossing a river forces a long detour to a bridge (often 15–25 min of dead walking). If the starting point is on the left bank, every other stop must also be on the left bank. If you can't fill the time on one bank, use more micro-stops — don't cross the river.
-14. Stop #2 onward can be in any order — they'll be optimally sorted server-side.
+14. Stop #2 onward can be in any order — they'll be optimally sorted server-side. However: think spatially. Group stops that are on the same block or in the same pocket. A route that zigzags back and forth across the same 200m stretch looks terrible. Imagine drawing the route on a map — it should have forward momentum, moving through a neighborhood, not bouncing around it.
 15. If they specified an end point, route toward it. If they gave constraints in notes, follow them strictly.
 16. Match vibe tags strictly. "artsy + chill" = cafés, street art, bookshops. No loud bars, no tourist squares.
 17. For regeneration: different neighborhood entirely, zero repeated stops.
@@ -370,6 +370,41 @@ function reorderStops(stops: any[]): any[] {
   return result
 }
 
+/* ── 2-opt improvement pass ──────────────────────────────────────────── */
+// After nearest-neighbor, crossing paths often remain. 2-opt iteratively
+// reverses segments to remove crossings until no improvement is possible.
+// Stop[0] stays fixed (user's starting location).
+function twoOptImprove(stops: any[]): any[] {
+  if (stops.length <= 3) return stops
+
+  const dist = (a: any, b: any): number =>
+    a?.lat && a?.lng && b?.lat && b?.lng
+      ? haversineMeters(a.lat, a.lng, b.lat, b.lng) : 0
+
+  let route = [...stops]
+  let improved = true
+  while (improved) {
+    improved = false
+    for (let i = 1; i < route.length - 1; i++) {
+      for (let j = i + 1; j < route.length; j++) {
+        const prev = route[i - 1]
+        const nextJ = j + 1 < route.length ? route[j + 1] : null
+        const oldDist = dist(prev, route[i]) + (nextJ ? dist(route[j], nextJ) : 0)
+        const newDist = dist(prev, route[j]) + (nextJ ? dist(route[i], nextJ) : 0)
+        if (newDist < oldDist - 1) {
+          route = [...route.slice(0, i), ...route.slice(i, j + 1).reverse(), ...route.slice(j + 1)]
+          improved = true
+          break
+        }
+      }
+      if (improved) break
+    }
+  }
+
+  route.forEach((s, i) => { s.number = i + 1 })
+  return route
+}
+
 export async function POST(req: NextRequest) {
   const { city, vibes, minutes, start, end, notes, previousStops = [] } = await req.json()
 
@@ -450,6 +485,9 @@ Generate a walking route. Target ${Math.round(minutes / 12)}–${Math.round(minu
       // Reorder into nearest-neighbor order AFTER geocoding so the sort uses
       // accurate coordinates, not Claude's hallucinated ones
       route.stops = reorderStops(route.stops)
+
+      // 2-opt pass: eliminate crossing paths and zigzag patterns
+      route.stops = twoOptImprove(route.stops)
 
       // Remove stops that cause excessively long walks (haversine-based)
       route.stops = removeOutlierStops(route.stops, minutes)

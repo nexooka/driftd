@@ -134,7 +134,7 @@ export default function RouteMap({ stops, routeKey }: { stops: MapStop[]; routeK
           color: '#fbbf24',
           opacity: 1,
           weight: isDash ? 2 : 3.5,
-          smoothFactor: 1,
+          smoothFactor: 3,
           lineCap: 'round',
           lineJoin: 'round',
           ...(isDash ? { dashArray: '4 8' } : {}),
