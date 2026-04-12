@@ -243,20 +243,85 @@ function haversineMeters(lat1: number, lng1: number, lat2: number, lng2: number)
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
 }
 
-/* ── Remove stops that cause excessively long walks ─────────────────── */
-// Only removes a stop when the walk it causes is genuinely an outlier AND
-// we still have enough stops to give a meaningful route.
-// Never removes stop #0 (user's start). Preserves at least minutes/25 stops.
-function removeOutlierStops(stops: any[], targetMinutes: number): any[] {
-  const MAX_WALK_MIN = 28
-  const MIN_STOPS = Math.max(5, Math.floor(targetMinutes / 14)) // e.g. 90min→6, 120min→8, 180min→12
+type WalkLeg = { meters: number; minutes: number }
 
-  const walkMin = (i: number) => {
-    const s = stops[i], n = stops[i + 1]
-    if (!s?.lat || !s?.lng || !n?.lat || !n?.lng) return 0
-    const meters = Math.round(haversineMeters(s.lat, s.lng, n.lat, n.lng) * 1.35)
-    return Math.max(1, Math.round(meters / 83))
+/* ── Fetch real pedestrian walking distances via Google Maps Routes API ─ */
+// One API call covers the whole route (all stops as waypoints).
+// Falls back gracefully to null if the API is unavailable — callers
+// then use haversine as a fallback.
+async function fetchWalkingLegs(stops: any[]): Promise<WalkLeg[] | null> {
+  const key = process.env.NEXT_PUBLIC_GOOGLE_STREET_VIEW_KEY
+  if (!key || stops.length < 2) return null
+
+  const pts = stops.filter(s => s.lat && s.lng)
+  if (pts.length < 2) return null
+
+  try {
+    const res = await fetch('https://routes.googleapis.com/directions/v2:computeRoutes', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Goog-Api-Key': key,
+        'X-Goog-FieldMask': 'routes.legs.duration,routes.legs.distanceMeters',
+      },
+      body: JSON.stringify({
+        origin: {
+          location: { latLng: { latitude: pts[0].lat, longitude: pts[0].lng } },
+        },
+        destination: {
+          location: { latLng: { latitude: pts[pts.length - 1].lat, longitude: pts[pts.length - 1].lng } },
+        },
+        intermediates: pts.slice(1, -1).map((s: any) => ({
+          location: { latLng: { latitude: s.lat, longitude: s.lng } },
+        })),
+        travelMode: 'WALK',
+        computeAlternativeRoutes: false,
+      }),
+      signal: AbortSignal.timeout(8000),
+    })
+
+    const data = await res.json()
+    const legs: any[] = data?.routes?.[0]?.legs
+    if (!legs?.length) {
+      console.log('[routes-api] no legs returned:', JSON.stringify(data).slice(0, 200))
+      return null
+    }
+
+    return legs.map((leg: any) => {
+      const secs = parseInt(String(leg.duration ?? '0').replace('s', ''), 10) || 0
+      return {
+        meters: leg.distanceMeters ?? 0,
+        minutes: Math.max(1, Math.round(secs / 60)),
+      }
+    })
+  } catch (err) {
+    console.log('[routes-api] error:', err)
+    return null
   }
+}
+
+/* ── Haversine leg fallback ─────────────────────────────────────────── */
+function haversineLeg(s: any, n: any): WalkLeg {
+  const meters = Math.round(haversineMeters(s.lat, s.lng, n.lat, n.lng) * 1.35)
+  return { meters, minutes: Math.max(1, Math.round(meters / 83)) }
+}
+
+/* ── Remove stops that cause excessively long walks ─────────────────── */
+// Uses real Google Maps walking times when available — catches river
+// crossings and other obstacles haversine cannot see.
+// Never removes stop #0 (user's start).
+function removeOutlierStops(stops: any[], targetMinutes: number, walkingLegs: WalkLeg[] | null): any[] {
+  const MAX_WALK_MIN = 20
+  const MIN_STOPS = Math.max(5, Math.floor(targetMinutes / 14))
+
+  // Keep a mutable copy so we can update it as stops are removed
+  const legs: WalkLeg[] = walkingLegs
+    ? [...walkingLegs]
+    : stops.slice(0, -1).map((s, i) =>
+        s.lat && s.lng && stops[i + 1]?.lat ? haversineLeg(s, stops[i + 1]) : { meters: 0, minutes: 0 }
+      )
+
+  const walkMin = (i: number) => legs[i]?.minutes ?? 0
 
   let changed = true
   while (changed && stops.length > MIN_STOPS) {
@@ -266,37 +331,38 @@ function removeOutlierStops(stops: any[], targetMinutes: number): any[] {
       const w = walkMin(i)
       if (w > worstMin) { worstMin = w; worstIdx = i }
     }
-    // Remove the stop at the far end of the worst walk.
-    // worstIdx+1 must exist and must not be stop #0 (the user's start).
     if (worstMin > MAX_WALK_MIN && worstIdx + 1 < stops.length && worstIdx + 1 > 0) {
+      // Remove the stop and merge the two surrounding legs into one haversine estimate
       stops.splice(worstIdx + 1, 1)
       stops.forEach((s, i) => { s.number = i + 1 })
+      const merged = stops[worstIdx]?.lat && stops[worstIdx + 1]?.lat
+        ? haversineLeg(stops[worstIdx], stops[worstIdx + 1])
+        : { meters: 0, minutes: 0 }
+      legs.splice(worstIdx, 2, merged)
       changed = true
     }
   }
   return stops
 }
 
-/* ── Replace AI walking estimates with haversine, trim stops, fix totals ─ */
-function enrichAndAdjust(stops: any[], targetMinutes: number) {
+/* ── Replace AI walking estimates with real times, trim stops, fix totals ─ */
+function enrichAndAdjust(stops: any[], targetMinutes: number, walkingLegs: WalkLeg[] | null) {
   if (stops.length < 2) return { totalWalkingMinutes: 0, totalWalkingMeters: 0 }
 
-  // ── Step 1: compute real walking times via haversine ──
+  // ── Step 1: apply walking times (Google Maps if available, else haversine) ──
   const computeWalking = () => {
     let totalWalkingMinutes = 0
     let totalWalkingMeters = 0
     stops.slice(0, -1).forEach((stop, i) => {
       const next = stops[i + 1]
-      if (stop.lat && stop.lng && next.lat && next.lng) {
-        const meters = Math.round(haversineMeters(stop.lat, stop.lng, next.lat, next.lng) * 1.35)
-        const minutes = Math.max(1, Math.round(meters / 83))
-        stops[i].walk_to_next_minutes = minutes
-        stops[i].walk_to_next_meters = meters
-        totalWalkingMinutes += minutes
-        totalWalkingMeters += meters
-      } else {
-        totalWalkingMinutes += stops[i].walk_to_next_minutes ?? 0
-      }
+      const leg: WalkLeg = walkingLegs?.[i] ??
+        (stop.lat && stop.lng && next.lat && next.lng
+          ? haversineLeg(stop, next)
+          : { meters: 0, minutes: stop.walk_to_next_minutes ?? 0 })
+      stops[i].walk_to_next_minutes = leg.minutes
+      stops[i].walk_to_next_meters = leg.meters
+      totalWalkingMinutes += leg.minutes
+      totalWalkingMeters += leg.meters
     })
     stops[stops.length - 1].walk_to_next_minutes = null
     stops[stops.length - 1].walk_to_next_meters = null
@@ -305,7 +371,7 @@ function enrichAndAdjust(stops: any[], targetMinutes: number) {
 
   let { totalWalkingMinutes, totalWalkingMeters } = computeWalking()
 
-  // ── Step 2: if total walking still blows the budget, trim from the end ──
+  // ── Step 2: if total walking blows the budget, trim from the end ──
   const minStops = Math.max(3, Math.floor(targetMinutes / 20))
   while (stops.length > minStops) {
     const minNeededForStops = stops.length * 3
@@ -450,12 +516,18 @@ Generate a walking route. Target ${Math.round(minutes / 12)}–${Math.round(minu
       // Skip stop #1 — its coordinates are already locked to the user's input
       await geocodeStops(route.stops.slice(1), city)
 
-      // Remove outlier stops that cause very long walks, but keep enough stops
-      // to fill the requested time (min MAX(4, minutes/25) stops preserved)
-      route.stops = removeOutlierStops(route.stops, minutes)
+      // Fetch real pedestrian walking distances from Google Maps Routes API.
+      // This catches obstacles haversine can't see: rivers, motorways, dead ends.
+      const legsBeforePrune = await fetchWalkingLegs(route.stops)
 
-      // Replace AI walking guesses with haversine, trim if needed, scale to target
-      const walking = enrichAndAdjust(route.stops, minutes)
+      // Remove outlier stops using real walking times (not straight-line guesses)
+      route.stops = removeOutlierStops(route.stops, minutes, legsBeforePrune)
+
+      // Fetch final walking distances for the pruned stop list
+      const walkingLegs = await fetchWalkingLegs(route.stops)
+
+      // Apply real walking times, trim if over budget, scale stop times to fill target
+      const walking = enrichAndAdjust(route.stops, minutes, walkingLegs)
       route.total_walking_minutes = walking.totalWalkingMinutes
       route.total_walking_meters = walking.totalWalkingMeters
 
