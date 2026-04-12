@@ -85,20 +85,20 @@ export default function HeroSection() {
 
         {/* CTAs */}
         <div className="mt-10 flex flex-col sm:flex-row items-center gap-4">
-          <a href="#waitlist" className="btn-primary text-sm px-9 py-4">
-            join the waitlist
+          <a href="/demo" className="btn-primary text-sm px-9 py-4">
+            try the demo
             <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
               <path d="M2.5 7.5h10M8 3.5l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </a>
-          <a href="#how-it-works" className="btn-outline text-sm px-9 py-4">
-            see how it works
+          <a href="#waitlist" className="btn-outline text-sm px-9 py-4">
+            join the waitlist
           </a>
         </div>
 
         {/* Micro copy */}
         <p className="mt-5 text-xs text-warm-gray-500 tracking-wide">
-          driftd is free for explorers · cities pay us
+          live demo · no signup · free forever for explorers
         </p>
       </div>
 
