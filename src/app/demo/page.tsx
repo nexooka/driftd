@@ -375,26 +375,118 @@ export default function DemoPage() {
 
   /* ── Loading view ─────────────────────────────────────────────────── */
   if (view === 'loading') return (
-    <main className="min-h-screen bg-[#0a0a0a] flex flex-col">
+    <main className="min-h-screen bg-[#0a0a0a] flex flex-col overflow-hidden">
       <Navbar />
-      <div className="flex-1 flex flex-col items-center justify-center gap-10 px-6">
-        <div className="relative w-20 h-20">
-          <svg className="w-20 h-20 animate-spin" viewBox="0 0 80 80" fill="none">
-            <circle cx="40" cy="40" r="34" stroke="#1a1a1a" strokeWidth="4"/>
-            <path d="M40 6 A34 34 0 0 1 74 40" stroke="#fbbf24" strokeWidth="4" strokeLinecap="round"/>
+      <div className="flex-1 flex flex-col items-center justify-center px-6 gap-10">
+
+        {/* City scene */}
+        <div className="relative w-full max-w-xs select-none">
+          {/* Street-level amber glow */}
+          <div className="absolute bottom-2 inset-x-0 h-16 pointer-events-none" style={{
+            background: 'radial-gradient(ellipse at 50% 100%, rgba(251,191,36,0.09) 0%, transparent 70%)',
+          }} />
+
+          <svg viewBox="0 0 300 170" className="w-full" style={{ overflow: 'visible' }}>
+
+            {/* ── Buildings ── */}
+            <rect x="0"   y="100" width="32"  height="60"  fill="#111"/>
+            <rect x="36"  y="62"  width="20"  height="98"  fill="#0e0e0e"/>
+            <rect x="60"  y="80"  width="36"  height="80"  fill="#121212"/>
+            <rect x="100" y="42"  width="24"  height="118" fill="#0f0f0f"/>
+            <rect x="128" y="84"  width="42"  height="76"  fill="#111"/>
+            <rect x="174" y="60"  width="22"  height="100" fill="#0e0e0e"/>
+            <rect x="200" y="77"  width="30"  height="83"  fill="#121212"/>
+            <rect x="234" y="44"  width="26"  height="116" fill="#0f0f0f"/>
+            <rect x="264" y="92"  width="22"  height="68"  fill="#111"/>
+            <rect x="290" y="72"  width="10"  height="88"  fill="#0e0e0e"/>
+            {/* Ground */}
+            <rect x="0" y="158" width="300" height="12" fill="#0d0d0d"/>
+
+            {/* ── Windows ── */}
+            <rect x="39"  y="70" width="6" height="4" fill="#fbbf24" className="drift-win-a" style={{animationDelay:'0s'}}/>
+            <rect x="47"  y="70" width="6" height="4" fill="#fbbf24" className="drift-win-b" style={{animationDelay:'1.3s'}}/>
+            <rect x="39"  y="82" width="6" height="4" fill="#fbbf24" className="drift-win-c" style={{animationDelay:'0.7s'}}/>
+            <rect x="47"  y="82" width="6" height="4" fill="#fbbf24" className="drift-win-a" style={{animationDelay:'2.8s'}}/>
+            <rect x="39"  y="94" width="6" height="4" fill="#fbbf24" className="drift-win-b" style={{animationDelay:'1.9s'}}/>
+
+            <rect x="103" y="50" width="7" height="5" fill="#fbbf24" className="drift-win-c" style={{animationDelay:'0.4s'}}/>
+            <rect x="114" y="50" width="7" height="5" fill="#fbbf24" className="drift-win-a" style={{animationDelay:'3.1s'}}/>
+            <rect x="103" y="63" width="7" height="5" fill="#fbbf24" className="drift-win-b" style={{animationDelay:'1.1s'}}/>
+            <rect x="114" y="63" width="7" height="5" fill="#fbbf24" className="drift-win-c" style={{animationDelay:'2.4s'}}/>
+            <rect x="103" y="76" width="7" height="5" fill="#fbbf24" className="drift-win-a" style={{animationDelay:'0.6s'}}/>
+            <rect x="114" y="76" width="7" height="5" fill="#fbbf24" className="drift-win-b" style={{animationDelay:'3.6s'}}/>
+
+            <rect x="177" y="68" width="7" height="4" fill="#fbbf24" className="drift-win-c" style={{animationDelay:'1.7s'}}/>
+            <rect x="187" y="68" width="7" height="4" fill="#fbbf24" className="drift-win-a" style={{animationDelay:'0.3s'}}/>
+            <rect x="177" y="80" width="7" height="4" fill="#fbbf24" className="drift-win-b" style={{animationDelay:'2.6s'}}/>
+            <rect x="177" y="92" width="7" height="4" fill="#fbbf24" className="drift-win-c" style={{animationDelay:'1.4s'}}/>
+
+            <rect x="237" y="52" width="8" height="5" fill="#fbbf24" className="drift-win-a" style={{animationDelay:'2.2s'}}/>
+            <rect x="249" y="52" width="8" height="5" fill="#fbbf24" className="drift-win-b" style={{animationDelay:'0.9s'}}/>
+            <rect x="237" y="65" width="8" height="5" fill="#fbbf24" className="drift-win-c" style={{animationDelay:'3.8s'}}/>
+            <rect x="249" y="65" width="8" height="5" fill="#fbbf24" className="drift-win-a" style={{animationDelay:'1.5s'}}/>
+            <rect x="237" y="78" width="8" height="5" fill="#fbbf24" className="drift-win-b" style={{animationDelay:'2.9s'}}/>
+
+            {/* ── Stop markers appearing one by one ── */}
+            <g style={{animation:'drift-stop-in 0.55s cubic-bezier(0.34,1.56,0.64,1) 0.5s both', transformBox:'fill-box', transformOrigin:'center'}}>
+              <circle cx="46"  cy="149" r="10" fill="#fbbf24" filter="url(#stopglow)"/>
+              <text x="46"  y="152.5" textAnchor="middle" fill="#0a0a0a" fontSize="9" fontWeight="800" fontFamily="ui-sans-serif,system-ui,sans-serif">1</text>
+            </g>
+            <g style={{animation:'drift-stop-in 0.55s cubic-bezier(0.34,1.56,0.64,1) 1.3s both', transformBox:'fill-box', transformOrigin:'center'}}>
+              <circle cx="132" cy="149" r="10" fill="#fbbf24" filter="url(#stopglow)"/>
+              <text x="132" y="152.5" textAnchor="middle" fill="#0a0a0a" fontSize="9" fontWeight="800" fontFamily="ui-sans-serif,system-ui,sans-serif">2</text>
+            </g>
+            <g style={{animation:'drift-stop-in 0.55s cubic-bezier(0.34,1.56,0.64,1) 2.1s both', transformBox:'fill-box', transformOrigin:'center'}}>
+              <circle cx="187" cy="149" r="10" fill="#fbbf24" filter="url(#stopglow)"/>
+              <text x="187" y="152.5" textAnchor="middle" fill="#0a0a0a" fontSize="9" fontWeight="800" fontFamily="ui-sans-serif,system-ui,sans-serif">3</text>
+            </g>
+            <g style={{animation:'drift-stop-in 0.55s cubic-bezier(0.34,1.56,0.64,1) 2.9s both', transformBox:'fill-box', transformOrigin:'center'}}>
+              <circle cx="247" cy="149" r="10" fill="#fbbf24" filter="url(#stopglow)"/>
+              <text x="247" y="152.5" textAnchor="middle" fill="#0a0a0a" fontSize="9" fontWeight="800" fontFamily="ui-sans-serif,system-ui,sans-serif">4</text>
+            </g>
+
+            {/* ── Connecting lines ── */}
+            <line x1="56" y1="149" x2="122" y2="149" stroke="#fbbf24" strokeWidth="1.5"
+              strokeDasharray="4 6" strokeDashoffset="80"
+              style={{animation:'drift-line-in 0.5s ease-out 1.9s both'}}/>
+            <line x1="142" y1="149" x2="177" y2="149" stroke="#fbbf24" strokeWidth="1.5"
+              strokeDasharray="4 6" strokeDashoffset="80"
+              style={{animation:'drift-line-in 0.5s ease-out 2.7s both'}}/>
+            <line x1="197" y1="149" x2="237" y2="149" stroke="#fbbf24" strokeWidth="1.5"
+              strokeDasharray="4 6" strokeDashoffset="80"
+              style={{animation:'drift-line-in 0.5s ease-out 3.5s both'}}/>
+
+            {/* ── Walking figure ── */}
+            <circle r="3.5" fill="#fbbf24" opacity="0.9" style={{
+              animation: 'drift-walker 5s linear 0.5s infinite',
+              transformBox: 'fill-box',
+            }}>
+              <animateMotion dur="5s" repeatCount="indefinite" begin="0.5s"
+                path="M 0,149 L 300,149"/>
+            </circle>
+
+            {/* Glow filter for stop dots */}
+            <defs>
+              <filter id="stopglow" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="3" result="blur"/>
+                <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+              </filter>
+            </defs>
           </svg>
-          <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-amber-400 font-display font-black text-xl italic">d</span>
-          </div>
         </div>
-        <p className="text-warm-gray-400 text-base tracking-wide text-center max-w-xs transition-all duration-500">
-          {LOADING_MSGS[loadingIdx]}
-        </p>
-        {minutes >= 150 && (
-          <p className="text-warm-gray-600 text-xs text-center max-w-[220px] leading-relaxed">
-            long route — this can take up to a couple minutes. worth the wait.
+
+        {/* Text */}
+        <div className="text-center space-y-3">
+          <p className="text-warm-gray-300 text-sm tracking-wide transition-all duration-500">
+            {LOADING_MSGS[loadingIdx]}
           </p>
-        )}
+          {minutes >= 150 && (
+            <p className="text-warm-gray-600 text-xs max-w-[200px] mx-auto leading-relaxed">
+              long route — this can take a couple minutes. worth the wait.
+            </p>
+          )}
+        </div>
+
       </div>
     </main>
   )
