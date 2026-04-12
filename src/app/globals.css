@@ -295,17 +295,15 @@ input:focus { outline: none; }
 }
 
 @keyframes drift-stop-in {
-  0%   { opacity: 0; transform: scale(0.5) translateY(6px); }
-  60%  { transform: scale(1.1) translateY(-1px); }
+  0%   { opacity: 0; transform: scale(0.4) translateY(8px); }
+  65%  { transform: scale(1.12) translateY(-2px); }
   100% { opacity: 1; transform: scale(1) translateY(0); }
 }
 @keyframes drift-line-in {
   from { opacity: 0; stroke-dashoffset: 80; }
-  to   { opacity: 0.75; stroke-dashoffset: 0; }
+  to   { opacity: 0.7; stroke-dashoffset: 0; }
 }
-@keyframes drift-walker {
-  0%   { transform: translateX(-10px); opacity: 0; }
-  5%   { opacity: 1; }
-  95%  { opacity: 1; }
-  100% { transform: translateX(310px); opacity: 0; }
+@keyframes drift-logo-glow {
+  0%, 100% { opacity: 0.45; transform: scale(1);   }
+  50%       { opacity: 0.9;  transform: scale(1.35); }
 }

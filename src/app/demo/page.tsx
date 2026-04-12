@@ -377,30 +377,47 @@ export default function DemoPage() {
   if (view === 'loading') return (
     <main className="min-h-screen bg-[#0a0a0a] flex flex-col overflow-hidden">
       <Navbar />
-      <div className="flex-1 flex flex-col items-center justify-center px-6 gap-10">
+      <div className="flex-1 flex flex-col items-center justify-center px-6 gap-8">
+
+        {/* "d" logo */}
+        <div className="relative flex items-center justify-center">
+          <div className="absolute rounded-full pointer-events-none" style={{
+            width: 110, height: 110,
+            background: 'radial-gradient(circle, rgba(251,191,36,0.2) 0%, transparent 70%)',
+            animation: 'drift-logo-glow 3s ease-in-out infinite',
+          }}/>
+          <span className="relative font-display font-black italic text-amber-400"
+            style={{ fontSize: '4.5rem', lineHeight: 1 }}>
+            d
+          </span>
+        </div>
 
         {/* City scene */}
         <div className="relative w-full max-w-xs select-none">
-          {/* Street-level amber glow */}
-          <div className="absolute bottom-2 inset-x-0 h-16 pointer-events-none" style={{
-            background: 'radial-gradient(ellipse at 50% 100%, rgba(251,191,36,0.09) 0%, transparent 70%)',
-          }} />
+          <div className="absolute bottom-0 inset-x-0 h-14 pointer-events-none" style={{
+            background: 'radial-gradient(ellipse at 50% 100%, rgba(251,191,36,0.08) 0%, transparent 70%)',
+          }}/>
 
-          <svg viewBox="0 0 300 170" className="w-full" style={{ overflow: 'visible' }}>
+          <svg viewBox="0 0 300 165" className="w-full" style={{ overflow: 'visible' }}>
+            <defs>
+              <filter id="wglow" x="-100%" y="-100%" width="300%" height="300%">
+                <feGaussianBlur stdDeviation="2" result="b"/>
+                <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+              </filter>
+            </defs>
 
             {/* ── Buildings ── */}
-            <rect x="0"   y="100" width="32"  height="60"  fill="#111"/>
-            <rect x="36"  y="62"  width="20"  height="98"  fill="#0e0e0e"/>
-            <rect x="60"  y="80"  width="36"  height="80"  fill="#121212"/>
-            <rect x="100" y="42"  width="24"  height="118" fill="#0f0f0f"/>
-            <rect x="128" y="84"  width="42"  height="76"  fill="#111"/>
-            <rect x="174" y="60"  width="22"  height="100" fill="#0e0e0e"/>
-            <rect x="200" y="77"  width="30"  height="83"  fill="#121212"/>
-            <rect x="234" y="44"  width="26"  height="116" fill="#0f0f0f"/>
-            <rect x="264" y="92"  width="22"  height="68"  fill="#111"/>
-            <rect x="290" y="72"  width="10"  height="88"  fill="#0e0e0e"/>
-            {/* Ground */}
-            <rect x="0" y="158" width="300" height="12" fill="#0d0d0d"/>
+            <rect x="0"   y="100" width="32"  height="65"  fill="#111"/>
+            <rect x="36"  y="62"  width="20"  height="103" fill="#0e0e0e"/>
+            <rect x="60"  y="80"  width="36"  height="85"  fill="#121212"/>
+            <rect x="100" y="42"  width="24"  height="123" fill="#0f0f0f"/>
+            <rect x="128" y="84"  width="42"  height="81"  fill="#111"/>
+            <rect x="174" y="60"  width="22"  height="105" fill="#0e0e0e"/>
+            <rect x="200" y="77"  width="30"  height="88"  fill="#121212"/>
+            <rect x="234" y="44"  width="26"  height="121" fill="#0f0f0f"/>
+            <rect x="264" y="92"  width="22"  height="73"  fill="#111"/>
+            <rect x="290" y="72"  width="10"  height="93"  fill="#0e0e0e"/>
+            <rect x="0" y="160" width="300" height="5" fill="#0d0d0d"/>
 
             {/* ── Windows ── */}
             <rect x="39"  y="70" width="6" height="4" fill="#fbbf24" className="drift-win-a" style={{animationDelay:'0s'}}/>
@@ -408,70 +425,57 @@ export default function DemoPage() {
             <rect x="39"  y="82" width="6" height="4" fill="#fbbf24" className="drift-win-c" style={{animationDelay:'0.7s'}}/>
             <rect x="47"  y="82" width="6" height="4" fill="#fbbf24" className="drift-win-a" style={{animationDelay:'2.8s'}}/>
             <rect x="39"  y="94" width="6" height="4" fill="#fbbf24" className="drift-win-b" style={{animationDelay:'1.9s'}}/>
-
             <rect x="103" y="50" width="7" height="5" fill="#fbbf24" className="drift-win-c" style={{animationDelay:'0.4s'}}/>
             <rect x="114" y="50" width="7" height="5" fill="#fbbf24" className="drift-win-a" style={{animationDelay:'3.1s'}}/>
             <rect x="103" y="63" width="7" height="5" fill="#fbbf24" className="drift-win-b" style={{animationDelay:'1.1s'}}/>
             <rect x="114" y="63" width="7" height="5" fill="#fbbf24" className="drift-win-c" style={{animationDelay:'2.4s'}}/>
             <rect x="103" y="76" width="7" height="5" fill="#fbbf24" className="drift-win-a" style={{animationDelay:'0.6s'}}/>
             <rect x="114" y="76" width="7" height="5" fill="#fbbf24" className="drift-win-b" style={{animationDelay:'3.6s'}}/>
-
             <rect x="177" y="68" width="7" height="4" fill="#fbbf24" className="drift-win-c" style={{animationDelay:'1.7s'}}/>
             <rect x="187" y="68" width="7" height="4" fill="#fbbf24" className="drift-win-a" style={{animationDelay:'0.3s'}}/>
             <rect x="177" y="80" width="7" height="4" fill="#fbbf24" className="drift-win-b" style={{animationDelay:'2.6s'}}/>
             <rect x="177" y="92" width="7" height="4" fill="#fbbf24" className="drift-win-c" style={{animationDelay:'1.4s'}}/>
-
             <rect x="237" y="52" width="8" height="5" fill="#fbbf24" className="drift-win-a" style={{animationDelay:'2.2s'}}/>
             <rect x="249" y="52" width="8" height="5" fill="#fbbf24" className="drift-win-b" style={{animationDelay:'0.9s'}}/>
             <rect x="237" y="65" width="8" height="5" fill="#fbbf24" className="drift-win-c" style={{animationDelay:'3.8s'}}/>
             <rect x="249" y="65" width="8" height="5" fill="#fbbf24" className="drift-win-a" style={{animationDelay:'1.5s'}}/>
             <rect x="237" y="78" width="8" height="5" fill="#fbbf24" className="drift-win-b" style={{animationDelay:'2.9s'}}/>
 
-            {/* ── Stop markers appearing one by one ── */}
-            <g style={{animation:'drift-stop-in 0.55s cubic-bezier(0.34,1.56,0.64,1) 0.5s both', transformBox:'fill-box', transformOrigin:'center'}}>
-              <circle cx="46"  cy="149" r="10" fill="#fbbf24" filter="url(#stopglow)"/>
-              <text x="46"  y="152.5" textAnchor="middle" fill="#0a0a0a" fontSize="9" fontWeight="800" fontFamily="ui-sans-serif,system-ui,sans-serif">1</text>
-            </g>
-            <g style={{animation:'drift-stop-in 0.55s cubic-bezier(0.34,1.56,0.64,1) 1.3s both', transformBox:'fill-box', transformOrigin:'center'}}>
-              <circle cx="132" cy="149" r="10" fill="#fbbf24" filter="url(#stopglow)"/>
-              <text x="132" y="152.5" textAnchor="middle" fill="#0a0a0a" fontSize="9" fontWeight="800" fontFamily="ui-sans-serif,system-ui,sans-serif">2</text>
-            </g>
-            <g style={{animation:'drift-stop-in 0.55s cubic-bezier(0.34,1.56,0.64,1) 2.1s both', transformBox:'fill-box', transformOrigin:'center'}}>
-              <circle cx="187" cy="149" r="10" fill="#fbbf24" filter="url(#stopglow)"/>
-              <text x="187" y="152.5" textAnchor="middle" fill="#0a0a0a" fontSize="9" fontWeight="800" fontFamily="ui-sans-serif,system-ui,sans-serif">3</text>
-            </g>
-            <g style={{animation:'drift-stop-in 0.55s cubic-bezier(0.34,1.56,0.64,1) 2.9s both', transformBox:'fill-box', transformOrigin:'center'}}>
-              <circle cx="247" cy="149" r="10" fill="#fbbf24" filter="url(#stopglow)"/>
-              <text x="247" y="152.5" textAnchor="middle" fill="#0a0a0a" fontSize="9" fontWeight="800" fontFamily="ui-sans-serif,system-ui,sans-serif">4</text>
-            </g>
+            {/* ── Stop dots — small glowing dots, no numbers ── */}
+            {([46, 122, 184, 248] as const).map((cx, idx) => {
+              const delay = 0.5 + idx * 0.85
+              return (
+                <g key={cx} style={{
+                  animation: `drift-stop-in 0.5s cubic-bezier(0.34,1.56,0.64,1) ${delay}s both`,
+                  transformBox: 'fill-box' as const,
+                  transformOrigin: 'center',
+                }}>
+                  {/* Expanding ring */}
+                  <circle cx={cx} cy="152" r="5" fill="none" stroke="#fbbf24" strokeWidth="1">
+                    <animate attributeName="r" values="5;13;5" dur="2.8s" begin={`${delay + 0.4}s`} repeatCount="indefinite"/>
+                    <animate attributeName="opacity" values="0.5;0;0.5" dur="2.8s" begin={`${delay + 0.4}s`} repeatCount="indefinite"/>
+                  </circle>
+                  {/* Core dot */}
+                  <circle cx={cx} cy="152" r="4" fill="#fbbf24" filter="url(#wglow)"/>
+                </g>
+              )
+            })}
 
-            {/* ── Connecting lines ── */}
-            <line x1="56" y1="149" x2="122" y2="149" stroke="#fbbf24" strokeWidth="1.5"
-              strokeDasharray="4 6" strokeDashoffset="80"
-              style={{animation:'drift-line-in 0.5s ease-out 1.9s both'}}/>
-            <line x1="142" y1="149" x2="177" y2="149" stroke="#fbbf24" strokeWidth="1.5"
-              strokeDasharray="4 6" strokeDashoffset="80"
-              style={{animation:'drift-line-in 0.5s ease-out 2.7s both'}}/>
-            <line x1="197" y1="149" x2="237" y2="149" stroke="#fbbf24" strokeWidth="1.5"
-              strokeDasharray="4 6" strokeDashoffset="80"
-              style={{animation:'drift-line-in 0.5s ease-out 3.5s both'}}/>
+            {/* ── Connecting dashed lines ── */}
+            {([[50,118],[126,180],[188,244]] as const).map(([x1,x2], idx) => (
+              <line key={x1} x1={x1} y1="152" x2={x2} y2="152"
+                stroke="#fbbf24" strokeWidth="1.5" strokeDasharray="4 6" strokeDashoffset="80"
+                style={{animation:`drift-line-in 0.4s ease-out ${1.4 + idx * 0.85}s both`}}/>
+            ))}
 
-            {/* ── Walking figure ── */}
-            <circle r="3.5" fill="#fbbf24" opacity="0.9" style={{
-              animation: 'drift-walker 5s linear 0.5s infinite',
-              transformBox: 'fill-box',
-            }}>
-              <animateMotion dur="5s" repeatCount="indefinite" begin="0.5s"
-                path="M 0,149 L 300,149"/>
+            {/* ── Walker — stays between first and last dot, fades at edges ── */}
+            <circle cx="0" cy="0" r="2.5" fill="#fff" opacity="0">
+              <animate attributeName="opacity"
+                values="0;0.75;0.75;0" keyTimes="0;0.06;0.94;1"
+                dur="5.5s" repeatCount="indefinite"/>
+              <animateMotion dur="5.5s" repeatCount="indefinite" calcMode="linear"
+                path="M 46,152 L 248,152"/>
             </circle>
-
-            {/* Glow filter for stop dots */}
-            <defs>
-              <filter id="stopglow" x="-50%" y="-50%" width="200%" height="200%">
-                <feGaussianBlur stdDeviation="3" result="blur"/>
-                <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-              </filter>
-            </defs>
           </svg>
         </div>
 
