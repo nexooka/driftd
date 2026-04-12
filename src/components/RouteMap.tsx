@@ -189,22 +189,17 @@ export default function RouteMap({ stops, routeKey }: { stops: MapStop[]; routeK
       })
       segPolysRef.current = pairs
 
-      // Sequential reveal with draw animation
+      // Reveal all segments at once after OSRM fetch completes
       pairs.forEach(([glow, main], i) => {
         const isDash = !segmentCoords[i]?.length
-        const timer = setTimeout(() => {
-          if (destroyed || userClickedRef.current) return
-          if (!isDash) glow.setStyle({ opacity: 0.18 })
-          main.setStyle({ opacity: isDash ? 0.55 : 0.92 })
-          if (!isDash) {
-            const pathEl = segPathElemsRef.current[i]
-            if (pathEl) {
-              pathEl.style.transition = 'stroke-dashoffset 0.72s ease-out'
-              pathEl.style.strokeDashoffset = '0'
-            }
+        if (!isDash) glow.setStyle({ opacity: 0.18 })
+        main.setStyle({ opacity: isDash ? 0.55 : 0.92 })
+        if (!isDash) {
+          const pathEl = segPathElemsRef.current[i]
+          if (pathEl) {
+            pathEl.style.strokeDashoffset = '0'
           }
-        }, 200 + i * 420)
-        animTimersRef.current.push(timer)
+        }
       })
 
       // Draw markers

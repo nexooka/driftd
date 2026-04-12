@@ -481,14 +481,15 @@ Generate a walking route. Target ${Math.round(minutes / 12)}–${Math.round(minu
         }
       }
 
-      // Reorder stops into shortest-path order (nearest-neighbor from start)
-      route.stops = reorderStops(route.stops)
-
-      // Fix AI-hallucinated coordinates with real Nominatim geocoding
+      // Fix AI-hallucinated coordinates FIRST — reorder must use real coords
       // Skip stop #1 — its coordinates are already locked to the user's input
       await geocodeStops(route.stops.slice(1), city)
 
-      // Fetch real pedestrian walking distances from Google Maps Routes API.
+      // Reorder into nearest-neighbor order AFTER geocoding so the sort uses
+      // accurate coordinates, not Claude's hallucinated ones
+      route.stops = reorderStops(route.stops)
+
+      // Fetch real pedestrian walking distances via OSRM (free, same as client map).
       // This catches obstacles haversine can't see: rivers, motorways, dead ends.
       const legsBeforePrune = await fetchWalkingLegs(route.stops)
 
