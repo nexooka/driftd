@@ -245,57 +245,29 @@ function haversineMeters(lat1: number, lng1: number, lat2: number, lng2: number)
 
 type WalkLeg = { meters: number; minutes: number }
 
-/* ── Fetch real pedestrian walking distances via Google Maps Routes API ─ */
-// One API call covers the whole route (all stops as waypoints).
-// Falls back gracefully to null if the API is unavailable — callers
-// then use haversine as a fallback.
+/* ── Fetch real pedestrian walking distances via OSRM (free) ─────────── */
+// Same public OSRM instance used by the client map — no API key, no cost.
+// One call covers all stops. Falls back to null on failure; callers then
+// use haversine.
 async function fetchWalkingLegs(stops: any[]): Promise<WalkLeg[] | null> {
-  const key = process.env.NEXT_PUBLIC_GOOGLE_STREET_VIEW_KEY
-  if (!key || stops.length < 2) return null
-
-  const pts = stops.filter(s => s.lat && s.lng)
+  const pts = stops.filter((s: any) => s.lat && s.lng)
   if (pts.length < 2) return null
 
   try {
-    const res = await fetch('https://routes.googleapis.com/directions/v2:computeRoutes', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Goog-Api-Key': key,
-        'X-Goog-FieldMask': 'routes.legs.duration,routes.legs.distanceMeters',
-      },
-      body: JSON.stringify({
-        origin: {
-          location: { latLng: { latitude: pts[0].lat, longitude: pts[0].lng } },
-        },
-        destination: {
-          location: { latLng: { latitude: pts[pts.length - 1].lat, longitude: pts[pts.length - 1].lng } },
-        },
-        intermediates: pts.slice(1, -1).map((s: any) => ({
-          location: { latLng: { latitude: s.lat, longitude: s.lng } },
-        })),
-        travelMode: 'WALK',
-        computeAlternativeRoutes: false,
-      }),
-      signal: AbortSignal.timeout(8000),
-    })
-
+    const coordStr = pts.map((s: any) => `${s.lng},${s.lat}`).join(';')
+    const res = await fetch(
+      `https://router.project-osrm.org/route/v1/foot/${coordStr}?overview=false&steps=false`,
+      { signal: AbortSignal.timeout(8000) }
+    )
     const data = await res.json()
     const legs: any[] = data?.routes?.[0]?.legs
-    if (!legs?.length) {
-      console.log('[routes-api] no legs returned:', JSON.stringify(data).slice(0, 200))
-      return null
-    }
+    if (!legs?.length) return null
 
-    return legs.map((leg: any) => {
-      const secs = parseInt(String(leg.duration ?? '0').replace('s', ''), 10) || 0
-      return {
-        meters: leg.distanceMeters ?? 0,
-        minutes: Math.max(1, Math.round(secs / 60)),
-      }
-    })
-  } catch (err) {
-    console.log('[routes-api] error:', err)
+    return legs.map((leg: any) => ({
+      meters: Math.round(leg.distance ?? 0),
+      minutes: Math.max(1, Math.round((leg.duration ?? 0) / 60)),
+    }))
+  } catch {
     return null
   }
 }

@@ -74,7 +74,7 @@ export default function RouteMap({ stops, routeKey }: { stops: MapStop[]; routeK
       const active = i < activeStop
       if (glow) glow.setStyle({
         color: active ? '#fbbf24' : '#1e1e1e',
-        opacity: active ? 0.13 : 0,
+        opacity: active ? 0.18 : 0,
       })
       if (main) {
         const pathEl = segPathElemsRef.current[i]
@@ -85,7 +85,7 @@ export default function RouteMap({ stops, routeKey }: { stops: MapStop[]; routeK
         }
         main.setStyle({
           color: active ? '#fbbf24' : '#1e1e1e',
-          opacity: active ? 0.88 : 0.3,
+          opacity: active ? 0.92 : 0.3,
         })
       }
     })
@@ -152,7 +152,7 @@ export default function RouteMap({ stops, routeKey }: { stops: MapStop[]; routeK
         const glow = L.polyline(pts, {
           color: '#fbbf24',
           opacity: 0,
-          weight: 14,
+          weight: 16,
           smoothFactor: 0,
           lineCap: 'round',
           lineJoin: 'round',
@@ -161,25 +161,28 @@ export default function RouteMap({ stops, routeKey }: { stops: MapStop[]; routeK
         const main = L.polyline(pts, {
           color: '#fbbf24',
           opacity: 0,
-          weight: isDash ? 1.5 : 2.5,
+          weight: isDash ? 2.5 : 4,
           smoothFactor: 0,
           lineCap: 'round',
           lineJoin: 'round',
-          ...(isDash ? { dashArray: '3 9' } : {}),
+          ...(isDash ? { dashArray: '5 8' } : {}),
         }).addTo(map)
 
         if (!isDash) {
-          requestAnimationFrame(() => {
+          // Use double-rAF so the SVG has been painted before we measure
+          requestAnimationFrame(() => requestAnimationFrame(() => {
             const pathEl = main.getElement() as SVGPathElement | null
             segPathElemsRef.current[i] = pathEl
             if (pathEl) {
               try {
                 const len = pathEl.getTotalLength()
-                pathEl.style.strokeDasharray = `${len}`
-                pathEl.style.strokeDashoffset = `${len}`
+                if (len > 0) {
+                  pathEl.style.strokeDasharray = `${len}`
+                  pathEl.style.strokeDashoffset = `${len}`
+                }
               } catch {}
             }
-          })
+          }))
         }
 
         return [glow, main]
@@ -191,8 +194,8 @@ export default function RouteMap({ stops, routeKey }: { stops: MapStop[]; routeK
         const isDash = !segmentCoords[i]?.length
         const timer = setTimeout(() => {
           if (destroyed || userClickedRef.current) return
-          if (!isDash) glow.setStyle({ opacity: 0.13 })
-          main.setStyle({ opacity: isDash ? 0.25 : 0.88 })
+          if (!isDash) glow.setStyle({ opacity: 0.18 })
+          main.setStyle({ opacity: isDash ? 0.55 : 0.92 })
           if (!isDash) {
             const pathEl = segPathElemsRef.current[i]
             if (pathEl) {
