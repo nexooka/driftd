@@ -151,6 +151,9 @@ function fmtTotalWalking(minutes?: number, meters?: number): string | null {
   return parts.join(' · ')
 }
 
+/* ── Lowercase prose (not names/addresses) ───────────────────────────── */
+const lc = (s?: string | null): string => s ? s.toLowerCase() : ''
+
 /* ── Rate limiter ────────────────────────────────────────────────────── */
 function checkRateLimit() {
   if (typeof window === 'undefined') return true
@@ -626,7 +629,7 @@ export default function DemoPage() {
           {route.time_warning && (
             <div className="max-w-7xl mx-auto px-6 md:px-10 mb-6">
               <div className="rounded-xl border border-amber-400/20 bg-amber-400/5 px-5 py-4 text-amber-400/90 text-sm leading-relaxed">
-                <span className="font-semibold">heads up: </span>{route.time_warning}
+                <span className="font-semibold">heads up: </span>{lc(route.time_warning)}
               </div>
             </div>
           )}
@@ -635,7 +638,7 @@ export default function DemoPage() {
           <section className="max-w-7xl mx-auto px-6 md:px-10 mb-10">
             <div className="rounded-2xl border border-white/[0.06] bg-[#111] p-6 md:p-8">
               <p className="text-warm-gray-300 text-base md:text-lg leading-relaxed" style={{ fontWeight: 300 }}>
-                {route.intro}
+                {lc(route.intro)}
               </p>
             </div>
           </section>
@@ -683,7 +686,7 @@ export default function DemoPage() {
                           {/* Tagline */}
                           {stop.tagline && (
                             <p className="text-amber-400/70 text-sm font-medium mb-2.5 leading-snug">
-                              {stop.tagline}
+                              {lc(stop.tagline)}
                             </p>
                           )}
                           {/* Address */}
@@ -697,11 +700,11 @@ export default function DemoPage() {
                           )}
                           {/* Description */}
                           <p className="text-warm-gray-300 text-sm leading-relaxed mb-3" style={{ fontWeight: 300 }}>
-                            {stop.description}
+                            {lc(stop.description)}
                           </p>
                           {/* Why */}
                           <p className="text-warm-gray-400 text-sm italic mt-1">
-                            {stop.why_this_spot}
+                            {lc(stop.why_this_spot)}
                           </p>
 
                           {/* Photo + Info buttons */}
@@ -785,7 +788,7 @@ export default function DemoPage() {
                             style={{ maxHeight: pinnedWalk === i ? '120px' : '0px', opacity: pinnedWalk === i ? 1 : 0 }}
                           >
                             <p className="text-warm-gray-400 text-sm italic leading-relaxed pt-2 pl-[23px]">
-                              {stop.walk_note}
+                              {lc(stop.walk_note)}
                             </p>
                           </div>
                         )}
@@ -1049,21 +1052,6 @@ export default function DemoPage() {
           <div className="flex justify-between mt-2">
             <span className="text-warm-gray-600 text-xs">10 min</span>
             <span className="text-warm-gray-600 text-xs">4 hrs</span>
-          </div>
-          <div className="flex flex-wrap gap-2 mt-4">
-            {[30, 45, 60, 90, 120, 180].map(t => (
-              <button
-                key={t}
-                onClick={() => setMinutes(t)}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-150 ${
-                  minutes === t
-                    ? 'bg-amber-400/15 border border-amber-400/40 text-amber-400'
-                    : 'bg-white/[0.03] border border-white/[0.07] text-warm-gray-500 hover:text-warm-gray-300 hover:border-white/15'
-                }`}
-              >
-                {t < 60 ? `${t}m` : t === 60 ? '1h' : t === 90 ? '1.5h' : t === 120 ? '2h' : '3h'}
-              </button>
-            ))}
           </div>
           {minutes >= 150 && (
             <p className="mt-3 text-xs text-amber-400/70 leading-relaxed">

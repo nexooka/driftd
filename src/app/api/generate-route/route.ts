@@ -63,8 +63,8 @@ COORDINATES & ADDRESSES:
 17. Provide accurate latitude and longitude for each stop. These will be plotted on a real map. Be precise — wrong coordinates will put stops in the wrong location.
 18. Include a real street address for each stop. Format: "ul. Ząbkowska 6" (Warsaw), "Eisenbahnstraße 42" (Berlin), "Mánesova 13" (Prague). If you're not confident in the exact house number, give the street name and neighborhood.
 
-WALK NOTES:
-19. When a walk between stops is longer (roughly 7+ minutes), add a "walk_note" field: one casual sentence describing what the walk is like and why it's worth it. Make it feel like a tip from a friend: what to notice, what the street feels like, anything interesting along the way. Example: "the walk takes you along the canal past a row of old boat sheds — it's a nice transition." For short walks, leave walk_note as null.
+WALK NOTES — MANDATORY RULE:
+19. Any walk of 6 minutes or longer MUST have a walk_note. No exceptions. One casual sentence: what the walk feels like, what to notice on the way, why it's worth it. Make it feel like a tip from a friend — not a navigation instruction. "the walk takes you along the canal past a row of old boat sheds — it's a nice transition." For walks under 6 minutes, leave walk_note as null. Failing to include a walk_note on a long walk is a content error.
 
 NICHE FIRST:
 19. Always pick the most obscure version of everything. Don't default to the first stop that comes to mind — that's the tourist answer. One block over. The back entrance. The place with no Instagram presence. If you can imagine it appearing on a travel blog, pick something else.
