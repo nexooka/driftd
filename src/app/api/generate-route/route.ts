@@ -16,14 +16,16 @@ KNOWLEDGE BASE RULES — READ CAREFULLY, THESE ARE HARD RULES:
 6. Zero tolerance for: invented café names, made-up bar names, closed venues presented as open, businesses moved to wrong neighborhoods.
 
 STOP COUNT & TIME:
-4. Generate ENOUGH stops to fill the time. More stops = better drift. Use micro-stops aggressively to pack the route:
-   - 10–35 min: 3–4 stops
-   - 35–60 min: 5–7 stops
-   - 60–90 min: 7–10 stops
-   - 90–180 min: 10–15 stops
-   - 180–240 min: 15–20 stops
+4. Generate ENOUGH stops to fill the time. More stops = better drift. Use micro-stops aggressively to pack the route. These are MINIMUM counts — going over is always better than going under:
+   - 10–35 min: 4–5 stops minimum
+   - 35–60 min: 6–8 stops minimum
+   - 60–90 min: 9–12 stops minimum
+   - 90–120 min: 11–14 stops minimum
+   - 120–180 min: 14–18 stops minimum
+   - 180–240 min: 18–22 stops minimum
    MAIN STOPS (8–20 min): cafés, bars, galleries, markets — places to linger.
-   MICRO-STOPS (2–5 min): murals, courtyards, facades, viewpoints, canal banks — walk past and pause. Use these to fill gaps without long walks.
+   MICRO-STOPS (2–5 min): murals, courtyards, facades, viewpoints, canal banks, interesting corners — walk past and pause. A micro-stop adds almost no time but makes the route feel rich. Use them liberally between main stops.
+   CRITICAL: a 100-minute route with 5 stops is a failure. That's 20 minutes per stop with long boring walks. A 100-minute route should have 11–14 stops — a mix of main stops and micro-stops, each adding texture without eating the whole time budget.
 5. WALKING TIME IS DEAD TIME. Every minute walking is a minute not exploring. Target 4–6 min walks between stops. Walking speed = 83m/min (5 km/h). Real walking distance ≈ straight-line × 1.35 due to streets.
    - 250m straight = ~4 min ✓ ideal
    - 400m straight = ~7 min ✓ good
@@ -253,10 +255,10 @@ function walkLeg(s: any, n: any): { meters: number; minutes: number } {
 }
 
 /* ── Remove stops that cause excessively long walks ─────────────────── */
-// Never removes stop #0 (user's start). Keeps at least minutes/14 stops.
+// Never removes stop #0 (user's start). Keeps at least minutes/10 stops.
 function removeOutlierStops(stops: any[], targetMinutes: number): any[] {
   const MAX_WALK_MIN = 22
-  const MIN_STOPS = Math.max(5, Math.floor(targetMinutes / 14))
+  const MIN_STOPS = Math.max(5, Math.floor(targetMinutes / 10))
 
   const walkMin = (i: number) => {
     const s = stops[i], n = stops[i + 1]
@@ -306,7 +308,7 @@ function enrichAndAdjust(stops: any[], targetMinutes: number) {
   stops[stops.length - 1].walk_to_next_meters = null
 
   // ── Step 2: if walking blows the budget, trim stops from the end ──
-  const minStops = Math.max(3, Math.floor(targetMinutes / 20))
+  const minStops = Math.max(4, Math.floor(targetMinutes / 12))
   while (stops.length > minStops) {
     const minNeededForStops = stops.length * 3
     if (totalWalkingMinutes + minNeededForStops <= targetMinutes + 15) break
@@ -448,7 +450,7 @@ ${startCoordsNote}
 - Extra notes: ${notes?.trim() || 'none'}
 ${avoidNote}
 
-Generate a walking route. Target ${Math.round(minutes / 12)}–${Math.round(minutes / 9)} stops — pack the route, use micro-stops to fill gaps. Output ONLY the JSON.`
+Generate a walking route. Target ${Math.round(minutes / 9)}–${Math.round(minutes / 7)} stops — err on the side of MORE stops, not fewer. Micro-stops cost almost nothing time-wise and make the route feel alive. Output ONLY the JSON.`
 
   const client = new Anthropic()
   let attempt = 0
