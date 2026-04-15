@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { usePathname } from 'next/navigation'
 
 const LINKS = [
   { label: 'how it works', href: '#how-it-works' },
@@ -12,6 +13,8 @@ const LINKS = [
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
+  const pathname = usePathname()
+  const waitlistHref = pathname === '/' ? '#waitlist' : '/#waitlist'
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40)
@@ -48,7 +51,7 @@ export default function Navbar() {
               {l.label}
             </a>
           ))}
-          <a href="#waitlist" className="btn-primary text-sm py-2.5 px-6 ml-2">
+          <a href={waitlistHref} className="btn-primary text-sm py-2.5 px-6 ml-2">
             join waitlist
           </a>
         </div>
@@ -82,7 +85,7 @@ export default function Navbar() {
               {l.label}
             </a>
           ))}
-          <a href="#waitlist" onClick={() => setOpen(false)} className="btn-primary text-center text-sm mt-1">
+          <a href={waitlistHref} onClick={() => setOpen(false)} className="btn-primary text-center text-sm mt-1">
             join waitlist
           </a>
         </div>
