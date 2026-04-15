@@ -14,7 +14,16 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
   const pathname = usePathname()
-  const waitlistHref = pathname === '/' ? '#waitlist' : '/#waitlist'
+
+  const handleWaitlist = (e: React.MouseEvent) => {
+    if (pathname === '/') {
+      e.preventDefault()
+      document.getElementById('waitlist')?.scrollIntoView({ behavior: 'smooth' })
+    } else {
+      e.preventDefault()
+      window.location.href = '/#waitlist'
+    }
+  }
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40)
@@ -51,7 +60,7 @@ export default function Navbar() {
               {l.label}
             </a>
           ))}
-          <a href={waitlistHref} className="btn-primary text-sm py-2.5 px-6 ml-2">
+          <a href="#waitlist" onClick={handleWaitlist} className="btn-primary text-sm py-2.5 px-6 ml-2">
             join waitlist
           </a>
         </div>
@@ -85,7 +94,7 @@ export default function Navbar() {
               {l.label}
             </a>
           ))}
-          <a href={waitlistHref} onClick={() => setOpen(false)} className="btn-primary text-center text-sm mt-1">
+          <a href="#waitlist" onClick={(e) => { setOpen(false); handleWaitlist(e) }} className="btn-primary text-center text-sm mt-1">
             join waitlist
           </a>
         </div>
