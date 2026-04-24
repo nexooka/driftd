@@ -372,7 +372,11 @@ export default function DemoPage() {
       setMapKey(k => k + 1)
       setView('result')
     } catch (e) {
-      setFormError(e instanceof Error ? e.message : "the drift isn't working right now. try again?")
+      const msg = e instanceof Error ? e.message : ''
+      const isNetworkError = msg === 'Load failed' || msg === 'Failed to fetch' || msg === 'NetworkError when attempting to fetch resource.'
+      setFormError(isNetworkError
+        ? 'route generation timed out — try a shorter route or try again in a moment.'
+        : (msg || "the drift isn't working right now. try again?"))
       setView('form')
     }
   }
