@@ -407,6 +407,39 @@ function twoOptImprove(stops: any[]): any[] {
   return route
 }
 
+/* ── Fill missing walk notes for long legs ───────────────────────────── */
+// Claude sometimes skips walk_note even when instructed. This runs after
+// enrichAndAdjust (so walk_to_next_minutes are real haversine values) and
+// generates notes for any leg ≥8 min that still has none.
+async function fillMissingWalkNotes(stops: any[], city: string): Promise<void> {
+  const missing = stops
+    .slice(0, -1)
+    .map((stop, i) => ({ i, from: stop.name, to: stops[i + 1].name, minutes: stop.walk_to_next_minutes }))
+    .filter(({ minutes, i }) => minutes >= 8 && !stops[i].walk_note)
+
+  if (!missing.length) return
+
+  const prompt = `Walking route in ${city}. Write one casual sentence per walk — what the walk feels like, what to notice, why it's worth it. Like a tip from a friend, not a navigation instruction. Lowercase. Return ONLY a JSON array of strings, same order as the list.
+
+${missing.map((m, idx) => `${idx + 1}. ${m.minutes} min walk: "${m.from}" → "${m.to}"`).join('\n')}`
+
+  try {
+    const client = new Anthropic()
+    const response = await client.messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 400,
+      messages: [{ role: 'user', content: prompt }],
+    })
+    const text = response.content[0].type === 'text' ? response.content[0].text : ''
+    const match = text.match(/\[[\s\S]*\]/)
+    if (!match) return
+    const notes: string[] = JSON.parse(match[0])
+    missing.forEach(({ i }, idx) => {
+      if (notes[idx]) stops[i].walk_note = notes[idx].toLowerCase()
+    })
+  } catch { /* non-critical — skip silently */ }
+}
+
 export async function POST(req: NextRequest) {
   const { city, vibes, minutes, start, end, notes, previousStops = [] } = await req.json()
 
@@ -498,6 +531,9 @@ Generate a walking route. Target ${Math.round(minutes / 9)}–${Math.round(minut
       const walking = enrichAndAdjust(route.stops, minutes)
       route.total_walking_minutes = walking.totalWalkingMinutes
       route.total_walking_meters = walking.totalWalkingMeters
+
+      // Enforce walk notes — any leg ≥8 min must have one
+      await fillMissingWalkNotes(route.stops, city)
 
       // Always reflect the true computed total — never trust Claude's guess
       route.total_minutes = route.stops.reduce(
