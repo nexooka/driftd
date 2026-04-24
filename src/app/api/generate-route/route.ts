@@ -3,7 +3,7 @@ import Anthropic from '@anthropic-ai/sdk'
 import fs from 'fs'
 import path from 'path'
 
-export const maxDuration = 300 // Vercel Pro: up to 300s for long route generation
+export const maxDuration = 60 // Vercel Hobby max
 
 const SYSTEM_PROMPT = `You are a route generator for driftd, an anti-tourist city exploration app. Your job is to generate walking routes that feel like a local friend showing someone around — not a travel brochure.
 
