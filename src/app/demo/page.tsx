@@ -76,6 +76,28 @@ function CityPattern({ city }: { city: string }) {
       <rect x="4" y="14" width="112" height="6" fill="white"/>
     </svg>
   )
+  if (city === 'New York') return (
+    <svg viewBox="0 0 120 80" fill="none" className="absolute inset-0 w-full h-full opacity-[0.12]" aria-hidden>
+      {/* NYC skyline — Empire State, Chrysler, WTC, bridges */}
+      <rect x="4"  y="50" width="6"  height="30" fill="white"/>
+      <rect x="12" y="40" width="5"  height="40" fill="white"/>
+      <rect x="19" y="55" width="7"  height="25" fill="white"/>
+      <rect x="28" y="35" width="6"  height="45" fill="white"/>
+      <polygon points="31,35 34,26 37,35" fill="white"/>
+      <rect x="36" y="45" width="5"  height="35" fill="white"/>
+      <rect x="43" y="30" width="7"  height="50" fill="white"/>
+      <polygon points="45,30 46.5,22 48,30" fill="white"/>
+      <rect x="52" y="20" width="8"  height="60" fill="white"/>
+      <polygon points="54,20 56,10 58,20" fill="white"/>
+      <rect x="62" y="38" width="5"  height="42" fill="white"/>
+      <rect x="69" y="44" width="6"  height="36" fill="white"/>
+      <rect x="77" y="32" width="8"  height="48" fill="white"/>
+      <rect x="87" y="48" width="5"  height="32" fill="white"/>
+      <rect x="94" y="42" width="6"  height="38" fill="white"/>
+      <rect x="102" y="52" width="5" height="28" fill="white"/>
+      <rect x="109" y="46" width="7" height="34" fill="white"/>
+    </svg>
+  )
   return (
     <svg viewBox="0 0 120 80" fill="none" className="absolute inset-0 w-full h-full opacity-[0.12]" aria-hidden>
       <path d="M15 80 L15 38 Q60 2 105 38 L105 80" fill="white"/>
@@ -90,11 +112,13 @@ const CITY_BG: Record<string, string> = {
   Warsaw: 'from-red-950/50 to-stone-900/40',
   Berlin: 'from-slate-800/60 to-zinc-900/50',
   Prague: 'from-violet-950/50 to-amber-950/40',
+  'New York': 'from-blue-950/50 to-slate-900/40',
 }
 const CITY_COUNTRY: Record<string, string> = {
   Warsaw: 'poland',
   Berlin: 'germany',
   Prague: 'czech republic',
+  'New York': 'united states',
 }
 
 /* ── Map helpers ─────────────────────────────────────────────────────── */
@@ -980,8 +1004,8 @@ export default function DemoPage() {
           <label className="text-[11px] tracking-[0.15em] uppercase text-amber-400/60 font-medium block mb-4">
             01 — pick a city
           </label>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            {['Warsaw', 'Berlin', 'Prague'].map(c => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {['Warsaw', 'Berlin', 'Prague', 'New York'].map(c => (
               <button
                 key={c}
                 onClick={() => setCity(c)}

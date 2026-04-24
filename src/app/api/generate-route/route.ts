@@ -147,7 +147,7 @@ function parseRoute(text: string) {
   return JSON.parse(s.slice(start, end + 1))
 }
 
-const CITY_COUNTRY: Record<string, string> = { Warsaw: 'pl', Berlin: 'de', Prague: 'cz' }
+const CITY_COUNTRY: Record<string, string> = { Warsaw: 'pl', Berlin: 'de', Prague: 'cz', 'New York': 'us' }
 
 /* ── Nominatim lookup (shared helper) ───────────────────────────────── */
 async function nominatim(q: string, countryCode: string): Promise<{ lat: number; lng: number } | null> {
@@ -214,6 +214,7 @@ async function geocodeStops(stops: any[], city: string): Promise<void> {
         Warsaw: [52.2297, 21.0122],
         Prague: [50.0755, 14.4378],
         Berlin: [52.5200, 13.4050],
+        'New York': [40.7128, -74.0060],
       }
       const centre = CITY_CENTRES[city]
       if (centre) {
@@ -443,7 +444,7 @@ ${missing.map((m, idx) => `${idx + 1}. ${m.minutes} min walk: "${m.from}" → "$
 export async function POST(req: NextRequest) {
   const { city, vibes, minutes, start, end, notes, previousStops = [] } = await req.json()
 
-  if (!city || !['Warsaw', 'Berlin', 'Prague'].includes(city))
+  if (!city || !['Warsaw', 'Berlin', 'Prague', 'New York'].includes(city))
     return NextResponse.json({ error: 'invalid city.' }, { status: 400 })
   if (!vibes?.length)
     return NextResponse.json({ error: 'pick at least one vibe.' }, { status: 400 })
@@ -451,7 +452,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'starting point required.' }, { status: 400 })
 
   // Load knowledge file
-  const knowledgePath = path.join(process.cwd(), 'data', `${city.toLowerCase()}_knowledge.md`)
+  const knowledgePath = path.join(process.cwd(), 'data', `${city.toLowerCase().replace(/ /g, '_')}_knowledge.md`)
   let knowledge: string
   try {
     knowledge = fs.readFileSync(knowledgePath, 'utf-8')
