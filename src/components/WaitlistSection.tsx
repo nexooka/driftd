@@ -51,19 +51,6 @@ export default function WaitlistSection() {
 
   return (
     <section id="waitlist" className="relative py-28 md:py-36 bg-[#0a0a0a] overflow-hidden">
-      {/* Center glow */}
-      <div
-        className="blob absolute opacity-[0.12] pointer-events-none"
-        style={{
-          width: 700,
-          height: 700,
-          top: '-20%',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          background: 'radial-gradient(circle, #fbbf24 0%, transparent 65%)',
-          filter: 'blur(130px)',
-        }}
-      />
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-400/20 to-transparent" />
 
       <div className="max-w-3xl mx-auto px-6 md:px-10 text-center relative z-10">
@@ -90,15 +77,15 @@ export default function WaitlistSection() {
         {step === 'email' && (
           <>
             <FadeIn>
-              <span className="text-[11px] tracking-[0.2em] uppercase text-amber-400/70 font-medium block mb-6">
+              <span className="font-sans text-[10px] tracking-[0.25em] uppercase text-warm-gray-500 block mb-6">
                 early access
               </span>
               <h2
-                className="font-display font-bold text-warm-white leading-tight mb-5"
+                className="font-display font-extrabold text-warm-white leading-[0.88] tracking-tight uppercase mb-5"
                 style={{ fontSize: 'clamp(2.5rem, 7vw, 5rem)' }}
               >
                 ready to{' '}
-                <span className="italic gradient-text">drift?</span>
+                <span className="font-serif font-light italic normal-case text-amber-400" style={{ fontSize: '1.05em' }}>drift?</span>
               </h2>
               <p className="text-warm-gray-300 text-lg leading-relaxed mb-12 max-w-lg mx-auto" style={{ fontWeight: 300 }}>
                 join the waitlist. be first to explore when we launch.
@@ -113,7 +100,7 @@ export default function WaitlistSection() {
                   placeholder="your@email.com"
                   value={email}
                   onChange={(e) => { setEmail(e.target.value); setError('') }}
-                  className="flex-1 bg-white/[0.04] border border-white/10 rounded-full px-6 py-4 text-warm-white placeholder-warm-gray-500 focus:border-amber-400/35 focus:bg-white/[0.06] transition-all duration-200 text-sm"
+                  className="flex-1 bg-white/[0.04] border border-white/10 px-6 py-4 text-warm-white placeholder-warm-gray-500 focus:border-amber-400/35 focus:bg-white/[0.06] transition-all duration-200 text-sm font-sans"
                 />
                 <button type="submit" className="btn-primary">
                   i&apos;m in
@@ -184,7 +171,7 @@ export default function WaitlistSection() {
                 value={other}
                 onChange={(e) => setOther(e.target.value)}
                 autoFocus
-                className="bg-white/[0.04] border border-white/10 rounded-full px-6 py-3 text-warm-white placeholder-warm-gray-500 focus:border-amber-400/35 transition-all duration-200 text-sm w-64 text-center"
+                className="bg-white/[0.04] border border-white/10 px-6 py-3 text-warm-white placeholder-warm-gray-500 focus:border-amber-400/35 transition-all duration-200 text-sm w-64 text-center font-sans"
               />
             )}
 

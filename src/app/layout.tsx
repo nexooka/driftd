@@ -1,19 +1,26 @@
 import type { Metadata } from 'next'
-import { Playfair_Display, DM_Sans } from 'next/font/google'
+import { Syne, Cormorant_Garamond, Space_Grotesk } from 'next/font/google'
 import CursorTrail from '@/components/CursorTrail'
 import './globals.css'
 
-const playfair = Playfair_Display({
+const syne = Syne({
   subsets: ['latin'],
-  variable: '--font-playfair',
+  variable: '--font-syne',
   display: 'swap',
-  weight: ['400', '600', '700', '800', '900'],
+  weight: ['400', '500', '600', '700', '800'],
+})
+
+const cormorant = Cormorant_Garamond({
+  subsets: ['latin'],
+  variable: '--font-cormorant',
+  display: 'swap',
+  weight: ['300', '400', '500', '600', '700'],
   style: ['normal', 'italic'],
 })
 
-const dmSans = DM_Sans({
+const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
-  variable: '--font-dm-sans',
+  variable: '--font-space',
   display: 'swap',
   weight: ['300', '400', '500', '600', '700'],
 })
@@ -60,7 +67,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${playfair.variable} ${dmSans.variable}`}>
+    <html lang="en" className={`${syne.variable} ${cormorant.variable} ${spaceGrotesk.variable}`}>
       <body>
         <CursorTrail />
         {children}

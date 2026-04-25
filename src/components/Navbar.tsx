@@ -43,8 +43,7 @@ export default function Navbar() {
         {/* Logo */}
         <a
           href="/"
-          className="font-display text-xl font-bold text-warm-white hover:text-amber-400 transition-colors duration-200"
-          style={{ letterSpacing: '0.05em' }}
+          className="font-display font-extrabold text-warm-white hover:text-amber-400 transition-colors duration-200 uppercase tracking-[0.08em] text-lg"
         >
           driftd
         </a>

@@ -62,18 +62,19 @@ export default function Manifesto() {
           }
 
           const colorClass = line.accent
-            ? 'gradient-text'
+            ? 'text-amber-400'
             : line.dim
             ? 'text-warm-gray-500'
             : 'text-warm-white'
 
-          const weightClass = line.size === 'sm' ? 'font-medium' : 'font-bold'
+          const fontClass = line.accent ? 'font-serif font-light italic' : 'font-display font-bold'
+          const weightClass = ''
 
           return (
             <p
               key={i}
               style={style}
-              className={`font-display ${weightClass} leading-tight mb-3 md:mb-5 ${sizeClass} ${colorClass}`}
+              className={`${fontClass} ${weightClass} leading-tight mb-3 md:mb-5 ${sizeClass} ${colorClass}`}
             >
               {line.text}
             </p>
