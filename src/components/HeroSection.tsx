@@ -54,18 +54,18 @@ export default function HeroSection() {
       {/* Content */}
       <div className="relative z-10 max-w-5xl mx-auto px-6 md:px-10 flex flex-col items-center text-center">
 
-        {/* Pill */}
-        <div className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full border border-amber-400/20 bg-amber-400/[0.06] mb-10">
+        {/* Coordinates */}
+        <div className="flex items-center gap-3 mb-10">
           <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse-slow" />
-          <span className="text-[11px] font-medium tracking-[0.2em] text-amber-400/75 uppercase">
-            launching summer 2026 · warsaw · berlin · prague
+          <span className="text-[11px] font-medium tracking-[0.2em] text-warm-gray-500 uppercase">
+            52.2297° N · 21.0122° E · anti-tourist tourism
           </span>
         </div>
 
         {/* Headline */}
         <h1
-          className="font-display font-black text-warm-white leading-[0.92] tracking-tight"
-          style={{ fontSize: 'clamp(2.8rem, 9vw, 6.8rem)' }}
+          className="font-display font-black text-warm-white leading-[0.9] tracking-tight"
+          style={{ fontSize: 'clamp(3.6rem, 12vw, 8.5rem)' }}
         >
           stop following.
           <br />
