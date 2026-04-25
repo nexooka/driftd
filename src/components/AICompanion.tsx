@@ -84,16 +84,17 @@ export default function AICompanion() {
           {/* Left: sticky text */}
           <div className="lg:sticky lg:top-28">
             <FadeIn direction="left">
-              <span className="font-sans text-[10px] tracking-[0.25em] uppercase text-warm-gray-500 block mb-5">
+              <span className="text-[11px] tracking-[0.2em] uppercase text-amber-400/70 font-medium block mb-4">
                 the driftd companion
               </span>
+              <div className="divider mb-5" />
               <h2
-                className="font-display font-extrabold text-warm-white leading-[0.9] tracking-tight uppercase mb-6"
+                className="font-display font-bold text-warm-white leading-tight mb-6"
                 style={{ fontSize: 'clamp(2rem, 4.5vw, 3.6rem)' }}
               >
                 your city has stories.
                 <br />
-                <span className="font-serif font-light italic normal-case text-amber-400" style={{ fontSize: '1.05em' }}>driftd tells them.</span>
+                <span className="italic gradient-text">driftd tells them.</span>
               </h2>
               <p className="text-warm-gray-300 text-lg leading-relaxed mb-8 max-w-md" style={{ fontWeight: 300 }}>
                 most travel apps give you lists. driftd gives you a voice — one that knows

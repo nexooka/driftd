@@ -40,13 +40,24 @@ const VALUE_PROPS = [
 export default function ForCities() {
   return (
     <section id="cities" className="relative py-28 md:py-36 bg-[#0a0a0a] overflow-hidden">
+      <div
+        className="blob absolute opacity-15 pointer-events-none"
+        style={{
+          width: 500,
+          height: 500,
+          bottom: '-10%',
+          left: '-10%',
+          background: 'radial-gradient(circle, #e2714b 0%, transparent 70%)',
+          filter: 'blur(100px)',
+        }}
+      />
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/6 to-transparent" />
 
       <div className="max-w-7xl mx-auto px-6 md:px-10">
 
         {/* Label */}
         <FadeIn className="mb-16">
-          <span className="font-sans text-[10px] tracking-[0.25em] uppercase text-warm-gray-500">
+          <span className="text-[11px] tracking-[0.2em] uppercase text-terra font-medium">
             for cities & tourism boards
           </span>
         </FadeIn>
@@ -56,15 +67,16 @@ export default function ForCities() {
           {/* Left */}
           <div>
             <FadeIn direction="left">
+              <div className="divider-terra mb-7" />
               <h2
-                className="font-display font-extrabold text-warm-white leading-[0.9] tracking-tight uppercase mb-6"
+                className="font-display font-bold text-warm-white leading-tight mb-6"
                 style={{ fontSize: 'clamp(2rem, 4.5vw, 3.6rem)' }}
               >
                 overtourism isn&apos;t a demand{' '}
-                <span className="font-serif font-light italic normal-case" style={{ color: '#e2714b', fontSize: '1.05em' }}>problem.</span>
+                <span className="italic" style={{ color: '#e2714b' }}>problem.</span>
                 <br />
                 it&apos;s a distribution{' '}
-                <span className="font-serif font-light italic normal-case" style={{ color: '#e2714b', fontSize: '1.05em' }}>problem.</span>
+                <span className="italic" style={{ color: '#e2714b' }}>problem.</span>
               </h2>
               <p className="text-warm-gray-300 text-lg leading-relaxed mb-10 max-w-lg" style={{ fontWeight: 300 }}>
                 overcrowded landmarks, underfunded neighborhoods. driftd redistributes

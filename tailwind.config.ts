@@ -43,9 +43,8 @@ const config: Config = {
         },
       },
       fontFamily: {
-        display: ['var(--font-syne)',       'system-ui', 'sans-serif'],
-        serif:   ['var(--font-cormorant)',  'Georgia',   'serif'],
-        sans:    ['var(--font-space)',      'system-ui', 'sans-serif'],
+        display: ['var(--font-playfair)', 'Georgia', 'serif'],
+        sans:    ['var(--font-dm-sans)',   'system-ui', 'sans-serif'],
       },
       animation: {
         'fade-up':    'fadeUp 0.7s ease-out forwards',

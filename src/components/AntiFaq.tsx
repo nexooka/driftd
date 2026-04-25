@@ -39,15 +39,15 @@ export default function AntiFaq() {
 
       <div className="max-w-3xl mx-auto px-6 md:px-10">
         <FadeIn>
-          <p className="font-sans text-[10px] tracking-[0.25em] uppercase text-warm-gray-500 mb-5">
+          <p className="text-[11px] tracking-[0.2em] uppercase text-amber-400/60 font-medium mb-4">
             things people assume
           </p>
           <h2
-            className="font-display font-extrabold text-warm-white leading-[0.9] tracking-tight uppercase mb-14"
+            className="font-display font-bold text-warm-white leading-tight mb-14"
             style={{ fontSize: 'clamp(2rem, 5vw, 3.2rem)' }}
           >
             go on, we&apos;ve{' '}
-            <span className="font-serif font-light italic normal-case text-amber-400" style={{ fontSize: '1.05em' }}>heard them all.</span>
+            <span className="italic gradient-text">heard them all.</span>
           </h2>
         </FadeIn>
 
