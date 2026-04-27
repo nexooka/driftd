@@ -9,7 +9,6 @@ import AICompanion from '@/components/AICompanion'
 import Manifesto from '@/components/Manifesto'
 import ForCities from '@/components/ForCities'
 import AntiFaq from '@/components/AntiFaq'
-import NYCBanner from '@/components/NYCBanner'
 import WaitlistSection from '@/components/WaitlistSection'
 import Footer from '@/components/Footer'
 import ScrollReset from '@/components/ScrollReset'
@@ -19,7 +18,6 @@ export default function Home() {
     <main>
       <ScrollReset />
       <Navbar />
-      <NYCBanner />
       <HeroSection />
       <TickerBar />
       <HowItWorks />
