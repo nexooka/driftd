@@ -64,8 +64,8 @@ export default function HeroSection() {
 
         {/* Headline */}
         <h1
-          className="font-display font-black text-warm-white leading-[0.9] tracking-tight"
-          style={{ fontSize: 'clamp(3.6rem, 12vw, 8.5rem)' }}
+          className="font-display font-black text-warm-white leading-[0.92] tracking-tight"
+          style={{ fontSize: 'clamp(2.8rem, 9vw, 6.8rem)' }}
         >
           stop following.
           <br />
