@@ -81,12 +81,12 @@ export default function AboutPage() {
             <p className="text-warm-gray-300 mb-8 text-lg" style={{ fontWeight: 300 }}>
               {t('ctaBody')}
             </p>
-            <Link href="/#waitlist" className="btn-primary text-sm px-10 py-4">
+            <a href="/#waitlist" className="btn-primary text-sm px-10 py-4">
               {t('ctaButton')}
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                 <path d="M2 7h10M7 3l4 4-4 4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
-            </Link>
+            </a>
             <p className="mt-4 text-xs text-warm-gray-500">{t('ctaMicro')}</p>
           </FadeIn>
         </div>

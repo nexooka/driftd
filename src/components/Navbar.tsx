@@ -1,29 +1,47 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import { usePathname, Link } from '@/lib/navigation'
 import LanguageSwitcher from './LanguageSwitcher'
 
+type HashLink = { kind: 'hash'; label: string; id: string }
+type PageLink = { kind: 'page'; label: string; href: '/' | '/about' | '/demo' }
+type NavLink = HashLink | PageLink
+
 export default function Navbar() {
   const t = useTranslations('nav')
+  const locale = useLocale()
   const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
   const pathname = usePathname()
 
-  const links = [
-    { label: t('howItWorks'), href: '#how-it-works' as const },
-    { label: t('forCities'), href: '#cities' as const },
-    { label: t('about'), href: '/about' as const },
-    { label: t('demo'), href: '/demo' as const },
+  const links: NavLink[] = [
+    { kind: 'hash', label: t('howItWorks'), id: 'how-it-works' },
+    { kind: 'hash', label: t('forCities'), id: 'cities' },
+    { kind: 'page', label: t('about'), href: '/about' },
+    { kind: 'page', label: t('demo'), href: '/demo' },
   ]
+
+  const homeUrl = locale === 'en' ? '/' : `/${locale}`
+
+  const handleHashLink = (id: string) => (e: React.MouseEvent) => {
+    e.preventDefault()
+    setOpen(false)
+    if (pathname === '/') {
+      document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
+    } else {
+      window.location.href = `${homeUrl}#${id}`
+    }
+  }
 
   const handleWaitlist = (e: React.MouseEvent) => {
     e.preventDefault()
+    setOpen(false)
     if (pathname === '/') {
       document.getElementById('waitlist')?.scrollIntoView({ behavior: 'smooth' })
     } else {
-      window.location.href = '/#waitlist'
+      window.location.href = `${homeUrl}#waitlist`
     }
   }
 
@@ -53,15 +71,26 @@ export default function Navbar() {
 
         {/* Desktop links */}
         <div className="hidden md:flex items-center gap-7">
-          {links.map((l) => (
-            <a
-              key={l.label}
-              href={l.href}
-              className="text-sm text-warm-gray-300 hover:text-warm-white transition-colors duration-200"
-            >
-              {l.label}
-            </a>
-          ))}
+          {links.map((l) =>
+            l.kind === 'hash' ? (
+              <a
+                key={l.label}
+                href={`#${l.id}`}
+                onClick={handleHashLink(l.id)}
+                className="text-sm text-warm-gray-300 hover:text-warm-white transition-colors duration-200"
+              >
+                {l.label}
+              </a>
+            ) : (
+              <Link
+                key={l.label}
+                href={l.href}
+                className="text-sm text-warm-gray-300 hover:text-warm-white transition-colors duration-200"
+              >
+                {l.label}
+              </Link>
+            )
+          )}
           <LanguageSwitcher />
           <a href="#waitlist" onClick={handleWaitlist} className="btn-primary text-sm py-2.5 px-6 ml-2">
             {t('joinWaitlist')}
@@ -90,17 +119,28 @@ export default function Navbar() {
         } bg-[#0d0d0d]/95 backdrop-blur-md border-b border-white/[0.05]`}
       >
         <div className="flex flex-col px-6 py-6 gap-5">
-          {links.map((l) => (
-            <a
-              key={l.label}
-              href={l.href}
-              onClick={() => setOpen(false)}
-              className="text-warm-gray-200 hover:text-warm-white transition-colors text-sm"
-            >
-              {l.label}
-            </a>
-          ))}
-          <a href="#waitlist" onClick={(e) => { setOpen(false); handleWaitlist(e) }} className="btn-primary text-center text-sm mt-1">
+          {links.map((l) =>
+            l.kind === 'hash' ? (
+              <a
+                key={l.label}
+                href={`#${l.id}`}
+                onClick={handleHashLink(l.id)}
+                className="text-warm-gray-200 hover:text-warm-white transition-colors text-sm"
+              >
+                {l.label}
+              </a>
+            ) : (
+              <Link
+                key={l.label}
+                href={l.href}
+                onClick={() => setOpen(false)}
+                className="text-warm-gray-200 hover:text-warm-white transition-colors text-sm"
+              >
+                {l.label}
+              </Link>
+            )
+          )}
+          <a href="#waitlist" onClick={handleWaitlist} className="btn-primary text-center text-sm mt-1">
             {t('joinWaitlist')}
           </a>
         </div>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, CSSProperties } from 'react'
 import dynamic from 'next/dynamic'
+import { useTranslations } from 'next-intl'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 
@@ -40,15 +41,17 @@ const VIBES = [
   'sketchy-but-cool', 'chill', 'romantic', 'photogenic', 'quirky',
 ]
 
-const LOADING_MSGS = [
-  'reading local reddit threads...',
-  'consulting the neighborhood...',
-  'finding spots guidebooks missed...',
-  'walking the route in our heads...',
-  'timing the walk...',
-  'picking the right coffee stops...',
-  'almost there...',
-]
+const VIBE_T_KEY: Record<string, string> = {
+  'artsy': 'vibeArtsy',
+  'historic': 'vibeHistoric',
+  'foodie': 'vibeFoodie',
+  'nightlife': 'vibeNightlife',
+  'sketchy-but-cool': 'vibeSketchyButCool',
+  'chill': 'vibeChill',
+  'romantic': 'vibeRomantic',
+  'photogenic': 'vibePhotogenic',
+  'quirky': 'vibeQuirky',
+}
 
 /* ── City card patterns ─────────────────────────────────────────────── */
 function CityPattern({ city }: { city: string }) {
@@ -78,7 +81,6 @@ function CityPattern({ city }: { city: string }) {
   )
   if (city === 'New York') return (
     <svg viewBox="0 0 120 80" fill="none" className="absolute inset-0 w-full h-full opacity-[0.12]" aria-hidden>
-      {/* NYC skyline — Empire State, Chrysler, WTC, bridges */}
       <rect x="4"  y="50" width="6"  height="30" fill="white"/>
       <rect x="12" y="40" width="5"  height="40" fill="white"/>
       <rect x="19" y="55" width="7"  height="25" fill="white"/>
@@ -156,23 +158,9 @@ function buildPath(pts: Array<{x: number; y: number}>): string {
   return d
 }
 
-/* ── Formatting helpers ──────────────────────────────────────────────── */
+/* ── Formatting helpers (locale-independent) ─────────────────────────── */
 function fmtDist(meters: number): string {
   return meters < 1000 ? `${meters}m` : `${(meters / 1000).toFixed(1)}km`
-}
-function fmtWalkingLeg(minutes: number, meters?: number | null): string {
-  const t = `${minutes} min walk`
-  return meters ? `${t} · ${fmtDist(meters)}` : t
-}
-function fmtTotalWalking(minutes?: number, meters?: number): string | null {
-  if (!minutes && !meters) return null
-  const parts: string[] = []
-  if (meters) parts.push(fmtDist(meters))
-  if (minutes) {
-    const h = Math.floor(minutes / 60), m = minutes % 60
-    parts.push(h > 0 ? `${h}h ${m}min walking` : `${m}min walking`)
-  }
-  return parts.join(' · ')
 }
 
 /* ── Lowercase prose (not names/addresses) ───────────────────────────── */
@@ -192,6 +180,8 @@ function checkRateLimit() {
 
 /* ── Main component ──────────────────────────────────────────────────── */
 export default function DemoPage() {
+  const t = useTranslations('demo')
+
   // Form
   const [city, setCity] = useState('')
   const [vibes, setVibes] = useState<string[]>([])
@@ -229,6 +219,25 @@ export default function DemoPage() {
 
   // Share
   const [shareCopied, setShareCopied] = useState(false)
+
+  /* Locale-aware walk formatters */
+  const fmtWalkingLeg = (minutes: number, meters?: number | null): string => {
+    if (meters) return t('walkMinDist', { n: minutes, dist: fmtDist(meters) })
+    return t('walkMin', { n: minutes })
+  }
+
+  const fmtTotalWalking = (mins?: number, meters?: number): string | null => {
+    if (!mins && !meters) return null
+    const parts: string[] = []
+    if (meters) parts.push(t('totalWalk', { dist: fmtDist(meters) }))
+    if (mins) {
+      const h = Math.floor(mins / 60), m = mins % 60
+      parts.push(h > 0 ? t('totalWalkTimeH', { h, m }) : t('totalWalkTime', { n: mins }))
+    }
+    return parts.join(' · ')
+  }
+
+  const LOADING_MSGS = Array.from({ length: 7 }, (_, i) => t(`loadingMsg${i}` as Parameters<typeof t>[0]))
 
   const handleFetchPhoto = async (idx: number, _name: string, _city: string) => {
     if (stopPhotos[idx] && stopPhotos[idx] !== 'loading') {
@@ -322,8 +331,8 @@ export default function DemoPage() {
   /* Loading message rotation */
   useEffect(() => {
     if (view !== 'loading') return
-    const t = setInterval(() => setLoadingIdx(i => (i + 1) % LOADING_MSGS.length), 2500)
-    return () => clearInterval(t)
+    const interval = setInterval(() => setLoadingIdx(i => (i + 1) % LOADING_MSGS.length), 2500)
+    return () => clearInterval(interval)
   }, [view])
 
   /* Stagger stop cards on result load */
@@ -356,11 +365,11 @@ export default function DemoPage() {
 
   /* Validation */
   const validate = () => {
-    if (!city) return 'pick a city first.'
-    if (!vibes.length) return 'pick at least one vibe.'
-    if (minutes < 10) return 'minimum 10 minutes — we need a bit of time to work with.'
-    if (minutes > 240) return 'maximum 4 hours for now.'
-    if (!startPt.trim()) return 'where are you starting from?'
+    if (!city) return t('errPickCity')
+    if (!vibes.length) return t('errPickVibe')
+    if (minutes < 10) return t('errMinTime')
+    if (minutes > 240) return t('errMaxTime')
+    if (!startPt.trim()) return t('errNeedStart')
     return ''
   }
 
@@ -368,7 +377,7 @@ export default function DemoPage() {
   const generate = async (isDriftAgain = false) => {
     const err = validate()
     if (err) { setFormError(err); return }
-    if (!checkRateLimit()) { setFormError('too many generations in the last minute. wait 60 seconds.'); return }
+    if (!checkRateLimit()) { setFormError(t('errRateLimit')); return }
 
     setFormError('')
     setView('loading')
@@ -398,9 +407,7 @@ export default function DemoPage() {
     } catch (e) {
       const msg = e instanceof Error ? e.message : ''
       const isNetworkError = msg === 'Load failed' || msg === 'Failed to fetch' || msg === 'NetworkError when attempting to fetch resource.'
-      setFormError(isNetworkError
-        ? 'route generation timed out — try a shorter route or try again in a moment.'
-        : (msg || "the drift isn't working right now. try again?"))
+      setFormError(isNetworkError ? t('errTimeout') : (msg || t('errGeneric')))
       setView('form')
     }
   }
@@ -547,7 +554,7 @@ export default function DemoPage() {
           </p>
           {minutes >= 150 && (
             <p className="text-warm-gray-600 text-xs max-w-[200px] mx-auto leading-relaxed">
-              long route — this can take a couple minutes. worth the wait.
+              {t('loadingLong')}
             </p>
           )}
         </div>
@@ -608,7 +615,7 @@ export default function DemoPage() {
                 onClick={() => setPhotoModal(null)}
                 className="absolute -top-10 right-0 text-white/30 hover:text-white/70 transition-colors text-xs tracking-widest uppercase"
               >
-                esc to close
+                {t('escClose')}
               </button>
             </div>
           </div>
@@ -620,23 +627,23 @@ export default function DemoPage() {
             <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
               <div>
                 <span className="text-[11px] tracking-[0.2em] uppercase text-amber-400/70 font-medium block mb-3">
-                  your drift
+                  {t('yourDrift')}
                 </span>
                 <h1 className="font-display font-black text-warm-white leading-tight"
                     style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)' }}>
-                  through{' '}
+                  {t('through')}{' '}
                   <span className="italic gradient-text">{route.city.toLowerCase()}</span>
                 </h1>
                 <div className="flex flex-wrap gap-2 mt-4 items-center">
                   {route.vibes.map(v => (
                     <span key={v} className="px-2.5 py-1 rounded-full text-[11px] border border-amber-400/20 bg-amber-400/5 text-amber-400/80 font-medium">
-                      {v}
+                      {VIBE_T_KEY[v] ? t(VIBE_T_KEY[v] as Parameters<typeof t>[0]) : v}
                     </span>
                   ))}
                   <span className="text-warm-gray-500 text-sm">·</span>
                   <span className="text-warm-gray-400 text-sm">{route.total_minutes} min</span>
                   <span className="text-warm-gray-500 text-sm">·</span>
-                  <span className="text-warm-gray-400 text-sm">{route.stops.length} stops</span>
+                  <span className="text-warm-gray-400 text-sm">{route.stops.length} {t('stops')}</span>
                 </div>
                 {fmtTotalWalking(route.total_walking_minutes, route.total_walking_meters) && (
                   <p className="text-warm-gray-500 text-xs mt-2 tracking-wide">
@@ -648,7 +655,7 @@ export default function DemoPage() {
                 onClick={() => { setView('form'); setRoute(null) }}
                 className="btn-outline text-sm px-7 py-3 self-start md:self-auto"
               >
-                ← try another
+                {t('tryAnother')}
               </button>
             </div>
           </section>
@@ -657,7 +664,7 @@ export default function DemoPage() {
           {route.time_warning && (
             <div className="max-w-7xl mx-auto px-6 md:px-10 mb-6">
               <div className="rounded-xl border border-amber-400/20 bg-amber-400/5 px-5 py-4 text-amber-400/90 text-sm leading-relaxed">
-                <span className="font-semibold">heads up: </span>{lc(route.time_warning)}
+                <span className="font-semibold">{t('headsUp')}</span>{lc(route.time_warning)}
               </div>
             </div>
           )}
@@ -746,7 +753,7 @@ export default function DemoPage() {
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                                   <rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="12" cy="12" r="3.5"/><path d="M8 5l1.5-2h5L16 5"/>
                                 </svg>
-                                {stopPhotos[i] === 'loading' ? 'looking for a photo...' : stopPhotos[i] ? 'see photo' : 'see photo'}
+                                {stopPhotos[i] === 'loading' ? t('lookingForPhoto') : t('seePhoto')}
                               </button>
                               )}
                               <button
@@ -756,7 +763,7 @@ export default function DemoPage() {
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                                   <path d="M12 2l1.5 4.5L18 8l-4.5 1.5L12 14l-1.5-4.5L6 8l4.5-1.5z"/><path d="M19 15l.75 2.25L22 18l-2.25.75L19 21l-.75-2.25L16 18l2.25-.75z"/>
                                 </svg>
-                                {stopInfos[i] === 'loading' ? 'finding out more...' : 'more info'}
+                                {stopInfos[i] === 'loading' ? t('findingInfo') : t('moreInfo')}
                               </button>
                             </div>
                           )}
@@ -779,7 +786,7 @@ export default function DemoPage() {
                                 <circle cx="6" cy="6" r="4" stroke="currentColor" strokeWidth="1.2"/>
                                 <path d="M4 6l1.5 1.5L8 4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
                               </svg>
-                              <span>end of drift</span>
+                              <span>{t('endOfDrift')}</span>
                             </div>
                           )}
                         </div>
@@ -806,7 +813,7 @@ export default function DemoPage() {
                           </span>
                           {stop.walk_note && (
                             <span className="ml-auto text-[10px] text-warm-gray-600 group-hover:text-warm-gray-500 transition-colors tracking-wide select-none">
-                              {pinnedWalk === i ? 'hide ↑' : 'about this walk'}
+                              {pinnedWalk === i ? t('hideWalk') : t('aboutThisWalk')}
                             </span>
                           )}
                         </div>
@@ -830,13 +837,13 @@ export default function DemoPage() {
             {/* End of route summary */}
             <div className="mt-6 px-6 py-5 rounded-2xl border border-white/[0.04] bg-[#0e0e0e] text-center">
               <p className="font-display font-bold text-warm-white text-lg mb-1">
-                that&apos;s your drift.
+                {t('driftSummary')}
               </p>
               <p className="text-warm-gray-500 text-sm">
                 {[
-                  route.total_walking_meters ? fmtDist(route.total_walking_meters) + ' total walking' : null,
-                  route.total_walking_minutes ? (() => { const h = Math.floor(route.total_walking_minutes! / 60), m = route.total_walking_minutes! % 60; return h > 0 ? `${h}h ${m}min on foot` : `${m}min on foot` })() : null,
-                  `${route.stops.length} stops`,
+                  route.total_walking_meters ? t('totalWalk', { dist: fmtDist(route.total_walking_meters) }) : null,
+                  route.total_walking_minutes ? (() => { const h = Math.floor(route.total_walking_minutes! / 60), m = route.total_walking_minutes! % 60; return h > 0 ? t('totalWalkTimeH', { h, m }) + ' ' + t('onFoot') : t('totalWalkTime', { n: m }) + ' ' + t('onFoot') })() : null,
+                  `${route.stops.length} ${t('stops')}`,
                 ].filter(Boolean).join(' · ')}
               </p>
             </div>
@@ -853,7 +860,7 @@ export default function DemoPage() {
                   <path d="M14 2v5h-5M2 14V9h5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
                   <path d="M2.6 6A6 6 0 0 1 13 5.1M13.4 10A6 6 0 0 1 3 10.9" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
                 </svg>
-                not feeling it? drift again
+                {t('driftAgain')}
               </button>
               {googleMapsUrl && (
                 <a
@@ -866,7 +873,7 @@ export default function DemoPage() {
                     <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round"/>
                     <circle cx="12" cy="9" r="2.5" stroke="currentColor" strokeWidth="1.6"/>
                   </svg>
-                  open in google maps
+                  {t('openMaps')}
                 </a>
               )}
               <button
@@ -878,14 +885,14 @@ export default function DemoPage() {
                     <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                       <path d="M2 7l3.5 3.5L12 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
-                    copied!
+                    {t('copied')}
                   </>
                 ) : (
                   <>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13"/>
                     </svg>
-                    share
+                    {t('share')}
                   </>
                 )}
               </button>
@@ -896,7 +903,7 @@ export default function DemoPage() {
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                   <path d="M7 1v8M3 5l4 4 4-4M1 10v1a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-1" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
-                save this drift
+                {t('saveDrift')}
               </button>
             </div>
           </section>
@@ -929,19 +936,19 @@ export default function DemoPage() {
                       <path d="M6 14l5.5 5.5L22 8" stroke="#fbbf24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                   </div>
-                  <p className="font-display text-xl font-bold text-warm-white mb-2">saved.</p>
-                  <p className="text-warm-gray-400 text-sm">check your email for your drift.</p>
+                  <p className="font-display text-xl font-bold text-warm-white mb-2">{t('savedHeading')}</p>
+                  <p className="text-warm-gray-400 text-sm">{t('savedBody')}</p>
                 </div>
               ) : (
                 <>
-                  <h3 className="font-display text-2xl font-bold text-warm-white mb-2">save your drift</h3>
+                  <h3 className="font-display text-2xl font-bold text-warm-white mb-2">{t('saveHeading')}</h3>
                   <p className="text-warm-gray-400 text-sm leading-relaxed mb-6">
-                    we'll send your full route — all stops, walk times, and a google maps link — straight to your inbox. free.
+                    {t('saveBody')}
                   </p>
                   <div className="flex flex-col sm:flex-row gap-3">
                     <input
                       type="email"
-                      placeholder="your@email.com"
+                      placeholder={t('savePlaceholder')}
                       value={modalEmail}
                       onChange={e => setModalEmail(e.target.value)}
                       onKeyDown={e => e.key === 'Enter' && saveEmail()}
@@ -956,7 +963,7 @@ export default function DemoPage() {
                         <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
                           <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeDasharray="31" strokeDashoffset="10"/>
                         </svg>
-                      ) : 'save it'}
+                      ) : t('saveBtn')}
                     </button>
                   </div>
                   {modalError && <p className="mt-3 text-sm text-red-400">{modalError}</p>}
@@ -982,16 +989,16 @@ export default function DemoPage() {
                       filter: 'blur(110px)' }}/>
         <div className="max-w-3xl mx-auto text-center relative z-10">
           <span className="text-[11px] tracking-[0.2em] uppercase text-amber-400/70 font-medium block mb-4">
-            live demo
+            {t('sectionLabel')}
           </span>
           <div className="divider mx-auto mb-6"/>
           <h1 className="font-display font-black text-warm-white leading-[0.9] tracking-tight mb-4"
               style={{ fontSize: 'clamp(2.8rem, 8vw, 5.5rem)' }}>
-            drift a city.{' '}
-            <span className="italic gradient-text">right now.</span>
+            {t('pageTitle')}{' '}
+            <span className="italic gradient-text">{t('pageTitleAccent')}</span>
           </h1>
           <p className="text-warm-gray-400 text-lg" style={{ fontWeight: 300 }}>
-            tell us your vibe. we'll handle the rest.
+            {t('pageSubtitle')}
           </p>
         </div>
       </section>
@@ -1002,7 +1009,7 @@ export default function DemoPage() {
         {/* 1. City */}
         <div className="mb-10">
           <label className="text-[11px] tracking-[0.15em] uppercase text-amber-400/60 font-medium block mb-4">
-            01 — pick a city
+            {t('step1')}
           </label>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             {['Warsaw', 'Berlin', 'Prague', 'New York'].map(c => (
@@ -1036,9 +1043,9 @@ export default function DemoPage() {
         {/* 2. Vibe */}
         <div className="mb-10">
           <label className="text-[11px] tracking-[0.15em] uppercase text-amber-400/60 font-medium block mb-1">
-            02 — pick your vibe
+            {t('step2')}
           </label>
-          <p className="text-warm-gray-500 text-xs mb-4">select up to 3</p>
+          <p className="text-warm-gray-500 text-xs mb-4">{t('step2Sub')}</p>
           <div className="flex flex-wrap gap-2">
             {VIBES.map(v => (
               <button
@@ -1050,7 +1057,7 @@ export default function DemoPage() {
                     : 'bg-white/[0.04] text-warm-gray-300 border border-white/[0.08] hover:bg-white/[0.07] hover:border-amber-400/20'
                 } ${!vibes.includes(v) && vibes.length >= 3 ? 'opacity-40 cursor-not-allowed' : ''}`}
               >
-                {v}
+                {VIBE_T_KEY[v] ? t(VIBE_T_KEY[v] as Parameters<typeof t>[0]) : v}
               </button>
             ))}
           </div>
@@ -1059,7 +1066,7 @@ export default function DemoPage() {
         {/* 3. Time */}
         <div className="mb-10">
           <label className="text-[11px] tracking-[0.15em] uppercase text-amber-400/60 font-medium block mb-5">
-            03 — how many minutes do you have?
+            {t('step3')}
           </label>
           <div className="flex items-center gap-5 mb-3">
             <span className="font-display font-black text-warm-white text-3xl w-16 text-center tabular-nums">{minutes}</span>
@@ -1078,12 +1085,12 @@ export default function DemoPage() {
             }}
           />
           <div className="flex justify-between mt-2">
-            <span className="text-warm-gray-600 text-xs">10 min</span>
-            <span className="text-warm-gray-600 text-xs">4 hrs</span>
+            <span className="text-warm-gray-600 text-xs">{t('step3Min')}</span>
+            <span className="text-warm-gray-600 text-xs">{t('step3Max')}</span>
           </div>
           {minutes >= 150 && (
             <p className="mt-3 text-xs text-amber-400/70 leading-relaxed">
-              heads up — long drifts take a bit more time to generate (up to a couple minutes). we're building something good.
+              {t('step3LongWarn')}
             </p>
           )}
         </div>
@@ -1091,11 +1098,11 @@ export default function DemoPage() {
         {/* 4. Starting point */}
         <div className="mb-8">
           <label className="text-[11px] tracking-[0.15em] uppercase text-amber-400/60 font-medium block mb-4">
-            04 — where are you starting from?
+            {t('step4')}
           </label>
           <input
             type="text"
-            placeholder="a neighborhood, landmark, or address"
+            placeholder={t('step4Placeholder')}
             value={startPt}
             onChange={e => setStartPt(e.target.value)}
             className="w-full bg-white/[0.04] border border-white/10 rounded-xl px-5 py-4 text-warm-white placeholder-warm-gray-500 focus:border-amber-400/35 transition-all text-sm"
@@ -1110,21 +1117,21 @@ export default function DemoPage() {
               className="flex items-center gap-2 text-warm-gray-400 hover:text-warm-gray-200 transition-colors text-sm group"
             >
               <span className="w-5 h-5 rounded-full border border-white/25 flex items-center justify-center group-hover:border-white/45 transition-colors text-xs">+</span>
-              add destination
-              <span className="text-warm-gray-500 text-xs">(optional)</span>
+              {t('addDestination')}
+              <span className="text-warm-gray-500 text-xs">{t('optional')}</span>
             </button>
           ) : (
             <div>
               <div className="flex items-center justify-between mb-3">
                 <label className="text-[11px] tracking-[0.15em] uppercase text-amber-400/60 font-medium">
-                  destination
+                  {t('destinationLabel')}
                 </label>
-                <button onClick={() => { setShowEnd(false); setEndPt('') }} className="text-warm-gray-600 hover:text-warm-gray-400 text-xs transition-colors">remove</button>
+                <button onClick={() => { setShowEnd(false); setEndPt('') }} className="text-warm-gray-600 hover:text-warm-gray-400 text-xs transition-colors">{t('removeField')}</button>
               </div>
               <input
                 autoFocus
                 type="text"
-                placeholder="leave blank to drift wherever"
+                placeholder={t('destinationPlaceholder')}
                 value={endPt}
                 onChange={e => setEndPt(e.target.value)}
                 className="w-full bg-white/[0.04] border border-white/10 rounded-xl px-5 py-4 text-warm-white placeholder-warm-gray-500 focus:border-amber-400/35 transition-all text-sm"
@@ -1141,20 +1148,20 @@ export default function DemoPage() {
               className="flex items-center gap-2 text-warm-gray-400 hover:text-warm-gray-200 transition-colors text-sm group"
             >
               <span className="w-5 h-5 rounded-full border border-white/25 flex items-center justify-center group-hover:border-white/45 transition-colors text-xs">+</span>
-              add special requests
-              <span className="text-warm-gray-500 text-xs">(optional)</span>
+              {t('addRequests')}
+              <span className="text-warm-gray-500 text-xs">{t('optional')}</span>
             </button>
           ) : (
             <div>
               <div className="flex items-center justify-between mb-3">
                 <label className="text-[11px] tracking-[0.15em] uppercase text-amber-400/60 font-medium">
-                  special requests
+                  {t('requestsLabel')}
                 </label>
-                <button onClick={() => { setShowNotes(false); setNotes('') }} className="text-warm-gray-600 hover:text-warm-gray-400 text-xs transition-colors">remove</button>
+                <button onClick={() => { setShowNotes(false); setNotes('') }} className="text-warm-gray-600 hover:text-warm-gray-400 text-xs transition-colors">{t('removeField')}</button>
               </div>
               <textarea
                 autoFocus
-                placeholder="e.g. 'must include street art', 'no churches', 'coffee stop along the way'"
+                placeholder={t('requestsPlaceholder')}
                 value={notes}
                 onChange={e => setNotes(e.target.value.slice(0, 200))}
                 rows={3}
@@ -1177,13 +1184,13 @@ export default function DemoPage() {
           onClick={() => generate(false)}
           className="btn-primary w-full justify-center py-5 text-base"
         >
-          generate my drift
+          {t('generateBtn')}
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path d="M2 8h12M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </button>
         <p className="text-warm-gray-600 text-xs text-center mt-4">
-          powered by claude ai · routes from curated local knowledge only
+          {t('poweredBy')}
         </p>
       </section>
 
