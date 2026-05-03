@@ -20,7 +20,7 @@ export default function Home() {
       <HeroSection />
       <TickerBar />
       <HowItWorks />
-<FeatureTicker />
+      <FeatureTicker />
       <MapDemo />
       <AICompanion />
       <Manifesto />

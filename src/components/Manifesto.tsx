@@ -1,55 +1,49 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { useInView } from '@/lib/useInView'
 import { CSSProperties } from 'react'
 
-interface Line {
-  text: string
+type Size = 'sm' | 'lg' | 'xl' | '2xl'
+
+interface LineConfig {
+  key: string
   accent: boolean
   blank: boolean
-  size: 'sm' | 'lg' | 'xl' | '2xl'
+  size: Size
   strike?: boolean
   dim?: boolean
 }
 
-const LINES: Line[] = [
-  { text: 'what the guidebook had planned:',        accent: false, blank: false, size: 'sm', dim: true },
-  { text: 'landmark → tourist lunch → souvenir shop', accent: false, blank: false, size: 'xl', strike: true, dim: true },
-  { text: '', accent: false, blank: true, size: 'lg' },
-  { text: 'what you actually found:',               accent: false, blank: false, size: 'sm', dim: true },
-  { text: 'the alley with no reviews.',             accent: false, blank: false, size: '2xl' },
-  { text: 'the afternoon you couldn\'t have planned.', accent: false, blank: false, size: '2xl' },
-  { text: '', accent: false, blank: true, size: 'lg' },
-  { text: 'you drifted.',                           accent: true,  blank: false, size: '2xl' },
+const LINE_CONFIGS: LineConfig[] = [
+  { key: 'l0', accent: false, blank: false, size: 'sm', dim: true },
+  { key: 'l1', accent: false, blank: false, size: 'xl', strike: true, dim: true },
+  { key: '', accent: false, blank: true, size: 'lg' },
+  { key: 'l3', accent: false, blank: false, size: 'sm', dim: true },
+  { key: 'l4', accent: false, blank: false, size: '2xl' },
+  { key: 'l5', accent: false, blank: false, size: '2xl' },
+  { key: '', accent: false, blank: true, size: 'lg' },
+  { key: 'l7', accent: true, blank: false, size: '2xl' },
 ]
 
 export default function Manifesto() {
+  const t = useTranslations('manifesto')
   const { ref, inView } = useInView(0.1)
 
   return (
     <section className="relative py-28 md:py-40 bg-[#0a0a0a] overflow-hidden">
-      {/* Subtle center glow */}
       <div
         className="blob absolute opacity-10 pointer-events-none"
-        style={{
-          width: 500,
-          height: 500,
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          background: 'radial-gradient(circle, #fbbf24 0%, transparent 70%)',
-          filter: 'blur(100px)',
-        }}
+        style={{ width: 500, height: 500, top: '50%', left: '50%', transform: 'translate(-50%, -50%)', background: 'radial-gradient(circle, #fbbf24 0%, transparent 70%)', filter: 'blur(100px)' }}
       />
-
       <div className="max-w-4xl mx-auto px-6 md:px-10" ref={ref}>
-        {LINES.map((line, i) => {
+        {LINE_CONFIGS.map((line, i) => {
           if (line.blank) return <div key={i} className="h-10 md:h-16" />
 
           const sizeClass = {
-            sm:  'text-xs md:text-sm tracking-[0.18em] uppercase',
-            lg:  'text-2xl md:text-3xl',
-            xl:  'text-2xl md:text-4xl',
+            sm: 'text-xs md:text-sm tracking-[0.18em] uppercase',
+            lg: 'text-2xl md:text-3xl',
+            xl: 'text-2xl md:text-4xl',
             '2xl': 'text-3xl md:text-5xl lg:text-6xl',
           }[line.size]
 
@@ -61,21 +55,12 @@ export default function Manifesto() {
             ...(line.strike ? { textDecoration: 'line-through', textDecorationColor: 'rgba(245,240,232,0.25)' } : {}),
           }
 
-          const colorClass = line.accent
-            ? 'gradient-text'
-            : line.dim
-            ? 'text-warm-gray-500'
-            : 'text-warm-white'
-
+          const colorClass = line.accent ? 'gradient-text' : line.dim ? 'text-warm-gray-500' : 'text-warm-white'
           const weightClass = line.size === 'sm' ? 'font-medium' : 'font-bold'
 
           return (
-            <p
-              key={i}
-              style={style}
-              className={`font-display ${weightClass} leading-tight mb-3 md:mb-5 ${sizeClass} ${colorClass}`}
-            >
-              {line.text}
+            <p key={i} style={style} className={`font-display ${weightClass} leading-tight mb-3 md:mb-5 ${sizeClass} ${colorClass}`}>
+              {t(line.key as any)}
             </p>
           )
         })}

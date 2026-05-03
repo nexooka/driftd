@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+export const dynamic = 'force-dynamic'
+let _resend: Resend | null = null
+const resend = () => { if (!_resend) _resend = new Resend(process.env.RESEND_API_KEY); return _resend }
 
 function fmtDist(meters: number): string {
   return meters < 1000 ? `${meters}m` : `${(meters / 1000).toFixed(1)}km`
@@ -164,7 +166,7 @@ export async function POST(req: NextRequest) {
   const html = buildEmailHtml(route, googleMapsUrl)
 
   try {
-    await resend.emails.send({
+    await resend().emails.send({
       from: 'driftd <hello@driftd.world>',
       to: email,
       subject: `your drift through ${route.city?.toLowerCase() ?? 'the city'} 🗺`,

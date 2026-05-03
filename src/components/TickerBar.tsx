@@ -1,27 +1,15 @@
-const PHRASES = [
-  'you drifted through warsaw',
-  'got lost on purpose',
-  'heard the city whisper',
-  'found what the guidebooks missed',
-  'explored like a local',
-  'wandered without a plan',
-  'discovered the unseen',
-  'drifted off the map',
-  'no map · no plan · no problem',
-  'the city has secrets',
-  'wander on purpose',
-  'every route is one of a kind',
-  "you're not lost · you drifted",
-  'stop following · start drifting',
-]
+'use client'
 
-const ticker = PHRASES.join('  ·  ')
+import { useTranslations } from 'next-intl'
 
 export default function TickerBar() {
+  const t = useTranslations('ticker')
+  const phrases = Array.from({ length: 14 }, (_, i) => t(`p${i}` as any))
+  const ticker = phrases.join('  ·  ')
+
   return (
     <div className="overflow-hidden bg-[#0d0d0d] border-y border-white/[0.05] py-3.5 select-none">
       <div className="animate-marquee">
-        {/* Two identical spans — animation moves exactly -50% so it loops seamlessly */}
         {[0, 1].map((i) => (
           <span
             key={i}

@@ -1,15 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-
-const NAV = [
-  { label: 'how it works', href: '#how-it-works' },
-  { label: 'features', href: '#features' },
-  { label: 'for cities', href: '#cities' },
-  { label: 'about', href: '/about' },
-  { label: 'press', href: 'mailto:press@driftd.world' },
-  { label: 'careers', href: 'mailto:hello@driftd.world' },
-]
+import { useTranslations } from 'next-intl'
 
 const SOCIAL = [
   {
@@ -45,6 +37,7 @@ const SOCIAL = [
 ]
 
 export default function Footer() {
+  const t = useTranslations('footer')
   const [email, setEmail] = useState('')
   const [done, setDone] = useState(false)
 
@@ -53,6 +46,15 @@ export default function Footer() {
     if (email) setDone(true)
   }
 
+  const navLinks = [
+    { label: t('link0'), href: '#how-it-works' },
+    { label: t('link1'), href: '#features' },
+    { label: t('link2'), href: '#cities' },
+    { label: t('link3'), href: '/about' },
+    { label: t('link4'), href: 'mailto:press@driftd.world' },
+    { label: t('link5'), href: 'mailto:hello@driftd.world' },
+  ]
+
   return (
     <footer className="relative bg-[#050505] border-t border-white/[0.05]">
       <div className="max-w-7xl mx-auto px-6 md:px-10 pt-16 md:pt-20 pb-10">
@@ -60,24 +62,13 @@ export default function Footer() {
 
           {/* Brand */}
           <div>
-            <a
-              href="/"
-              className="font-display text-xl font-bold text-warm-white hover:text-amber-400 transition-colors block mb-3"
-              style={{ letterSpacing: '0.05em' }}
-            >
+            <a href="/" className="font-display text-xl font-bold text-warm-white hover:text-amber-400 transition-colors block mb-3" style={{ letterSpacing: '0.05em' }}>
               driftd
             </a>
-            <p className="text-warm-gray-400 text-sm leading-relaxed max-w-xs mb-6">
-              driftd is anti-tourist tourism — an AI companion that shows you the city nobody else sees.
-            </p>
+            <p className="text-warm-gray-400 text-sm leading-relaxed max-w-xs mb-6">{t('brand')}</p>
             <div className="flex gap-2.5">
               {SOCIAL.map((s) => (
-                <a
-                  key={s.label}
-                  href={s.href}
-                  aria-label={s.label}
-                  className="w-9 h-9 rounded-lg border border-white/7 bg-white/3 flex items-center justify-center text-warm-gray-400 hover:text-amber-400 hover:border-amber-400/25 transition-all duration-200"
-                >
+                <a key={s.label} href={s.href} aria-label={s.label} className="w-9 h-9 rounded-lg border border-white/7 bg-white/3 flex items-center justify-center text-warm-gray-400 hover:text-amber-400 hover:border-amber-400/25 transition-all duration-200">
                   {s.icon}
                 </a>
               ))}
@@ -86,15 +77,11 @@ export default function Footer() {
 
           {/* Links */}
           <div>
-            <p className="text-[10px] tracking-[0.2em] uppercase text-warm-gray-500 font-medium mb-5">
-              navigate
-            </p>
+            <p className="text-[10px] tracking-[0.2em] uppercase text-warm-gray-500 font-medium mb-5">{t('navLabel')}</p>
             <ul className="grid grid-cols-2 gap-x-4 gap-y-3">
-              {NAV.map((link) => (
+              {navLinks.map((link) => (
                 <li key={link.label}>
-                  <a href={link.href} className="text-sm text-warm-gray-300 hover:text-warm-white transition-colors duration-200">
-                    {link.label}
-                  </a>
+                  <a href={link.href} className="text-sm text-warm-gray-300 hover:text-warm-white transition-colors duration-200">{link.label}</a>
                 </li>
               ))}
             </ul>
@@ -102,27 +89,21 @@ export default function Footer() {
 
           {/* Newsletter */}
           <div>
-            <p className="text-[10px] tracking-[0.2em] uppercase text-warm-gray-500 font-medium mb-5">
-              stay in the loop
-            </p>
-            <p className="text-sm text-warm-gray-300 mb-4 leading-relaxed">
-              city launches, new features, and things we found wandering.
-            </p>
+            <p className="text-[10px] tracking-[0.2em] uppercase text-warm-gray-500 font-medium mb-5">{t('newsletterLabel')}</p>
+            <p className="text-sm text-warm-gray-300 mb-4 leading-relaxed">{t('newsletterBody')}</p>
             {done ? (
-              <p className="text-amber-400 text-sm font-medium">you&apos;re in ✓</p>
+              <p className="text-amber-400 text-sm font-medium">{t('subscribeDone')}</p>
             ) : (
               <form onSubmit={submit} className="flex flex-col gap-2.5">
                 <input
                   type="email"
                   required
-                  placeholder="your@email.com"
+                  placeholder={t('newsletterPlaceholder')}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="bg-white/[0.04] border border-white/7 rounded-xl px-4 py-3 text-warm-white placeholder-warm-gray-500 focus:border-amber-400/25 transition-all text-sm"
                 />
-                <button type="submit" className="btn-primary text-sm py-3 justify-center">
-                  subscribe
-                </button>
+                <button type="submit" className="btn-primary text-sm py-3 justify-center">{t('subscribe')}</button>
               </form>
             )}
           </div>
@@ -130,15 +111,11 @@ export default function Footer() {
 
         {/* Bottom bar */}
         <div className="border-t border-white/[0.05] pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-warm-gray-500">
-            © {new Date().getFullYear()} driftd
-          </p>
-          <p className="text-xs text-warm-gray-600 italic tracking-wide">
-            stop following. start drifting.
-          </p>
+          <p className="text-xs text-warm-gray-500">© {new Date().getFullYear()} driftd</p>
+          <p className="text-xs text-warm-gray-600 italic tracking-wide">{t('tagline')}</p>
           <div className="flex gap-5">
-            <a href="#" className="text-xs text-warm-gray-500 hover:text-warm-gray-300 transition-colors">privacy</a>
-            <a href="#" className="text-xs text-warm-gray-500 hover:text-warm-gray-300 transition-colors">terms</a>
+            <a href="#" className="text-xs text-warm-gray-500 hover:text-warm-gray-300 transition-colors">{t('privacy')}</a>
+            <a href="#" className="text-xs text-warm-gray-500 hover:text-warm-gray-300 transition-colors">{t('terms')}</a>
             <a href="mailto:hello@driftd.world" className="text-xs text-warm-gray-500 hover:text-warm-gray-300 transition-colors">hello@driftd.world</a>
           </div>
         </div>
