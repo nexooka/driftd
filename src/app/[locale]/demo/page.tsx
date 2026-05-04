@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, CSSProperties } from 'react'
 import dynamic from 'next/dynamic'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 
@@ -51,6 +51,20 @@ const VIBE_T_KEY: Record<string, string> = {
   'romantic': 'vibeRomantic',
   'photogenic': 'vibePhotogenic',
   'quirky': 'vibeQuirky',
+}
+
+const CITY_T_KEY: Record<string, string> = {
+  'Warsaw': 'cityWarsaw',
+  'Berlin': 'cityBerlin',
+  'Prague': 'cityPrague',
+  'New York': 'cityNewYork',
+}
+
+const COUNTRY_T_KEY: Record<string, string> = {
+  'Warsaw': 'countryPoland',
+  'Berlin': 'countryGermany',
+  'Prague': 'countryCzechRepublic',
+  'New York': 'countryUnitedStates',
 }
 
 /* ── City card patterns ─────────────────────────────────────────────── */
@@ -181,6 +195,7 @@ function checkRateLimit() {
 /* ── Main component ──────────────────────────────────────────────────── */
 export default function DemoPage() {
   const t = useTranslations('demo')
+  const locale = useLocale()
 
   // Form
   const [city, setCity] = useState('')
@@ -190,14 +205,29 @@ export default function DemoPage() {
   const [endPt, setEndPt] = useState('')
   const [notes, setNotes] = useState('')
 
-  // UI
-  const [view, setView] = useState<'form' | 'loading' | 'result'>('form')
+  // UI — restore 'result' view if a route was saved in session
+  const [view, setView] = useState<'form' | 'loading' | 'result'>(() => {
+    if (typeof window === 'undefined') return 'form'
+    try { return sessionStorage.getItem('driftd_route') ? 'result' : 'form' } catch { return 'form' }
+  })
   const [loadingIdx, setLoadingIdx] = useState(0)
   const [formError, setFormError] = useState('')
 
-  // Result
-  const [route, setRoute] = useState<RouteResult | null>(null)
-  const [prevStops, setPrevStops] = useState<string[]>([])
+  // Result — initialise from sessionStorage so locale switches don't lose state
+  const [route, setRoute] = useState<RouteResult | null>(() => {
+    if (typeof window === 'undefined') return null
+    try {
+      const saved = sessionStorage.getItem('driftd_route')
+      return saved ? JSON.parse(saved) : null
+    } catch { return null }
+  })
+  const [prevStops, setPrevStops] = useState<string[]>(() => {
+    if (typeof window === 'undefined') return []
+    try {
+      const saved = sessionStorage.getItem('driftd_prev_stops')
+      return saved ? JSON.parse(saved) : []
+    } catch { return [] }
+  })
   const [mapKey, setMapKey] = useState(0)
   const [visibleStops, setVisibleStops] = useState<boolean[]>([])
   const [pinnedWalk, setPinnedWalk] = useState<number | null>(null)
@@ -393,12 +423,18 @@ export default function DemoPage() {
           end: endPt.trim(),
           notes: notes.trim(),
           previousStops: isDriftAgain ? prevStops : [],
+          lang: locale,
         }),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error ?? 'generation failed.')
+      const newPrevStops = data.stops.map((s: RouteStop) => s.name)
       setRoute(data)
-      setPrevStops(data.stops.map((s: RouteStop) => s.name))
+      setPrevStops(newPrevStops)
+      try {
+        sessionStorage.setItem('driftd_route', JSON.stringify(data))
+        sessionStorage.setItem('driftd_prev_stops', JSON.stringify(newPrevStops))
+      } catch { /* storage unavailable */ }
       setStopPhotos({})
       setStopInfos({})
       setPhotoModal(null)
@@ -632,7 +668,7 @@ export default function DemoPage() {
                 <h1 className="font-display font-black text-warm-white leading-tight"
                     style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)' }}>
                   {t('through')}{' '}
-                  <span className="italic gradient-text">{route.city.toLowerCase()}</span>
+                  <span className="italic gradient-text">{CITY_T_KEY[route.city] ? t(CITY_T_KEY[route.city] as Parameters<typeof t>[0]) : route.city.toLowerCase()}</span>
                 </h1>
                 <div className="flex flex-wrap gap-2 mt-4 items-center">
                   {route.vibes.map(v => (
@@ -652,7 +688,7 @@ export default function DemoPage() {
                 )}
               </div>
               <button
-                onClick={() => { setView('form'); setRoute(null) }}
+                onClick={() => { setView('form'); setRoute(null); try { sessionStorage.removeItem('driftd_route'); sessionStorage.removeItem('driftd_prev_stops') } catch {} }}
                 className="btn-outline text-sm px-7 py-3 self-start md:self-auto"
               >
                 {t('tryAnother')}
@@ -1025,8 +1061,8 @@ export default function DemoPage() {
                 <div className={`absolute inset-0 bg-gradient-to-br ${CITY_BG[c]}`}/>
                 <CityPattern city={c}/>
                 <div className="relative z-10">
-                  <p className="font-display font-black text-warm-white text-xl mb-1">{c.toLowerCase()}</p>
-                  <p className="text-warm-gray-400 text-xs tracking-wide">{CITY_COUNTRY[c]}</p>
+                  <p className="font-display font-black text-warm-white text-xl mb-1">{CITY_T_KEY[c] ? t(CITY_T_KEY[c] as Parameters<typeof t>[0]) : c.toLowerCase()}</p>
+                  <p className="text-warm-gray-400 text-xs tracking-wide">{COUNTRY_T_KEY[c] ? t(COUNTRY_T_KEY[c] as Parameters<typeof t>[0]) : CITY_COUNTRY[c]}</p>
                 </div>
                 {city === c && (
                   <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-amber-400 flex items-center justify-center z-10">

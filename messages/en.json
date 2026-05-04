@@ -318,6 +318,14 @@
     "vibeChill": "chill",
     "vibeRomantic": "romantic",
     "vibePhotogenic": "photogenic",
-    "vibeQuirky": "quirky"
+    "vibeQuirky": "quirky",
+    "cityWarsaw": "warsaw",
+    "cityBerlin": "berlin",
+    "cityPrague": "prague",
+    "cityNewYork": "new york",
+    "countryPoland": "poland",
+    "countryGermany": "germany",
+    "countryCzechRepublic": "czech republic",
+    "countryUnitedStates": "united states"
   }
 }

@@ -442,7 +442,7 @@ ${missing.map((m, idx) => `${idx + 1}. ${m.minutes} min walk: "${m.from}" → "$
 }
 
 export async function POST(req: NextRequest) {
-  const { city, vibes, minutes, start, end, notes, previousStops = [] } = await req.json()
+  const { city, vibes, minutes, start, end, notes, previousStops = [], lang = 'en' } = await req.json()
 
   if (!city || !['Warsaw', 'Berlin', 'Prague', 'New York'].includes(city))
     return NextResponse.json({ error: 'invalid city.' }, { status: 400 })
@@ -471,6 +471,10 @@ export async function POST(req: NextRequest) {
     ? `\nREGENERATION — user has seen this route. AVOID THESE STOPS ENTIRELY: ${previousStops.join(', ')}. Choose a different neighborhood or angle.`
     : ''
 
+  const langNote = lang === 'pl'
+    ? `\nLANGUAGE: Write ALL text fields (intro, description, tagline, why_this_spot, walk_note) in Polish. Use natural, conversational Polish — not formal or translated-sounding. Place names and proper nouns stay as-is (e.g. "Zachęta", "ul. Ząbkowska"). Numbers, coordinates, and the JSON keys themselves stay in English.`
+    : ''
+
   const userPrompt = `KNOWLEDGE BASE FOR ${city.toUpperCase()}:
 ${knowledge}
 
@@ -482,7 +486,7 @@ USER REQUEST:
 ${startCoordsNote}
 - Needs to end at: ${end?.trim() || 'anywhere — drift wherever'}
 - Extra notes: ${notes?.trim() || 'none'}
-${avoidNote}
+${avoidNote}${langNote}
 
 Generate a walking route. Target ${Math.round(minutes / 9)}–${Math.round(minutes / 7)} stops — err on the side of MORE stops, not fewer. Micro-stops cost almost nothing time-wise and make the route feel alive. Output ONLY the JSON.`
 
