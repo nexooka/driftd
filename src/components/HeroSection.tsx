@@ -1,10 +1,23 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 
 export default function HeroSection() {
   const t = useTranslations('hero')
   const c = useTranslations('hero.card')
+  const [mouse, setMouse] = useState({ x: 0, y: 0 })
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      setMouse({
+        x: (e.clientX / window.innerWidth - 0.5) * 20,
+        y: (e.clientY / window.innerHeight - 0.5) * 12,
+      })
+    }
+    window.addEventListener('mousemove', handler)
+    return () => window.removeEventListener('mousemove', handler)
+  }, [])
 
   const stops = [
     { number: '01', name: c('s1'), neighborhood: c('s1n'), walkNext: 9 },
@@ -17,14 +30,26 @@ export default function HeroSection() {
       {/* Base bg */}
       <div className="absolute inset-0 bg-[#0a0a0a]" />
 
-      {/* Atmospheric blobs */}
+      {/* Atmospheric blobs with parallax */}
       <div
         className="blob absolute opacity-20"
-        style={{ width: 700, height: 700, bottom: '-15%', left: '-12%', background: 'radial-gradient(circle, #e2714b 0%, transparent 68%)', filter: 'blur(110px)' }}
+        style={{
+          width: 700, height: 700, bottom: '-15%', left: '-12%',
+          background: 'radial-gradient(circle, #e2714b 0%, transparent 68%)',
+          filter: 'blur(110px)',
+          transform: `translate(${mouse.x * -0.8}px, ${mouse.y * -0.6}px)`,
+          transition: 'transform 1.2s ease-out',
+        }}
       />
       <div
         className="blob absolute opacity-15"
-        style={{ width: 500, height: 500, top: '-8%', right: '-5%', background: 'radial-gradient(circle, #f59e0b 0%, transparent 68%)', filter: 'blur(100px)' }}
+        style={{
+          width: 500, height: 500, top: '-8%', right: '-5%',
+          background: 'radial-gradient(circle, #f59e0b 0%, transparent 68%)',
+          filter: 'blur(100px)',
+          transform: `translate(${mouse.x * 0.5}px, ${mouse.y * 0.4}px)`,
+          transition: 'transform 0.9s ease-out',
+        }}
       />
 
       {/* Grid */}
@@ -88,105 +113,111 @@ export default function HeroSection() {
             className="hidden lg:block shrink-0 w-[360px] xl:w-[400px]"
             style={{ animation: 'fadeIn 1s ease-out 0.5s both' }}
           >
-            {/* Amber top bar */}
-            <div className="h-[2px] rounded-t-sm" style={{ background: 'linear-gradient(90deg, #fbbf24 0%, rgba(251,191,36,0.2) 60%, transparent 100%)' }} />
+            <div className="animate-float">
+              {/* Amber top bar */}
+              <div className="h-[2px] rounded-t-sm" style={{ background: 'linear-gradient(90deg, #fbbf24 0%, rgba(251,191,36,0.2) 60%, transparent 100%)' }} />
 
-            <div
-              className="border border-t-0 border-white/[0.09] rounded-b-xl overflow-hidden"
-              style={{ background: 'linear-gradient(160deg, #111009 0%, #0d0c0a 100%)' }}
-            >
-              {/* Card header */}
-              <div className="px-7 pt-6 pb-5 border-b border-white/[0.06] flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-[10px] tracking-[0.25em] uppercase text-warm-gray-400 mb-2">
-                    {c('driftingThrough')}
-                  </p>
-                  <p className="font-display font-bold text-warm-white leading-none" style={{ fontSize: '1.6rem' }}>
-                    Warsaw
-                  </p>
-                  <p className="text-warm-gray-300 text-sm mt-2" style={{ fontWeight: 300 }}>
-                    {c('vibe')}
-                  </p>
-                </div>
-                <div className="shrink-0 text-right">
-                  <div className="flex items-center justify-end gap-2 mb-2">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400" style={{ animation: 'pulse 2s cubic-bezier(0.4,0,0.6,1) infinite' }} />
-                    <span className="text-[10px] tracking-[0.2em] uppercase text-emerald-400/80">{c('live')}</span>
-                  </div>
-                  <p className="font-display font-bold text-amber-400 leading-none" style={{ fontSize: '1.8rem' }}>{c('duration')}</p>
-                  <p className="text-warm-gray-400 text-xs mt-1.5">{c('meta')}</p>
-                </div>
-              </div>
-
-              {/* Stops */}
-              <div className="px-7 py-3">
-                {stops.map((stop, i) => (
-                  <div key={i}>
-                    <div
-                      className="flex items-start gap-5 py-4"
-                      style={{ animation: `fadeUp 0.6s ease-out ${1 + i * 0.45}s both` }}
-                    >
-                      <span
-                        className="font-display font-black text-warm-white/[0.08] leading-none shrink-0 select-none"
-                        style={{ fontSize: '2rem', lineHeight: 1, marginTop: 2 }}
-                      >
-                        {stop.number}
-                      </span>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-warm-white leading-snug" style={{ fontSize: '0.95rem' }}>
-                          {stop.name}
-                        </p>
-                        <p className="text-amber-400/60 text-xs mt-1 tracking-[0.1em] uppercase">
-                          {stop.neighborhood}
-                        </p>
-                      </div>
-                    </div>
-
-                    {stop.walkNext && (
-                      <div
-                        className="flex items-center gap-3 ml-[3.25rem] pb-1"
-                        style={{ animation: `fadeIn 0.4s ease-out ${1.2 + i * 0.45}s both` }}
-                      >
-                        <div className="flex flex-col items-center gap-[3px]">
-                          <div className="w-px h-2" style={{ background: 'rgba(251,191,36,0.25)' }} />
-                          <div className="w-[3px] h-[3px] rounded-full" style={{ background: 'rgba(251,191,36,0.25)' }} />
-                          <div className="w-px h-2" style={{ background: 'rgba(251,191,36,0.25)' }} />
-                        </div>
-                        <span className="text-[11px] text-warm-gray-400 tracking-widest">
-                          {c('walkMin', { n: stop.walkNext })}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-
-              {/* Footer */}
               <div
-                className="px-7 py-4 border-t border-white/[0.06] flex items-center justify-between"
-                style={{ animation: 'fadeIn 0.5s ease-out 2.4s both' }}
+                className="border border-t-0 border-white/[0.09] rounded-b-xl overflow-hidden"
+                style={{ background: 'linear-gradient(160deg, #111009 0%, #0d0c0a 100%)' }}
               >
-                <span className="text-xs text-warm-gray-400">{c('generatedIn')}</span>
-                <a href="/demo" className="text-xs text-amber-400/80 hover:text-amber-400 transition-colors">
-                  {c('generateYours')}
-                </a>
-              </div>
-            </div>
+                {/* Card header */}
+                <div className="px-7 pt-6 pb-5 border-b border-white/[0.06] flex items-start justify-between gap-4">
+                  <div>
+                    <p className="text-[10px] tracking-[0.25em] uppercase text-warm-gray-400 mb-2">
+                      {c('driftingThrough')}
+                    </p>
+                    <p className="font-display font-bold text-warm-white leading-none" style={{ fontSize: '1.6rem' }}>
+                      Warsaw
+                    </p>
+                    <p className="text-warm-gray-300 text-sm mt-2" style={{ fontWeight: 300 }}>
+                      {c('vibe')}
+                    </p>
+                  </div>
+                  <div className="shrink-0 text-right">
+                    <div className="flex items-center justify-end gap-2 mb-2">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400" style={{ animation: 'pulse 2s cubic-bezier(0.4,0,0.6,1) infinite' }} />
+                      <span className="text-[10px] tracking-[0.2em] uppercase text-emerald-400/80">{c('live')}</span>
+                    </div>
+                    <p className="font-display font-bold text-amber-400 leading-none" style={{ fontSize: '1.8rem' }}>{c('duration')}</p>
+                    <p className="text-warm-gray-400 text-xs mt-1.5">{c('meta')}</p>
+                  </div>
+                </div>
 
-            <p className="mt-3 text-center text-[10px] text-warm-gray-400 tracking-wide">
-              {c('uniqueNote')}
-            </p>
+                {/* Stops */}
+                <div className="px-7 py-3">
+                  {stops.map((stop, i) => (
+                    <div key={i}>
+                      <div
+                        className="flex items-start gap-5 py-4"
+                        style={{ animation: `fadeUp 0.6s ease-out ${1 + i * 0.45}s both` }}
+                      >
+                        <span
+                          className="font-display font-black text-warm-white/[0.08] leading-none shrink-0 select-none"
+                          style={{ fontSize: '2rem', lineHeight: 1, marginTop: 2 }}
+                        >
+                          {stop.number}
+                        </span>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-warm-white leading-snug" style={{ fontSize: '0.95rem' }}>
+                            {stop.name}
+                          </p>
+                          <p className="text-amber-400/60 text-xs mt-1 tracking-[0.1em] uppercase">
+                            {stop.neighborhood}
+                          </p>
+                        </div>
+                      </div>
+
+                      {stop.walkNext && (
+                        <div
+                          className="flex items-center gap-3 ml-[3.25rem] pb-1"
+                          style={{ animation: `fadeIn 0.4s ease-out ${1.2 + i * 0.45}s both` }}
+                        >
+                          <div className="flex flex-col items-center gap-[3px]">
+                            <div className="w-px h-2" style={{ background: 'rgba(251,191,36,0.25)' }} />
+                            <div className="w-[3px] h-[3px] rounded-full" style={{ background: 'rgba(251,191,36,0.25)' }} />
+                            <div className="w-px h-2" style={{ background: 'rgba(251,191,36,0.25)' }} />
+                          </div>
+                          <span className="text-[11px] text-warm-gray-400 tracking-widest">
+                            {c('walkMin', { n: stop.walkNext })}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Footer */}
+                <div
+                  className="px-7 py-4 border-t border-white/[0.06] flex items-center justify-between"
+                  style={{ animation: 'fadeIn 0.5s ease-out 2.4s both' }}
+                >
+                  <span className="text-xs text-warm-gray-400">{c('generatedIn')}</span>
+                  <a href="/demo" className="text-xs text-amber-400/80 hover:text-amber-400 transition-colors">
+                    {c('generateYours')}
+                  </a>
+                </div>
+              </div>
+
+              <p className="mt-3 text-center text-[10px] text-warm-gray-400 tracking-wide">
+                {c('uniqueNote')}
+              </p>
+            </div>
           </div>
 
         </div>
       </div>
 
-      {/* Scroll hint */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-1.5 animate-bounce-slow">
-        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" className="text-warm-gray-400">
+      {/* Scroll hint — clickable */}
+      <button
+        onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
+        aria-label="Scroll to how it works"
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-1.5 animate-bounce-slow"
+      >
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" className="text-warm-gray-400 hover:text-warm-gray-200 transition-colors duration-200">
           <path d="M4 7l5 5 5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
-      </div>
+      </button>
     </section>
   )
 }

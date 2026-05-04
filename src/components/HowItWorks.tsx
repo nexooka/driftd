@@ -56,13 +56,13 @@ export default function HowItWorks() {
   ]
 
   return (
-    <section id="how-it-works" className="relative py-28 md:py-36 bg-[#0a0a0a]">
+    <section id="how-it-works" className="relative py-20 md:py-28 bg-[#0a0a0a]">
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/6 to-transparent" />
 
       <div className="max-w-7xl mx-auto px-6 md:px-10">
 
         {/* Header */}
-        <FadeIn className="mb-20">
+        <FadeIn className="mb-14">
           <div className="flex items-center gap-2.5 mb-5">
             <span className="w-6 h-px bg-amber-400/60" />
             <span className="text-[11px] tracking-[0.15em] uppercase text-amber-400/90 font-medium">
@@ -80,7 +80,7 @@ export default function HowItWorks() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-6">
           {steps.map((step, i) => (
             <FadeIn key={step.number} delay={i * 110}>
-              <div className="card-hover group relative flex flex-col h-full p-8 md:p-9 rounded-2xl border border-white/[0.07] bg-[#0f0e0c]">
+              <div className="card-hover group relative flex flex-col h-full p-6 md:p-8 rounded-2xl border border-white/[0.07] bg-[#0f0e0c]">
 
                 {/* Step indicator */}
                 <div className="flex items-center gap-3 mb-7">

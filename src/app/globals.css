@@ -143,9 +143,18 @@ body {
   transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 .card-hover:hover {
-  transform: translateY(-4px);
-  border-color: rgba(251, 191, 36, 0.2) !important;
-  box-shadow: 0 12px 40px rgba(251, 191, 36, 0.07);
+  transform: translateY(-5px);
+  border-color: rgba(251, 191, 36, 0.22) !important;
+  box-shadow: 0 16px 48px rgba(251, 191, 36, 0.09), inset 0 0 0 1px rgba(251, 191, 36, 0.04);
+}
+
+/* ── Float animation (hero card) ───────────────────── */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-12px); }
+}
+.animate-float {
+  animation: float 6s ease-in-out infinite;
 }
 
 /* ── Ticker / Marquee ──────────────────────────────── */

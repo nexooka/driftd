@@ -38,7 +38,7 @@ export default function AICompanion() {
   const activeMode = modes.find(m => m.id === activeInfo)
 
   return (
-    <section id="features" className="relative py-28 md:py-36 bg-[#0a0a0a] overflow-hidden">
+    <section id="features" className="relative py-20 md:py-28 bg-[#0a0a0a] overflow-hidden">
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-400/20 to-transparent" />
       <div className="blob absolute opacity-12 pointer-events-none" style={{ width: 550, height: 550, top: '5%', right: '-15%', background: 'radial-gradient(circle, #fbbf24 0%, transparent 70%)', filter: 'blur(120px)' }} />
 

@@ -94,7 +94,7 @@ export default function MapDemo() {
   const city = CITIES[active]
 
   return (
-    <section id="map" className="relative py-28 md:py-36 bg-[#0a0a0a] overflow-hidden">
+    <section id="map" className="relative py-20 md:py-28 bg-[#0a0a0a] overflow-hidden">
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-400/10 to-transparent" />
 
       <div className="max-w-7xl mx-auto px-6 md:px-10">

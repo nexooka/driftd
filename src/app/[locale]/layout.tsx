@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Playfair_Display, Plus_Jakarta_Sans } from 'next/font/google'
+import { Playfair_Display, Space_Grotesk } from 'next/font/google'
 import { NextIntlClientProvider } from 'next-intl'
 import { getMessages } from 'next-intl/server'
 import { notFound } from 'next/navigation'
@@ -15,11 +15,11 @@ const playfair = Playfair_Display({
   style: ['normal', 'italic'],
 })
 
-const jakartaSans = Plus_Jakarta_Sans({
+const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
   variable: '--font-dm-sans',
   display: 'swap',
-  weight: ['300', '400', '500', '600', '700', '800'],
+  weight: ['300', '400', '500', '600', '700'],
 })
 
 const SITE_URL = 'https://driftd.world'
@@ -64,7 +64,7 @@ export default async function LocaleLayout({
   const messages = await getMessages()
 
   return (
-    <html lang={locale} className={`${playfair.variable} ${jakartaSans.variable}`}>
+    <html lang={locale} className={`${playfair.variable} ${spaceGrotesk.variable}`}>
       <body>
         <NextIntlClientProvider messages={messages}>
           <CursorTrail />

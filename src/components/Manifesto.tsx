@@ -31,7 +31,7 @@ export default function Manifesto() {
   const { ref, inView } = useInView(0.1)
 
   return (
-    <section className="relative py-28 md:py-40 bg-[#0a0a0a] overflow-hidden">
+    <section className="relative py-20 md:py-28 bg-[#0a0a0a] overflow-hidden">
       <div
         className="blob absolute opacity-10 pointer-events-none"
         style={{ width: 500, height: 500, top: '50%', left: '50%', transform: 'translate(-50%, -50%)', background: 'radial-gradient(circle, #fbbf24 0%, transparent 70%)', filter: 'blur(100px)' }}

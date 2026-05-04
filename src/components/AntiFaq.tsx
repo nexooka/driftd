@@ -14,7 +14,7 @@ export default function AntiFaq() {
   }))
 
   return (
-    <section className="relative py-24 md:py-32 bg-[#0a0a0a]">
+    <section className="relative py-16 md:py-24 bg-[#0a0a0a]">
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
 
       <div className="max-w-3xl mx-auto px-6 md:px-10">

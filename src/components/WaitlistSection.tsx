@@ -49,7 +49,7 @@ export default function WaitlistSection() {
   }
 
   return (
-    <section id="waitlist" className="relative py-28 md:py-36 bg-[#0a0a0a] overflow-hidden">
+    <section id="waitlist" className="relative py-20 md:py-28 bg-[#0a0a0a] overflow-hidden">
       <div className="blob absolute opacity-[0.12] pointer-events-none" style={{ width: 700, height: 700, top: '-20%', left: '50%', transform: 'translateX(-50%)', background: 'radial-gradient(circle, #fbbf24 0%, transparent 65%)', filter: 'blur(130px)' }} />
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-400/20 to-transparent" />
 

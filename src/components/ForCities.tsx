@@ -1,7 +1,9 @@
 'use client'
 
+import { useRef, useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import { FadeIn } from './FadeIn'
+import { useInView } from '@/lib/useInView'
 
 const ICONS = [
   <svg key="1" width="20" height="20" viewBox="0 0 20 20" fill="none">
@@ -21,6 +23,25 @@ const ICONS = [
 
 export default function ForCities() {
   const t = useTranslations('forCities')
+  const [count, setCount] = useState(0)
+  const hasAnimated = useRef(false)
+  const { ref: statRef, inView: statInView } = useInView(0.5)
+
+  useEffect(() => {
+    if (statInView && !hasAnimated.current) {
+      hasAnimated.current = true
+      const start = performance.now()
+      const duration = 1600
+      const target = 73
+      const tick = (now: number) => {
+        const progress = Math.min((now - start) / duration, 1)
+        const eased = 1 - Math.pow(1 - progress, 3)
+        setCount(Math.round(eased * target))
+        if (progress < 1) requestAnimationFrame(tick)
+      }
+      requestAnimationFrame(tick)
+    }
+  }, [statInView])
 
   const valueProps = [
     { icon: ICONS[0], title: t('prop1Title'), description: t('prop1Desc') },
@@ -29,13 +50,13 @@ export default function ForCities() {
   ]
 
   return (
-    <section id="cities" className="relative py-28 md:py-36 bg-[#0a0a0a] overflow-hidden">
+    <section id="cities" className="relative py-20 md:py-28 bg-[#0a0a0a] overflow-hidden">
       <div className="blob absolute opacity-15 pointer-events-none" style={{ width: 500, height: 500, bottom: '-10%', left: '-10%', background: 'radial-gradient(circle, #e2714b 0%, transparent 70%)', filter: 'blur(100px)' }} />
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/6 to-transparent" />
 
       <div className="max-w-7xl mx-auto px-6 md:px-10">
 
-        <FadeIn className="mb-16">
+        <FadeIn className="mb-10">
           <div className="flex items-center gap-2.5">
             <span className="w-6 h-px bg-terra/60" />
             <span className="text-[11px] tracking-[0.15em] uppercase text-terra font-medium">
@@ -44,7 +65,7 @@ export default function ForCities() {
           </div>
         </FadeIn>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-14 lg:gap-20 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start">
 
           {/* Left */}
           <div>
@@ -88,9 +109,12 @@ export default function ForCities() {
             ))}
 
             <FadeIn delay={320} direction="right">
-              <div className="p-6 rounded-xl border border-white/[0.05] bg-[#0d0c0a] flex items-center gap-5">
-                <div className="font-display font-black text-4xl flex-shrink-0" style={{ background: 'linear-gradient(135deg, #e2714b, #fbbf24)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                  {t('stat')}
+              <div ref={statRef} className="p-6 rounded-xl border border-white/[0.05] bg-[#0d0c0a] flex items-center gap-5">
+                <div
+                  className="font-display font-black text-4xl flex-shrink-0 tabular-nums"
+                  style={{ background: 'linear-gradient(135deg, #e2714b, #fbbf24)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}
+                >
+                  {count}%
                 </div>
                 <p className="text-warm-gray-200 text-sm leading-snug" style={{ fontWeight: 300 }}>{t('statText')}</p>
               </div>
