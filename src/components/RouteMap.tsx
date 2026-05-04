@@ -42,7 +42,7 @@ async function fetchAllLegs(
   }
 }
 
-export default function RouteMap({ stops, routeKey }: { stops: MapStop[]; routeKey: number }) {
+export default function RouteMap({ stops, routeKey, height = 420, showHint = true }: { stops: MapStop[]; routeKey: number; height?: number; showHint?: boolean }) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<any>(null)
   const segLinesRef = useRef<any[]>([])       // one polyline per segment
@@ -218,30 +218,32 @@ export default function RouteMap({ stops, routeKey }: { stops: MapStop[]; routeK
         <div
           ref={containerRef}
           className="w-full rounded-2xl overflow-hidden border border-white/[0.06]"
-          style={{ height: '420px', background: '#0a0a0a' }}
+          style={{ height: `${height}px`, background: '#0a0a0a' }}
         />
         <div
           className="absolute inset-0 rounded-2xl pointer-events-none"
           style={{ boxShadow: 'inset 0 0 90px 35px #0a0a0a', zIndex: 500 }}
         />
       </div>
-      <div className="flex items-center justify-between px-1 h-5">
-        <p className="text-[10px] text-warm-gray-600 tracking-wide">
-          tap a stop marker to walk the route step by step
-        </p>
-        {isPartial && (
-          <button
-            onClick={() => {
-              userClickedRef.current = true
-              activeStopRef.current = stops.length - 1
-              setActiveStop(stops.length - 1)
-            }}
-            className="text-[10px] text-amber-400/70 hover:text-amber-400 transition-colors tracking-wide"
-          >
-            show full route →
-          </button>
-        )}
-      </div>
+      {showHint && (
+        <div className="flex items-center justify-between px-1 h-5">
+          <p className="text-[10px] text-warm-gray-600 tracking-wide">
+            tap a stop marker to walk the route step by step
+          </p>
+          {isPartial && (
+            <button
+              onClick={() => {
+                userClickedRef.current = true
+                activeStopRef.current = stops.length - 1
+                setActiveStop(stops.length - 1)
+              }}
+              className="text-[10px] text-amber-400/70 hover:text-amber-400 transition-colors tracking-wide"
+            >
+              show full route →
+            </button>
+          )}
+        </div>
+      )}
     </div>
   )
 }
