@@ -3,7 +3,7 @@ import HeroSection from '@/components/HeroSection'
 import TickerBar from '@/components/TickerBar'
 import HowItWorks from '@/components/HowItWorks'
 import FeatureTicker from '@/components/FeatureTicker'
-import MapDemo from '@/components/MapDemo'
+import DemoAnimation from '@/components/DemoAnimation'
 import AICompanion from '@/components/AICompanion'
 import Manifesto from '@/components/Manifesto'
 import ForCities from '@/components/ForCities'
@@ -21,7 +21,7 @@ export default function Home() {
       <TickerBar />
       <HowItWorks />
       <FeatureTicker />
-      <MapDemo />
+      <DemoAnimation />
       <AICompanion />
       <Manifesto />
       <ForCities />

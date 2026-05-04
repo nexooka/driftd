@@ -110,6 +110,12 @@
     "prague4": "medieval courtyard",
     "prague5": "graffiti alley in žižkov"
   },
+  "demoAnim": {
+    "sectionLabel": "in action",
+    "heading": "watch a drift",
+    "headingAccent": "come to life",
+    "sub": "pick a city, choose a vibe. a personalized walking route appears in seconds."
+  },
   "aiCompanion": {
     "sectionLabel": "the driftd companion",
     "heading": "your city has stories.",

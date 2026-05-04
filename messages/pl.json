@@ -110,6 +110,12 @@
     "prague4": "średniowieczne podwórko",
     "prague5": "ulica graffiti w Žižkovie"
   },
+  "demoAnim": {
+    "sectionLabel": "w akcji",
+    "heading": "patrz jak drift",
+    "headingAccent": "ożywa",
+    "sub": "wybierz miasto, wybierz klimat. spersonalizowana trasa gotowa w kilka sekund."
+  },
   "aiCompanion": {
     "sectionLabel": "towarzysz driftd",
     "heading": "twoje miasto ma opowieści.",
