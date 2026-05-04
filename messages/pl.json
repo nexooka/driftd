@@ -114,7 +114,8 @@
     "sectionLabel": "w akcji",
     "heading": "patrz jak drift",
     "headingAccent": "ożywa",
-    "sub": "wybierz miasto, wybierz klimat. spersonalizowana trasa gotowa w kilka sekund."
+    "sub": "wybierz miasto, wybierz klimat. spersonalizowana trasa gotowa w kilka sekund.",
+    "cta": "wypróbuj demo"
   },
   "aiCompanion": {
     "sectionLabel": "towarzysz driftd",

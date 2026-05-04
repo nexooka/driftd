@@ -17,18 +17,69 @@ const STOPS = [
   { num: 1, name: 'Bar Familijny', hood: 'Śródmieście', walk: 12, desc: 'a time-warp communist milk bar — żurek, pierogi, zero pretension' },
   { num: 2, name: 'Neon Muzeum', hood: 'Praga', walk: 9, desc: 'hundreds of rescued neon signs glowing in a former bus depot' },
   { num: 3, name: 'Bazar Różyckiego', hood: 'Praga', walk: 14, desc: "warsaw's oldest outdoor market — chaotic, real, perfectly alive" },
-  { num: 4, name: 'Pod Papugami', hood: 'Powiśle', walk: null as null | number, desc: 'a legendary pub beneath the university library rooftop garden' },
+  { num: 4, name: 'Pod Papugami', hood: 'Powiśle', walk: null as null | number, desc: 'legendary pub beneath the university library rooftop garden' },
+]
+
+// Map stop positions in the 600×200 viewbox
+const MAP_STOPS = [
+  { x: 78,  y: 138, lx: 93,  ly: 125, num: 1 },
+  { x: 215, y: 72,  lx: 132, ly:  59, num: 2 },
+  { x: 372, y: 148, lx: 253, ly: 136, num: 3 },
+  { x: 522, y: 88,  lx: 396, ly:  75, num: 4 },
+]
+const MAP_ROUTE = 'M 78,138 C 130,138 168,72 215,72 C 264,72 322,148 372,148 C 440,148 477,88 522,88'
+const MAP_LABELS = ['Śródmieście', 'Neon Muzeum', 'Bazar Różyc.', 'Pod Papugami']
+
+const STEP_CONFIG = [
+  { phase: 'form'    as Phase, label: 'Choose city & vibe', desc: 'Warsaw, Berlin, Prague…' },
+  { phase: 'loading' as Phase, label: 'AI crafts your route', desc: 'tailored to your mood & time' },
+  { phase: 'result'  as Phase, label: 'Your drift is ready', desc: 'map + stops in seconds' },
+]
+
+const CALLOUTS = [
+  {
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M8 1v6l3 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+        <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.4"/>
+      </svg>
+    ),
+    title: 'under 5 seconds',
+    desc: 'full route generated in real time — no waiting, no loading screens',
+  },
+  {
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M2 8c0-3.3 2.7-6 6-6s6 2.7 6 6-2.7 6-6 6-6-2.7-6-6Z" stroke="currentColor" strokeWidth="1.4"/>
+        <path d="M5 8l2 2 4-4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    ),
+    title: 'never repeats',
+    desc: 'same city, completely different drift every time you generate',
+  },
+  {
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <circle cx="8" cy="6.5" r="3" stroke="currentColor" strokeWidth="1.4"/>
+        <path d="M3 14c0-2.8 2.2-5 5-5s5 2.2 5 5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+      </svg>
+    ),
+    title: '100% local',
+    desc: 'spots only locals know — no guidebooks, no influencer lists',
+  },
 ]
 
 export default function DemoAnimation() {
   const t = useTranslations('demoAnim')
 
-  const [phase, setPhase] = useState<Phase>('form')
+  const [phase, setPhase]               = useState<Phase>('form')
   const [citySelected, setCitySelected] = useState(false)
   const [selectedVibes, setSelectedVibes] = useState<string[]>([])
-  const [btnState, setBtnState] = useState<BtnState>('idle')
+  const [btnState, setBtnState]         = useState<BtnState>('idle')
   const [visibleStops, setVisibleStops] = useState<boolean[]>([])
-  const [loadingDot, setLoadingDot] = useState(0)
+  const [loadingDot, setLoadingDot]     = useState(0)
+  const [scrollOffset, setScrollOffset] = useState(0)
+  const [resultKey, setResultKey]       = useState(0)
 
   // Loading dot pulse
   useEffect(() => {
@@ -48,11 +99,8 @@ export default function DemoAnimation() {
     }
 
     function run() {
-      setPhase('form')
-      setCitySelected(false)
-      setSelectedVibes([])
-      setBtnState('idle')
-      setVisibleStops([])
+      setPhase('form'); setCitySelected(false); setSelectedVibes([])
+      setBtnState('idle'); setVisibleStops([]); setScrollOffset(0)
 
       q(() => setCitySelected(true), 800)
       q(() => setSelectedVibes(['artsy']), 1600)
@@ -60,12 +108,15 @@ export default function DemoAnimation() {
       q(() => setBtnState('pulse'), 3150)
       q(() => setBtnState('click'), 3950)
       q(() => setPhase('loading'), 4250)
-      q(() => setPhase('result'), 7300)
-      q(() => setVisibleStops(v => [...v, true]), 7500)
-      q(() => setVisibleStops(v => [...v, true]), 7850)
-      q(() => setVisibleStops(v => [...v, true]), 8200)
-      q(() => setVisibleStops(v => [...v, true]), 8550)
-      q(run, 15500)
+      q(() => { setPhase('result'); setResultKey(k => k + 1); setScrollOffset(0); setVisibleStops([]) }, 7350)
+      // scroll to reveal stops ~1.3s after result starts
+      q(() => setScrollOffset(-195), 8650)
+      // stops stagger in while scroll is happening
+      q(() => setVisibleStops(v => [...v, true]), 8800)
+      q(() => setVisibleStops(v => [...v, true]), 9150)
+      q(() => setVisibleStops(v => [...v, true]), 9500)
+      q(() => setVisibleStops(v => [...v, true]), 9850)
+      q(run, 17000)
     }
 
     run()
@@ -77,55 +128,85 @@ export default function DemoAnimation() {
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-400/10 to-transparent" />
 
       <div className="max-w-7xl mx-auto px-6 md:px-10">
+        <div className="grid grid-cols-1 lg:grid-cols-[230px_1fr_210px] gap-8 lg:gap-10 items-start">
 
-        {/* Header */}
-        <FadeIn className="mb-12">
-          <div className="flex items-center gap-2.5 mb-5">
-            <span className="w-6 h-px bg-amber-400/60" />
-            <span className="text-[11px] tracking-[0.15em] uppercase text-amber-400/90 font-medium">
-              {t('sectionLabel')}
-            </span>
-          </div>
-          <div className="divider mb-5" />
-          <h2 className="font-display font-bold text-warm-white leading-tight max-w-2xl" style={{ fontSize: 'clamp(2rem, 5vw, 3.8rem)' }}>
-            {t('heading')}{' '}
-            <span className="italic gradient-text">{t('headingAccent')}</span>
-          </h2>
-          <p className="text-warm-gray-200 text-base mt-4 max-w-lg" style={{ fontWeight: 300 }}>
-            {t('sub')}
-          </p>
-        </FadeIn>
+          {/* ── LEFT: header + step indicators ── */}
+          <FadeIn direction="left" className="lg:sticky lg:top-28">
+            <div className="flex items-center gap-2.5 mb-5">
+              <span className="w-6 h-px bg-amber-400/60" />
+              <span className="text-[11px] tracking-[0.15em] uppercase text-amber-400/90 font-medium">
+                {t('sectionLabel')}
+              </span>
+            </div>
+            <div className="divider mb-5" />
+            <h2 className="font-display font-bold text-warm-white leading-tight" style={{ fontSize: 'clamp(1.8rem, 3.5vw, 2.8rem)' }}>
+              {t('heading')}{' '}
+              <span className="italic gradient-text">{t('headingAccent')}</span>
+            </h2>
+            <p className="text-warm-gray-200 text-sm mt-4 leading-relaxed" style={{ fontWeight: 300 }}>
+              {t('sub')}
+            </p>
 
-        {/* Animated screen */}
-        <FadeIn delay={120}>
-          <div className="max-w-2xl mx-auto">
+            <a href="/demo" className="btn-primary mt-6 text-sm px-6 py-3 inline-flex">
+              {t('cta')}
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+                <path d="M2 6.5h9M7 2.5l4 4-4 4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </a>
 
+            {/* Step indicators */}
+            <div className="mt-10 flex flex-col gap-5">
+              {STEP_CONFIG.map((s) => (
+                <div
+                  key={s.phase}
+                  className="flex gap-3 transition-all duration-600"
+                  style={{ opacity: phase === s.phase ? 1 : 0.3 }}
+                >
+                  <div
+                    className="w-1.5 h-1.5 rounded-full mt-[7px] shrink-0 transition-all duration-500"
+                    style={{ background: phase === s.phase ? '#fbbf24' : '#3d3830' }}
+                  />
+                  <div>
+                    <p className="text-sm font-medium text-warm-white leading-snug">{s.label}</p>
+                    <p className="text-xs text-warm-gray-400 mt-0.5">{s.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </FadeIn>
+
+          {/* ── CENTER: animation screen ── */}
+          <FadeIn delay={80}>
             {/* Browser chrome */}
-            <div className="flex items-center gap-3 px-4 py-3 rounded-t-2xl border border-b-0 border-white/[0.08]" style={{ background: '#0d0d0d' }}>
+            <div
+              className="flex items-center gap-3 px-4 py-2.5 rounded-t-2xl border border-b-0 border-white/[0.08]"
+              style={{ background: '#0e0e0e' }}
+            >
               <div className="flex gap-1.5 shrink-0">
-                <div className="w-2.5 h-2.5 rounded-full bg-white/[0.1]" />
-                <div className="w-2.5 h-2.5 rounded-full bg-white/[0.1]" />
-                <div className="w-2.5 h-2.5 rounded-full bg-white/[0.1]" />
+                <div className="w-2.5 h-2.5 rounded-full bg-white/[0.09]" />
+                <div className="w-2.5 h-2.5 rounded-full bg-white/[0.09]" />
+                <div className="w-2.5 h-2.5 rounded-full bg-white/[0.09]" />
               </div>
-              <div className="flex-1 h-5 rounded-full border border-white/[0.06] flex items-center px-3 gap-2" style={{ background: 'rgba(255,255,255,0.03)' }}>
-                <svg width="9" height="9" viewBox="0 0 9 9" fill="none" className="text-warm-gray-400 shrink-0">
-                  <circle cx="4.5" cy="4.5" r="4" stroke="currentColor" strokeWidth="1"/>
-                  <path d="M4.5 1.5v6M1.5 4.5h6" stroke="currentColor" strokeWidth="0.8" strokeLinecap="round" opacity="0.5"/>
+              <div
+                className="flex-1 h-5 rounded-full border border-white/[0.06] flex items-center px-3 gap-1.5"
+                style={{ background: 'rgba(255,255,255,0.03)' }}
+              >
+                <svg width="8" height="8" viewBox="0 0 8 8" fill="none" className="text-warm-gray-500 shrink-0">
+                  <circle cx="4" cy="4" r="3.5" stroke="currentColor" strokeWidth="0.9"/>
                 </svg>
-                <span className="text-[10px] text-warm-gray-400 tracking-wider">driftd.world/demo</span>
+                <span className="text-[10px] text-warm-gray-400 tracking-wide">driftd.world/demo</span>
               </div>
             </div>
 
-            {/* Screen body */}
+            {/* Screen */}
             <div
               className="relative rounded-b-2xl border border-white/[0.08] overflow-hidden select-none"
-              style={{ background: '#0a0a0a', minHeight: 480 }}
+              style={{ background: '#0a0a0a', height: 560 }}
             >
 
-              {/* ── FORM PHASE ── */}
+              {/* ── FORM ── */}
               <div className={`absolute inset-0 transition-opacity duration-500 ${phase === 'form' ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
                 <div className="p-6 flex flex-col gap-5">
-
                   {/* City */}
                   <div>
                     <p className="text-[10px] tracking-[0.18em] uppercase text-warm-gray-400 mb-3">choose your city</p>
@@ -136,12 +217,10 @@ export default function DemoAnimation() {
                           className="rounded-xl px-3 py-2.5 border text-center transition-all duration-500"
                           style={{
                             borderColor: citySelected && c === 'Warsaw' ? 'rgba(251,191,36,0.4)' : 'rgba(255,255,255,0.07)',
-                            background: citySelected && c === 'Warsaw' ? 'rgba(251,191,36,0.07)' : 'rgba(255,255,255,0.03)',
+                            background:  citySelected && c === 'Warsaw' ? 'rgba(251,191,36,0.07)' : 'rgba(255,255,255,0.03)',
                           }}
                         >
-                          <p className={`text-xs font-medium transition-colors duration-300 ${citySelected && c === 'Warsaw' ? 'text-warm-white' : 'text-warm-gray-300'}`}>
-                            {c}
-                          </p>
+                          <p className={`text-xs font-medium transition-colors duration-300 ${citySelected && c === 'Warsaw' ? 'text-warm-white' : 'text-warm-gray-300'}`}>{c}</p>
                           <p className="text-[9px] text-warm-gray-500 mt-0.5">{CITY_COUNTRY[c]}</p>
                         </div>
                       ))}
@@ -158,11 +237,11 @@ export default function DemoAnimation() {
                       {VIBES.map(v => (
                         <div
                           key={v}
-                          className="px-3 py-1.5 rounded-full text-[11px] font-medium border transition-all duration-400"
+                          className="px-3 py-1.5 rounded-full text-[11px] font-medium border transition-all duration-300"
                           style={{
                             borderColor: selectedVibes.includes(v) ? 'rgba(251,191,36,0.4)' : 'rgba(255,255,255,0.08)',
-                            background: selectedVibes.includes(v) ? 'rgba(251,191,36,0.09)' : 'rgba(255,255,255,0.04)',
-                            color: selectedVibes.includes(v) ? '#fbbf24' : '#9b9284',
+                            background:  selectedVibes.includes(v) ? 'rgba(251,191,36,0.09)' : 'rgba(255,255,255,0.04)',
+                            color:       selectedVibes.includes(v) ? '#fbbf24' : '#9b9284',
                           }}
                         >
                           {v}
@@ -177,23 +256,20 @@ export default function DemoAnimation() {
                     <div className="flex items-center gap-4">
                       <div className="flex-1 h-[3px] rounded-full relative" style={{ background: 'rgba(255,255,255,0.07)' }}>
                         <div className="absolute left-0 top-0 h-full rounded-full" style={{ width: '37.5%', background: 'rgba(251,191,36,0.5)' }} />
-                        <div
-                          className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full"
-                          style={{ left: 'calc(37.5% - 6px)', background: '#fbbf24', boxShadow: '0 0 8px rgba(251,191,36,0.6)' }}
-                        />
+                        <div className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full" style={{ left: 'calc(37.5% - 6px)', background: '#fbbf24', boxShadow: '0 0 8px rgba(251,191,36,0.6)' }} />
                       </div>
                       <span className="text-sm font-medium text-warm-white tabular-nums shrink-0">60 min</span>
                     </div>
                   </div>
 
-                  {/* Button */}
+                  {/* Generate button */}
                   <button
                     className="w-full rounded-full py-3.5 text-sm font-bold flex items-center justify-center gap-2 transition-all duration-200"
                     style={{
-                      background: btnState === 'idle' && (!citySelected || !selectedVibes.length) ? 'rgba(251,191,36,0.25)' : '#fbbf24',
+                      background: (!citySelected || !selectedVibes.length) ? 'rgba(251,191,36,0.25)' : '#fbbf24',
                       color: '#0a0a0a',
                       transform: btnState === 'click' ? 'scale(0.96)' : btnState === 'pulse' ? 'scale(1.02)' : 'scale(1)',
-                      boxShadow: btnState === 'pulse' ? '0 0 28px rgba(251,191,36,0.55)' : 'none',
+                      boxShadow: btnState === 'pulse' ? '0 0 30px rgba(251,191,36,0.55)' : 'none',
                     }}
                   >
                     generate my drift
@@ -204,19 +280,14 @@ export default function DemoAnimation() {
                 </div>
               </div>
 
-              {/* ── LOADING PHASE ── */}
+              {/* ── LOADING ── */}
               <div className={`absolute inset-0 flex flex-col items-center justify-center gap-7 transition-opacity duration-500 ${phase === 'loading' ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-                {/* Logo */}
                 <div className="relative flex items-center justify-center">
-                  <div
-                    className="absolute rounded-full"
-                    style={{ width: 88, height: 88, background: 'radial-gradient(circle, rgba(251,191,36,0.22) 0%, transparent 70%)', animation: 'drift-logo-glow 3s ease-in-out infinite' }}
-                  />
+                  <div className="absolute rounded-full" style={{ width: 88, height: 88, background: 'radial-gradient(circle, rgba(251,191,36,0.22) 0%, transparent 70%)', animation: 'drift-logo-glow 3s ease-in-out infinite' }} />
                   <span className="relative font-display font-black italic text-amber-400" style={{ fontSize: '3.2rem', lineHeight: 1 }}>d</span>
                 </div>
 
-                {/* Cityscape */}
-                <div className="w-full max-w-[220px]">
+                <div className="w-full max-w-[240px]">
                   <svg viewBox="0 0 300 165" className="w-full" style={{ overflow: 'visible' }}>
                     <defs>
                       <filter id="anim-glow" x="-100%" y="-100%" width="300%" height="300%">
@@ -224,8 +295,6 @@ export default function DemoAnimation() {
                         <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
                       </filter>
                     </defs>
-
-                    {/* Buildings */}
                     <rect x="0"   y="100" width="32"  height="65"  fill="#111"/>
                     <rect x="36"  y="62"  width="20"  height="103" fill="#0e0e0e"/>
                     <rect x="60"  y="80"  width="36"  height="85"  fill="#121212"/>
@@ -236,44 +305,33 @@ export default function DemoAnimation() {
                     <rect x="234" y="44"  width="26"  height="121" fill="#0f0f0f"/>
                     <rect x="264" y="92"  width="22"  height="73"  fill="#111"/>
                     <rect x="0"   y="160" width="300" height="5"   fill="#0d0d0d"/>
-
-                    {/* Windows */}
-                    <rect x="39"  y="70" width="6" height="4" fill="#fbbf24" className="drift-win-a"/>
-                    <rect x="47"  y="70" width="6" height="4" fill="#fbbf24" className="drift-win-b" style={{ animationDelay: '1.3s' }}/>
-                    <rect x="39"  y="82" width="6" height="4" fill="#fbbf24" className="drift-win-c" style={{ animationDelay: '0.7s' }}/>
-                    <rect x="47"  y="82" width="6" height="4" fill="#fbbf24" className="drift-win-a" style={{ animationDelay: '2.8s' }}/>
-                    <rect x="103" y="50" width="7" height="5" fill="#fbbf24" className="drift-win-c" style={{ animationDelay: '0.4s' }}/>
-                    <rect x="114" y="50" width="7" height="5" fill="#fbbf24" className="drift-win-a" style={{ animationDelay: '3.1s' }}/>
-                    <rect x="103" y="63" width="7" height="5" fill="#fbbf24" className="drift-win-b" style={{ animationDelay: '1.1s' }}/>
-                    <rect x="114" y="63" width="7" height="5" fill="#fbbf24" className="drift-win-c" style={{ animationDelay: '2.4s' }}/>
-                    <rect x="177" y="68" width="7" height="4" fill="#fbbf24" className="drift-win-a" style={{ animationDelay: '1.7s' }}/>
-                    <rect x="187" y="68" width="7" height="4" fill="#fbbf24" className="drift-win-b" style={{ animationDelay: '0.3s' }}/>
-                    <rect x="237" y="52" width="8" height="5" fill="#fbbf24" className="drift-win-c" style={{ animationDelay: '2.2s' }}/>
-                    <rect x="249" y="52" width="8" height="5" fill="#fbbf24" className="drift-win-a" style={{ animationDelay: '0.9s' }}/>
-
-                    {/* Stop dots */}
+                    <rect x="39"  y="70"  width="6"   height="4"   fill="#fbbf24" className="drift-win-a"/>
+                    <rect x="47"  y="70"  width="6"   height="4"   fill="#fbbf24" className="drift-win-b" style={{ animationDelay: '1.3s' }}/>
+                    <rect x="39"  y="82"  width="6"   height="4"   fill="#fbbf24" className="drift-win-c" style={{ animationDelay: '0.7s' }}/>
+                    <rect x="103" y="50"  width="7"   height="5"   fill="#fbbf24" className="drift-win-c" style={{ animationDelay: '0.4s' }}/>
+                    <rect x="114" y="50"  width="7"   height="5"   fill="#fbbf24" className="drift-win-a" style={{ animationDelay: '3.1s' }}/>
+                    <rect x="103" y="63"  width="7"   height="5"   fill="#fbbf24" className="drift-win-b" style={{ animationDelay: '1.1s' }}/>
+                    <rect x="177" y="68"  width="7"   height="4"   fill="#fbbf24" className="drift-win-a" style={{ animationDelay: '1.7s' }}/>
+                    <rect x="237" y="52"  width="8"   height="5"   fill="#fbbf24" className="drift-win-c" style={{ animationDelay: '2.2s' }}/>
+                    <rect x="249" y="52"  width="8"   height="5"   fill="#fbbf24" className="drift-win-b" style={{ animationDelay: '0.9s' }}/>
                     {([46, 122, 184, 248] as const).map((cx, i) => {
-                      const delay = 0.4 + i * 0.7
+                      const d = 0.4 + i * 0.7
                       return (
-                        <g key={cx} style={{ animation: `drift-stop-in 0.5s cubic-bezier(0.34,1.56,0.64,1) ${delay}s both`, transformBox: 'fill-box', transformOrigin: 'center' }}>
+                        <g key={cx} style={{ animation: `drift-stop-in 0.5s cubic-bezier(0.34,1.56,0.64,1) ${d}s both`, transformBox: 'fill-box', transformOrigin: 'center' }}>
                           <circle cx={cx} cy="152" r="5" fill="none" stroke="#fbbf24" strokeWidth="1">
-                            <animate attributeName="r" values="5;13;5" dur="2.8s" begin={`${delay + 0.4}s`} repeatCount="indefinite"/>
-                            <animate attributeName="opacity" values="0.5;0;0.5" dur="2.8s" begin={`${delay + 0.4}s`} repeatCount="indefinite"/>
+                            <animate attributeName="r" values="5;13;5" dur="2.8s" begin={`${d + 0.4}s`} repeatCount="indefinite"/>
+                            <animate attributeName="opacity" values="0.5;0;0.5" dur="2.8s" begin={`${d + 0.4}s`} repeatCount="indefinite"/>
                           </circle>
                           <circle cx={cx} cy="152" r="4" fill="#fbbf24" filter="url(#anim-glow)"/>
                         </g>
                       )
                     })}
-
-                    {/* Dashed route lines */}
                     {([[50, 118], [126, 180], [188, 244]] as const).map(([x1, x2], i) => (
                       <line key={x1} x1={x1} y1="152" x2={x2} y2="152"
                         stroke="#fbbf24" strokeWidth="1.5" strokeDasharray="4 6" strokeDashoffset="80"
                         style={{ animation: `drift-line-in 0.4s ease-out ${1.1 + i * 0.7}s both` }}
                       />
                     ))}
-
-                    {/* Walking dot */}
                     <circle cx="0" cy="0" r="2.5" fill="#fff" opacity="0">
                       <animate attributeName="opacity" values="0;0.7;0.7;0" keyTimes="0;0.06;0.94;1" dur="5.5s" repeatCount="indefinite"/>
                       <animateMotion dur="5.5s" repeatCount="indefinite" calcMode="linear" path="M 46,152 L 248,152"/>
@@ -281,7 +339,6 @@ export default function DemoAnimation() {
                   </svg>
                 </div>
 
-                {/* Text */}
                 <p className="text-warm-gray-300 text-sm tracking-wide">
                   crafting your drift
                   <span className="inline-flex ml-0.5 gap-[1px]">
@@ -292,102 +349,182 @@ export default function DemoAnimation() {
                 </p>
               </div>
 
-              {/* ── RESULT PHASE ── */}
-              <div className={`absolute inset-0 transition-opacity duration-500 ${phase === 'result' ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-                <div className="p-6">
-
-                  {/* Header */}
-                  <div className="mb-5">
-                    <span className="text-[10px] tracking-[0.2em] uppercase text-amber-400/70 font-medium block mb-1.5">your drift</span>
-                    <h3 className="font-display font-black text-warm-white leading-tight" style={{ fontSize: 'clamp(1.3rem, 4vw, 1.8rem)' }}>
+              {/* ── RESULT ── */}
+              <div className={`absolute inset-0 overflow-hidden transition-opacity duration-500 ${phase === 'result' ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+                {/* Scrollable content */}
+                <div
+                  style={{
+                    transform: `translateY(${scrollOffset}px)`,
+                    transition: 'transform 2s cubic-bezier(0.4, 0, 0.2, 1)',
+                  }}
+                >
+                  <div className="px-5 pt-5 pb-3">
+                    <span className="text-[10px] tracking-[0.2em] uppercase text-amber-400/70 font-medium block mb-1">your drift</span>
+                    <h3 className="font-display font-black text-warm-white leading-tight" style={{ fontSize: 'clamp(1.2rem, 3vw, 1.6rem)' }}>
                       through <span className="italic gradient-text">warsaw</span>
                     </h3>
-                    <div className="flex flex-wrap items-center gap-1.5 mt-2.5">
+                    <div className="flex flex-wrap items-center gap-1.5 mt-2">
                       <span className="px-2 py-0.5 rounded-full text-[10px] border border-amber-400/20 bg-amber-400/[0.06] text-amber-400/80 font-medium">artsy</span>
                       <span className="px-2 py-0.5 rounded-full text-[10px] border border-amber-400/20 bg-amber-400/[0.06] text-amber-400/80 font-medium">chill</span>
-                      <span className="text-warm-gray-500 text-xs">·</span>
-                      <span className="text-warm-gray-400 text-xs">60 min</span>
-                      <span className="text-warm-gray-500 text-xs">·</span>
-                      <span className="text-warm-gray-400 text-xs">4 stops</span>
+                      <span className="text-warm-gray-500 text-[11px]">·</span>
+                      <span className="text-warm-gray-400 text-[11px]">60 min</span>
+                      <span className="text-warm-gray-500 text-[11px]">·</span>
+                      <span className="text-warm-gray-400 text-[11px]">4 stops</span>
                     </div>
                   </div>
 
-                  {/* Stop list */}
-                  <div className="flex flex-col">
+                  {/* MAP */}
+                  <div className="px-5 pb-3">
+                    <div className="rounded-xl overflow-hidden border border-white/[0.06]" style={{ background: '#0a0a0a' }}>
+                      <svg viewBox="0 0 600 200" width="100%" height="auto" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <rect width="600" height="200" fill="#0a0a0a"/>
+
+                        {/* City blocks */}
+                        {[
+                          [8,8,44,26],[62,8,44,26],[116,8,44,26],[224,8,44,26],[278,8,44,26],
+                          [386,8,44,26],[440,8,44,26],[548,8,44,26],
+                          [8,42,44,36],[116,42,44,36],[224,42,44,36],[332,42,44,36],[494,42,44,36],[548,42,44,36],
+                          [8,86,44,36],[62,86,44,36],[170,86,44,36],[332,86,44,36],[440,86,44,36],[548,86,44,36],
+                          [8,130,44,36],[116,130,44,36],[224,130,44,36],[440,130,44,36],[494,130,44,36],
+                          [8,174,44,22],[116,174,44,22],[278,174,44,22],[386,174,44,22],[548,174,44,22],
+                        ].map(([x,y,w,h], i) => (
+                          <rect key={i} x={x} y={y} width={w} height={h} fill="#0f0f0f" rx="1"/>
+                        ))}
+
+                        {/* Grid lines */}
+                        {[42,86,130,174].map(y => <line key={`h${y}`} x1="0" y1={y} x2="600" y2={y} stroke="#141414" strokeWidth="1"/>)}
+                        {[62,116,170,224,278,332,386,440,494,548].map(x => <line key={`v${x}`} x1={x} y1="0" x2={x} y2="200" stroke="#141414" strokeWidth="1"/>)}
+
+                        {/* Vignette */}
+                        <defs>
+                          <radialGradient id="map-vig" cx="50%" cy="50%" r="50%">
+                            <stop offset="55%" stopColor="#0a0a0a" stopOpacity="0"/>
+                            <stop offset="100%" stopColor="#0a0a0a" stopOpacity="0.85"/>
+                          </radialGradient>
+                          <filter id="map-glow" x="-20%" y="-20%" width="140%" height="140%">
+                            <feGaussianBlur stdDeviation="2" result="b"/>
+                            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+                          </filter>
+                        </defs>
+                        <rect width="600" height="200" fill="url(#map-vig)"/>
+
+                        {/* Route path */}
+                        <path
+                          key={resultKey}
+                          d={MAP_ROUTE}
+                          fill="none"
+                          stroke="#fbbf24"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          filter="url(#map-glow)"
+                          className="route-path draw"
+                        />
+
+                        {/* Stop markers */}
+                        {MAP_STOPS.map((s, i) => (
+                          <g key={i}>
+                            {i === 0 && (
+                              <circle cx={s.x} cy={s.y} r="10" fill="none" stroke="#fbbf24" strokeWidth="1" opacity="0">
+                                <animate attributeName="r" values="8;18;8" dur="2.5s" repeatCount="indefinite"/>
+                                <animate attributeName="opacity" values="0.35;0;0.35" dur="2.5s" repeatCount="indefinite"/>
+                              </circle>
+                            )}
+                            <circle cx={s.x} cy={s.y} r="7" fill="none" stroke="#fbbf24" strokeWidth="1" opacity="0.25"/>
+                            <circle cx={s.x} cy={s.y} r="4" fill="#fbbf24"/>
+                            <text x={s.x} y={s.y + 0.5} fill="#0a0a0a" fontSize="5" fontWeight="bold" fontFamily="ui-sans-serif,system-ui" textAnchor="middle" dominantBaseline="middle">{s.num}</text>
+                            {/* Label */}
+                            <rect x={s.lx} y={s.ly} width={74} height={13} rx="3" fill="#0e0e0e" stroke="#222" strokeWidth="0.5" opacity="0.95"/>
+                            <text x={s.lx + 5} y={s.ly + 6.5} fill="#c8c0b5" fontSize="6" fontFamily="ui-sans-serif,system-ui" dominantBaseline="middle">{MAP_LABELS[i]}</text>
+                          </g>
+                        ))}
+                      </svg>
+                    </div>
+                  </div>
+
+                  {/* STOP LIST */}
+                  <div className="px-5 pb-5 flex flex-col">
                     {STOPS.map((stop, i) => (
                       <div key={i}>
-                        {/* Card */}
                         <div
-                          className="flex gap-3 p-4 rounded-xl border border-white/[0.06]"
+                          className="flex gap-3 p-3.5 rounded-xl border border-white/[0.06]"
                           style={{
                             background: '#111',
                             opacity: visibleStops[i] ? 1 : 0,
-                            transform: visibleStops[i] ? 'none' : 'translateY(10px)',
+                            transform: visibleStops[i] ? 'none' : 'translateY(8px)',
                             transition: 'opacity 0.4s ease-out, transform 0.4s ease-out',
                           }}
                         >
-                          <div className="flex-shrink-0 w-7 h-7 rounded-full bg-amber-400 flex items-center justify-center text-[#0a0a0a] font-bold text-[11px]">
+                          <div className="flex-shrink-0 w-6 h-6 rounded-full bg-amber-400 flex items-center justify-center text-[#0a0a0a] font-bold text-[10px]">
                             {stop.num}
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-baseline justify-between gap-2 mb-0.5">
-                              <p className="font-semibold text-warm-white text-xs sm:text-sm leading-snug">{stop.name}</p>
+                              <p className="font-semibold text-warm-white text-xs leading-snug">{stop.name}</p>
                               <p className="text-[9px] text-warm-gray-400 shrink-0">{stop.hood}</p>
                             </div>
-                            <p className="text-warm-gray-300 text-[11px] leading-relaxed">{stop.desc}</p>
+                            <p className="text-warm-gray-300 text-[10px] leading-relaxed">{stop.desc}</p>
                           </div>
                         </div>
-
-                        {/* Walk connector */}
                         {stop.walk && (
                           <div
-                            className="flex items-center gap-2 px-4 py-1.5 ml-1"
+                            className="flex items-center gap-2 px-3 py-1.5"
                             style={{ opacity: visibleStops[i] ? 1 : 0, transition: 'opacity 0.4s ease-out 0.15s' }}
                           >
-                            <div className="flex flex-col items-center gap-[3px]">
-                              <div className="w-px h-2" style={{ background: 'rgba(251,191,36,0.3)' }} />
-                              <div className="w-1 h-1 rounded-full" style={{ background: 'rgba(251,191,36,0.25)' }} />
-                              <div className="w-px h-2" style={{ background: 'rgba(251,191,36,0.3)' }} />
+                            <div className="flex flex-col items-center gap-[3px] ml-2">
+                              <div className="w-px h-2" style={{ background: 'rgba(251,191,36,0.3)' }}/>
+                              <div className="w-1 h-1 rounded-full" style={{ background: 'rgba(251,191,36,0.25)' }}/>
+                              <div className="w-px h-2" style={{ background: 'rgba(251,191,36,0.3)' }}/>
                             </div>
                             <span className="text-[10px] text-warm-gray-400 tracking-widest">{stop.walk} min walk</span>
                           </div>
                         )}
                       </div>
                     ))}
-                  </div>
 
-                  {/* Footer CTA */}
-                  <div
-                    className="mt-4 pt-4 border-t border-white/[0.06] flex items-center justify-between"
-                    style={{ opacity: visibleStops[3] ? 1 : 0, transition: 'opacity 0.4s ease-out 0.4s' }}
-                  >
-                    <span className="text-[10px] text-warm-gray-400">generated in 4.2s · unique to you</span>
-                    <a href="/demo" className="text-[10px] text-amber-400/80 hover:text-amber-400 transition-colors">
-                      try it yourself →
-                    </a>
+                    <div
+                      className="mt-3 pt-3 border-t border-white/[0.06] flex items-center justify-between"
+                      style={{ opacity: visibleStops[3] ? 1 : 0, transition: 'opacity 0.4s ease-out 0.5s' }}
+                    >
+                      <span className="text-[10px] text-warm-gray-400">generated in 4.2s · unique to you</span>
+                      <a href="/demo" className="text-[10px] text-amber-400/80 hover:text-amber-400 transition-colors">try it →</a>
+                    </div>
                   </div>
                 </div>
               </div>
 
             </div>
 
-            {/* Phase indicators */}
-            <div className="flex justify-center gap-2 mt-5">
+            {/* Phase dots */}
+            <div className="flex justify-center gap-2 mt-4">
               {(['form', 'loading', 'result'] as Phase[]).map(p => (
                 <div
                   key={p}
                   className="rounded-full transition-all duration-500"
-                  style={{
-                    width: phase === p ? 20 : 6,
-                    height: 6,
-                    background: phase === p ? '#fbbf24' : 'rgba(255,255,255,0.15)',
-                  }}
+                  style={{ width: phase === p ? 20 : 6, height: 6, background: phase === p ? '#fbbf24' : 'rgba(255,255,255,0.15)' }}
                 />
               ))}
             </div>
-          </div>
-        </FadeIn>
+          </FadeIn>
 
+          {/* ── RIGHT: feature callouts ── */}
+          <div className="hidden lg:flex flex-col gap-4 lg:sticky lg:top-28">
+            {CALLOUTS.map((c, i) => (
+              <FadeIn key={i} direction="right" delay={i * 80 + 160}>
+                <div className="card-hover p-5 rounded-2xl border border-white/[0.07] bg-[#0f0e0c]">
+                  <div
+                    className="w-8 h-8 rounded-xl flex items-center justify-center mb-3"
+                    style={{ color: '#fbbf24', background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.15)' }}
+                  >
+                    {c.icon}
+                  </div>
+                  <p className="text-sm font-semibold text-warm-white mb-1">{c.title}</p>
+                  <p className="text-warm-gray-300 text-xs leading-relaxed" style={{ fontWeight: 300 }}>{c.desc}</p>
+                </div>
+              </FadeIn>
+            ))}
+          </div>
+
+        </div>
       </div>
     </section>
   )
