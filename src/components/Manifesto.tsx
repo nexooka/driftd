@@ -52,10 +52,11 @@ export default function Manifesto() {
             opacity: inView ? 1 : 0,
             transform: inView ? 'none' : 'translateY(16px)',
             transition: 'opacity 0.7s ease-out, transform 0.7s ease-out',
-            ...(line.strike ? { textDecoration: 'line-through', textDecorationColor: 'rgba(245,240,232,0.25)' } : {}),
+            ...(line.strike ? { textDecoration: 'line-through', textDecorationColor: 'rgba(245,240,232,0.3)' } : {}),
           }
 
-          const colorClass = line.accent ? 'gradient-text' : line.dim ? 'text-warm-gray-500' : 'text-warm-white'
+          // dim lines now use warm-gray-300 (was 500 — nearly invisible)
+          const colorClass = line.accent ? 'gradient-text' : line.dim ? 'text-warm-gray-300' : 'text-warm-white'
           const weightClass = line.size === 'sm' ? 'font-medium' : 'font-bold'
 
           return (

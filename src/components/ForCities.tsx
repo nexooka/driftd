@@ -36,9 +36,12 @@ export default function ForCities() {
       <div className="max-w-7xl mx-auto px-6 md:px-10">
 
         <FadeIn className="mb-16">
-          <span className="text-[11px] tracking-[0.2em] uppercase text-terra font-medium">
-            {t('sectionLabel')}
-          </span>
+          <div className="flex items-center gap-2.5">
+            <span className="w-6 h-px bg-terra/60" />
+            <span className="text-[11px] tracking-[0.15em] uppercase text-terra font-medium">
+              {t('sectionLabel')}
+            </span>
+          </div>
         </FadeIn>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-14 lg:gap-20 items-start">
@@ -54,7 +57,7 @@ export default function ForCities() {
                 {t('heading2')}{' '}
                 <span className="italic" style={{ color: '#e2714b' }}>{t('headingAccent2')}</span>
               </h2>
-              <p className="text-warm-gray-300 text-lg leading-relaxed mb-10 max-w-lg" style={{ fontWeight: 300 }}>
+              <p className="text-warm-gray-200 text-lg leading-relaxed mb-10 max-w-lg" style={{ fontWeight: 300 }}>
                 {t('body')}
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
@@ -72,24 +75,24 @@ export default function ForCities() {
           <div className="flex flex-col gap-5">
             {valueProps.map((prop, i) => (
               <FadeIn key={prop.title} delay={i * 100} direction="right">
-                <div className="card-hover flex gap-5 p-7 rounded-2xl border border-white/[0.06] bg-[#111]">
-                  <div className="flex-shrink-0 p-2.5 rounded-xl h-fit" style={{ color: '#e2714b', background: 'rgba(226,113,75,0.08)', border: '1px solid rgba(226,113,75,0.15)' }}>
+                <div className="card-hover flex gap-5 p-7 rounded-2xl border border-white/[0.07] bg-[#0f0e0c]">
+                  <div className="flex-shrink-0 p-2.5 rounded-xl h-fit" style={{ color: '#e2714b', background: 'rgba(226,113,75,0.08)', border: '1px solid rgba(226,113,75,0.18)' }}>
                     {prop.icon}
                   </div>
                   <div>
-                    <h3 className="font-display text-lg font-semibold text-warm-white mb-2">{prop.title}</h3>
-                    <p className="text-warm-gray-300 text-sm leading-relaxed">{prop.description}</p>
+                    <h3 className="text-base font-semibold text-warm-white mb-2">{prop.title}</h3>
+                    <p className="text-warm-gray-200 text-sm leading-relaxed" style={{ fontWeight: 300 }}>{prop.description}</p>
                   </div>
                 </div>
               </FadeIn>
             ))}
 
             <FadeIn delay={320} direction="right">
-              <div className="p-5 rounded-xl border border-white/[0.04] bg-[#0f0f0f] flex items-center gap-5">
+              <div className="p-6 rounded-xl border border-white/[0.05] bg-[#0d0c0a] flex items-center gap-5">
                 <div className="font-display font-black text-4xl flex-shrink-0" style={{ background: 'linear-gradient(135deg, #e2714b, #fbbf24)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
                   {t('stat')}
                 </div>
-                <p className="text-warm-gray-300 text-sm leading-snug">{t('statText')}</p>
+                <p className="text-warm-gray-200 text-sm leading-snug" style={{ fontWeight: 300 }}>{t('statText')}</p>
               </div>
             </FadeIn>
           </div>

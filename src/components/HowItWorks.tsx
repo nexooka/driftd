@@ -4,18 +4,18 @@ import { useTranslations } from 'next-intl'
 import { FadeIn } from './FadeIn'
 
 const STEP_ICONS = [
-  <svg key="1" width="28" height="28" viewBox="0 0 28 28" fill="none">
+  <svg key="1" width="24" height="24" viewBox="0 0 28 28" fill="none">
     <circle cx="14" cy="14" r="12" stroke="currentColor" strokeWidth="1.4" strokeDasharray="3 2.5" />
     <circle cx="14" cy="14" r="5" stroke="currentColor" strokeWidth="1.4" />
     <circle cx="14" cy="14" r="1.5" fill="currentColor" />
   </svg>,
-  <svg key="2" width="28" height="28" viewBox="0 0 28 28" fill="none">
+  <svg key="2" width="24" height="24" viewBox="0 0 28 28" fill="none">
     <path d="M7 9a7 7 0 0 1 14 0v5a7 7 0 0 1-14 0V9Z" stroke="currentColor" strokeWidth="1.4" />
     <path d="M14 21v4M11 25h6" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
     <circle cx="14" cy="12" r="1.5" fill="currentColor" opacity="0.7" />
     <path d="M11.5 16s.8 1.5 2.5 1.5 2.5-1.5 2.5-1.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
   </svg>,
-  <svg key="3" width="28" height="28" viewBox="0 0 28 28" fill="none">
+  <svg key="3" width="24" height="24" viewBox="0 0 28 28" fill="none">
     <path d="M14 4C8.5 4 4 8.5 4 14c0 7 10 12 10 12s10-5 10-12c0-5.5-4.5-10-10-10Z" stroke="currentColor" strokeWidth="1.4" />
     <circle cx="14" cy="14" r="3" stroke="currentColor" strokeWidth="1.4" />
     <path d="M14 10V8M19 14h2M14 18v2M9 14H7" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
@@ -63,9 +63,12 @@ export default function HowItWorks() {
 
         {/* Header */}
         <FadeIn className="mb-20">
-          <span className="text-[11px] tracking-[0.2em] uppercase text-amber-400/70 font-medium block mb-4">
-            {t('sectionLabel')}
-          </span>
+          <div className="flex items-center gap-2.5 mb-5">
+            <span className="w-6 h-px bg-amber-400/60" />
+            <span className="text-[11px] tracking-[0.15em] uppercase text-amber-400/90 font-medium">
+              {t('sectionLabel')}
+            </span>
+          </div>
           <div className="divider mb-5" />
           <h2 className="font-display font-bold text-warm-white leading-tight" style={{ fontSize: 'clamp(2.2rem, 5vw, 3.8rem)' }}>
             {t('heading')}{' '}
@@ -77,14 +80,12 @@ export default function HowItWorks() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-6">
           {steps.map((step, i) => (
             <FadeIn key={step.number} delay={i * 110}>
-              <div className="card-hover group relative flex flex-col h-full p-8 md:p-9 rounded-2xl border border-white/[0.06] bg-[#111]">
+              <div className="card-hover group relative flex flex-col h-full p-8 md:p-9 rounded-2xl border border-white/[0.07] bg-[#0f0e0c]">
 
-                {/* Big number */}
-                <div
-                  className="font-display font-black leading-none mb-6 opacity-30"
-                  style={{ fontSize: 'clamp(4rem, 8vw, 5.5rem)', background: 'linear-gradient(135deg, #fbbf24, #e2714b)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}
-                >
-                  {step.number}
+                {/* Step indicator */}
+                <div className="flex items-center gap-3 mb-7">
+                  <span className="text-[11px] text-amber-400/60 font-medium tracking-[0.15em] tabular-nums">{step.number}</span>
+                  <div className="flex-1 h-px bg-gradient-to-r from-amber-400/20 to-transparent" />
                 </div>
 
                 {/* Icon */}
@@ -93,12 +94,12 @@ export default function HowItWorks() {
                 </div>
 
                 {/* Title */}
-                <h3 className="font-display text-xl md:text-2xl font-bold text-warm-white mb-3">
+                <h3 className="text-lg font-semibold text-warm-white mb-3 leading-snug">
                   {step.title}
                 </h3>
 
                 {/* Description */}
-                <p className="text-warm-gray-300 text-sm leading-relaxed mb-4">
+                <p className="text-warm-gray-200 text-base leading-relaxed mb-4" style={{ fontWeight: 300 }}>
                   {step.description}
                 </p>
 
@@ -106,7 +107,7 @@ export default function HowItWorks() {
                 {step.tags && (
                   <div className="flex flex-wrap gap-1.5 mb-4">
                     {step.tags.map((tag) => (
-                      <span key={tag} className="px-2.5 py-1 rounded-full text-[11px] border border-amber-400/15 bg-amber-400/5 text-amber-400/75 font-medium">
+                      <span key={tag} className="px-2.5 py-1 rounded-full text-[11px] border border-amber-400/20 bg-amber-400/[0.06] text-amber-400/80 font-medium">
                         {tag}
                       </span>
                     ))}
@@ -115,19 +116,19 @@ export default function HowItWorks() {
 
                 {/* Detail */}
                 {step.detail && (
-                  <p className="text-warm-gray-400 text-xs italic mt-auto">
+                  <p className="text-warm-gray-300 text-sm italic mt-auto leading-relaxed">
                     &ldquo;{step.detail}&rdquo;
                   </p>
                 )}
 
                 {/* Quote (steps 2 & 3) */}
                 {step.quote && (
-                  <p className="text-amber-400/70 text-xs italic mt-auto border-t border-white/[0.05] pt-4">
+                  <p className="text-amber-400/75 text-sm italic mt-auto border-t border-white/[0.06] pt-4 leading-relaxed">
                     &ldquo;{step.quote}&rdquo;
                   </p>
                 )}
 
-                <div className="absolute bottom-0 left-8 right-8 h-px bg-gradient-to-r from-transparent via-amber-400/0 to-transparent group-hover:via-amber-400/25 transition-all duration-500" />
+                <div className="absolute bottom-0 left-8 right-8 h-px bg-gradient-to-r from-transparent via-amber-400/0 to-transparent group-hover:via-amber-400/20 transition-all duration-500" />
               </div>
             </FadeIn>
           ))}

@@ -56,7 +56,7 @@ export default function Footer() {
   ]
 
   return (
-    <footer className="relative bg-[#050505] border-t border-white/[0.05]">
+    <footer className="relative bg-[#050505] border-t border-white/[0.06]">
       <div className="max-w-7xl mx-auto px-6 md:px-10 pt-16 md:pt-20 pb-10">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8 mb-14">
 
@@ -65,10 +65,10 @@ export default function Footer() {
             <a href="/" className="font-display text-xl font-bold text-warm-white hover:text-amber-400 transition-colors block mb-3" style={{ letterSpacing: '0.05em' }}>
               driftd
             </a>
-            <p className="text-warm-gray-400 text-sm leading-relaxed max-w-xs mb-6">{t('brand')}</p>
+            <p className="text-warm-gray-300 text-sm leading-relaxed max-w-xs mb-6" style={{ fontWeight: 300 }}>{t('brand')}</p>
             <div className="flex gap-2.5">
               {SOCIAL.map((s) => (
-                <a key={s.label} href={s.href} aria-label={s.label} className="w-9 h-9 rounded-lg border border-white/7 bg-white/3 flex items-center justify-center text-warm-gray-400 hover:text-amber-400 hover:border-amber-400/25 transition-all duration-200">
+                <a key={s.label} href={s.href} aria-label={s.label} className="w-9 h-9 rounded-lg border border-white/8 bg-white/[0.03] flex items-center justify-center text-warm-gray-300 hover:text-amber-400 hover:border-amber-400/25 transition-all duration-200">
                   {s.icon}
                 </a>
               ))}
@@ -77,11 +77,11 @@ export default function Footer() {
 
           {/* Links */}
           <div>
-            <p className="text-[10px] tracking-[0.2em] uppercase text-warm-gray-500 font-medium mb-5">{t('navLabel')}</p>
+            <p className="text-[10px] tracking-[0.2em] uppercase text-warm-gray-400 font-medium mb-5">{t('navLabel')}</p>
             <ul className="grid grid-cols-2 gap-x-4 gap-y-3">
               {navLinks.map((link) => (
                 <li key={link.label}>
-                  <a href={link.href} className="text-sm text-warm-gray-300 hover:text-warm-white transition-colors duration-200">{link.label}</a>
+                  <a href={link.href} className="text-sm text-warm-gray-200 hover:text-warm-white transition-colors duration-200" style={{ fontWeight: 300 }}>{link.label}</a>
                 </li>
               ))}
             </ul>
@@ -89,8 +89,8 @@ export default function Footer() {
 
           {/* Newsletter */}
           <div>
-            <p className="text-[10px] tracking-[0.2em] uppercase text-warm-gray-500 font-medium mb-5">{t('newsletterLabel')}</p>
-            <p className="text-sm text-warm-gray-300 mb-4 leading-relaxed">{t('newsletterBody')}</p>
+            <p className="text-[10px] tracking-[0.2em] uppercase text-warm-gray-400 font-medium mb-5">{t('newsletterLabel')}</p>
+            <p className="text-sm text-warm-gray-200 mb-4 leading-relaxed" style={{ fontWeight: 300 }}>{t('newsletterBody')}</p>
             {done ? (
               <p className="text-amber-400 text-sm font-medium">{t('subscribeDone')}</p>
             ) : (
@@ -101,7 +101,7 @@ export default function Footer() {
                   placeholder={t('newsletterPlaceholder')}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="bg-white/[0.04] border border-white/7 rounded-xl px-4 py-3 text-warm-white placeholder-warm-gray-500 focus:border-amber-400/25 transition-all text-sm"
+                  className="bg-white/[0.04] border border-white/8 rounded-xl px-4 py-3 text-warm-white placeholder-warm-gray-400 focus:border-amber-400/30 transition-all text-sm"
                 />
                 <button type="submit" className="btn-primary text-sm py-3 justify-center">{t('subscribe')}</button>
               </form>
@@ -110,13 +110,13 @@ export default function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="border-t border-white/[0.05] pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-warm-gray-500">© {new Date().getFullYear()} driftd</p>
-          <p className="text-xs text-warm-gray-600 italic tracking-wide">{t('tagline')}</p>
+        <div className="border-t border-white/[0.06] pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-xs text-warm-gray-400">© {new Date().getFullYear()} driftd</p>
+          <p className="text-xs text-warm-gray-400 italic tracking-wide">{t('tagline')}</p>
           <div className="flex gap-5">
-            <a href="#" className="text-xs text-warm-gray-500 hover:text-warm-gray-300 transition-colors">{t('privacy')}</a>
-            <a href="#" className="text-xs text-warm-gray-500 hover:text-warm-gray-300 transition-colors">{t('terms')}</a>
-            <a href="mailto:hello@driftd.world" className="text-xs text-warm-gray-500 hover:text-warm-gray-300 transition-colors">hello@driftd.world</a>
+            <a href="#" className="text-xs text-warm-gray-400 hover:text-warm-gray-200 transition-colors">{t('privacy')}</a>
+            <a href="#" className="text-xs text-warm-gray-400 hover:text-warm-gray-200 transition-colors">{t('terms')}</a>
+            <a href="mailto:hello@driftd.world" className="text-xs text-warm-gray-400 hover:text-warm-gray-200 transition-colors">hello@driftd.world</a>
           </div>
         </div>
       </div>

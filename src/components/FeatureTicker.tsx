@@ -13,7 +13,7 @@ export default function FeatureTicker() {
         {[0, 1].map((i) => (
           <span
             key={i}
-            className="text-amber-400/50 text-xs tracking-widest pr-16 whitespace-nowrap"
+            className="text-amber-400/70 text-xs tracking-widest pr-16 whitespace-nowrap"
             style={{ fontFamily: 'ui-monospace, SFMono-Regular, monospace' }}
           >
             {ticker}

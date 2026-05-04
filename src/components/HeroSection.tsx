@@ -42,8 +42,8 @@ export default function HeroSection() {
 
             {/* Coordinates */}
             <div className="flex items-center gap-3 mb-10">
-              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse-slow" />
-              <span className="text-[11px] font-medium tracking-[0.2em] text-warm-gray-500 uppercase">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse-slow flex-shrink-0" />
+              <span className="text-[11px] font-medium tracking-[0.18em] text-warm-gray-300 uppercase">
                 {t('coordinatesLabel')}
               </span>
             </div>
@@ -59,8 +59,8 @@ export default function HeroSection() {
             </h1>
 
             {/* Subheadline */}
-            <p className="mt-8 max-w-lg text-base md:text-xl leading-relaxed text-warm-gray-300" style={{ fontWeight: 300 }}>
-              <span className="text-amber-400/90 font-medium">driftd</span>{' '}{t('sub1')}
+            <p className="mt-8 max-w-lg text-base md:text-lg leading-relaxed text-warm-gray-200" style={{ fontWeight: 300 }}>
+              <span className="text-amber-400 font-medium">driftd</span>{' '}{t('sub1')}
               {' '}<span className="text-warm-white font-normal">{t('sub2')}</span>
             </p>
 
@@ -78,7 +78,7 @@ export default function HeroSection() {
             </div>
 
             {/* Micro copy */}
-            <p className="mt-5 text-xs text-warm-gray-500 tracking-wide">
+            <p className="mt-5 text-xs text-warm-gray-400 tracking-wide">
               {t('microcopy')}
             </p>
           </div>
@@ -98,13 +98,13 @@ export default function HeroSection() {
               {/* Card header */}
               <div className="px-7 pt-6 pb-5 border-b border-white/[0.06] flex items-start justify-between gap-4">
                 <div>
-                  <p className="text-[10px] tracking-[0.3em] uppercase text-warm-gray-500 mb-2">
+                  <p className="text-[10px] tracking-[0.25em] uppercase text-warm-gray-400 mb-2">
                     {c('driftingThrough')}
                   </p>
                   <p className="font-display font-bold text-warm-white leading-none" style={{ fontSize: '1.6rem' }}>
                     Warsaw
                   </p>
-                  <p className="text-warm-gray-400 text-sm mt-2" style={{ fontWeight: 300 }}>
+                  <p className="text-warm-gray-300 text-sm mt-2" style={{ fontWeight: 300 }}>
                     {c('vibe')}
                   </p>
                 </div>
@@ -114,7 +114,7 @@ export default function HeroSection() {
                     <span className="text-[10px] tracking-[0.2em] uppercase text-emerald-400/80">{c('live')}</span>
                   </div>
                   <p className="font-display font-bold text-amber-400 leading-none" style={{ fontSize: '1.8rem' }}>{c('duration')}</p>
-                  <p className="text-warm-gray-600 text-xs mt-1.5">{c('meta')}</p>
+                  <p className="text-warm-gray-400 text-xs mt-1.5">{c('meta')}</p>
                 </div>
               </div>
 
@@ -127,16 +127,16 @@ export default function HeroSection() {
                       style={{ animation: `fadeUp 0.6s ease-out ${1 + i * 0.45}s both` }}
                     >
                       <span
-                        className="font-display font-black text-warm-white/[0.1] leading-none shrink-0 select-none"
+                        className="font-display font-black text-warm-white/[0.08] leading-none shrink-0 select-none"
                         style={{ fontSize: '2rem', lineHeight: 1, marginTop: 2 }}
                       >
                         {stop.number}
                       </span>
                       <div className="flex-1 min-w-0">
-                        <p className="font-display font-semibold text-warm-white leading-snug" style={{ fontSize: '1rem' }}>
+                        <p className="font-semibold text-warm-white leading-snug" style={{ fontSize: '0.95rem' }}>
                           {stop.name}
                         </p>
-                        <p className="text-amber-400/50 text-xs mt-1 tracking-[0.12em] uppercase">
+                        <p className="text-amber-400/60 text-xs mt-1 tracking-[0.1em] uppercase">
                           {stop.neighborhood}
                         </p>
                       </div>
@@ -148,11 +148,11 @@ export default function HeroSection() {
                         style={{ animation: `fadeIn 0.4s ease-out ${1.2 + i * 0.45}s both` }}
                       >
                         <div className="flex flex-col items-center gap-[3px]">
-                          <div className="w-px h-2" style={{ background: 'rgba(251,191,36,0.2)' }} />
-                          <div className="w-[3px] h-[3px] rounded-full" style={{ background: 'rgba(251,191,36,0.2)' }} />
-                          <div className="w-px h-2" style={{ background: 'rgba(251,191,36,0.2)' }} />
+                          <div className="w-px h-2" style={{ background: 'rgba(251,191,36,0.25)' }} />
+                          <div className="w-[3px] h-[3px] rounded-full" style={{ background: 'rgba(251,191,36,0.25)' }} />
+                          <div className="w-px h-2" style={{ background: 'rgba(251,191,36,0.25)' }} />
                         </div>
-                        <span className="text-[11px] text-warm-gray-500 tracking-widest">
+                        <span className="text-[11px] text-warm-gray-400 tracking-widest">
                           {c('walkMin', { n: stop.walkNext })}
                         </span>
                       </div>
@@ -166,14 +166,14 @@ export default function HeroSection() {
                 className="px-7 py-4 border-t border-white/[0.06] flex items-center justify-between"
                 style={{ animation: 'fadeIn 0.5s ease-out 2.4s both' }}
               >
-                <span className="text-xs text-warm-gray-500">{c('generatedIn')}</span>
-                <a href="/demo" className="text-xs text-amber-400/70 hover:text-amber-400 transition-colors">
+                <span className="text-xs text-warm-gray-400">{c('generatedIn')}</span>
+                <a href="/demo" className="text-xs text-amber-400/80 hover:text-amber-400 transition-colors">
                   {c('generateYours')}
                 </a>
               </div>
             </div>
 
-            <p className="mt-3 text-center text-[10px] text-warm-gray-600 tracking-wide">
+            <p className="mt-3 text-center text-[10px] text-warm-gray-400 tracking-wide">
               {c('uniqueNote')}
             </p>
           </div>
@@ -183,7 +183,7 @@ export default function HeroSection() {
 
       {/* Scroll hint */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-1.5 animate-bounce-slow">
-        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" className="text-warm-gray-500">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" className="text-warm-gray-400">
           <path d="M4 7l5 5 5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
       </div>

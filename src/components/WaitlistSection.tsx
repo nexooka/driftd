@@ -67,7 +67,7 @@ export default function WaitlistSection() {
               <div className="absolute inset-0 rounded-full border border-amber-400/10 animate-ping" style={{ animationDuration: '2s' }} />
             </div>
             <p className="font-display text-2xl md:text-3xl font-bold text-warm-white">{t('doneHeading')}</p>
-            <p className="text-warm-gray-300 text-lg">{t('doneBody')}</p>
+            <p className="text-warm-gray-200 text-lg" style={{ fontWeight: 300 }}>{t('doneBody')}</p>
           </FadeIn>
         )}
 
@@ -75,14 +75,18 @@ export default function WaitlistSection() {
         {step === 'email' && (
           <>
             <FadeIn>
-              <span className="text-[11px] tracking-[0.2em] uppercase text-amber-400/70 font-medium block mb-6">
-                {t('sectionLabel')}
-              </span>
+              <div className="flex items-center justify-center gap-2.5 mb-6">
+                <span className="w-6 h-px bg-amber-400/60" />
+                <span className="text-[11px] tracking-[0.15em] uppercase text-amber-400/90 font-medium">
+                  {t('sectionLabel')}
+                </span>
+                <span className="w-6 h-px bg-amber-400/60" />
+              </div>
               <h2 className="font-display font-bold text-warm-white leading-tight mb-5" style={{ fontSize: 'clamp(2.5rem, 7vw, 5rem)' }}>
                 {t('heading')}{' '}
                 <span className="italic gradient-text">{t('headingAccent')}</span>
               </h2>
-              <p className="text-warm-gray-300 text-lg leading-relaxed mb-12 max-w-lg mx-auto" style={{ fontWeight: 300 }}>
+              <p className="text-warm-gray-200 text-lg leading-relaxed mb-12 max-w-lg mx-auto" style={{ fontWeight: 300 }}>
                 {t('body')}
               </p>
             </FadeIn>
@@ -94,7 +98,7 @@ export default function WaitlistSection() {
                   placeholder={t('emailPlaceholder')}
                   value={email}
                   onChange={(e) => { setEmail(e.target.value); setError('') }}
-                  className="flex-1 bg-white/[0.04] border border-white/10 rounded-full px-6 py-4 text-warm-white placeholder-warm-gray-500 focus:border-amber-400/35 focus:bg-white/[0.06] transition-all duration-200 text-sm"
+                  className="flex-1 bg-white/[0.05] border border-white/12 rounded-full px-6 py-4 text-warm-white placeholder-warm-gray-400 focus:border-amber-400/40 focus:bg-white/[0.07] transition-all duration-200 text-sm"
                 />
                 <button type="submit" className="btn-primary">
                   {t('submitEmail')}
@@ -104,7 +108,7 @@ export default function WaitlistSection() {
                 </button>
               </form>
               {error && <p className="mt-3 text-sm text-red-400">{error}</p>}
-              <p className="mt-5 text-xs text-warm-gray-500 tracking-wide">{t('microcopy')}</p>
+              <p className="mt-5 text-xs text-warm-gray-400 tracking-wide">{t('microcopy')}</p>
             </FadeIn>
           </>
         )}
@@ -113,15 +117,19 @@ export default function WaitlistSection() {
         {step === 'city' && (
           <FadeIn className="flex flex-col items-center gap-8">
             <div>
-              <span className="text-[11px] tracking-[0.2em] uppercase text-amber-400/70 font-medium block mb-6">
-                {t('cityStepLabel')}
-              </span>
+              <div className="flex items-center justify-center gap-2.5 mb-6">
+                <span className="w-6 h-px bg-amber-400/60" />
+                <span className="text-[11px] tracking-[0.15em] uppercase text-amber-400/90 font-medium">
+                  {t('cityStepLabel')}
+                </span>
+                <span className="w-6 h-px bg-amber-400/60" />
+              </div>
               <h2 className="font-display font-bold text-warm-white leading-tight mb-3" style={{ fontSize: 'clamp(1.8rem, 5vw, 3.2rem)' }}>
                 {t('cityHeading')}{' '}
                 <span className="italic gradient-text">{t('cityHeadingAccent')}</span>{' '}
                 {t('cityHeadingEnd')}
               </h2>
-              <p className="text-warm-gray-400 text-sm mt-2">{t('citySubtitle')}</p>
+              <p className="text-warm-gray-300 text-sm mt-2">{t('citySubtitle')}</p>
             </div>
 
             <div className="flex flex-wrap justify-center gap-3">
@@ -132,7 +140,7 @@ export default function WaitlistSection() {
                   className={`px-6 py-3 rounded-full font-semibold text-sm transition-all duration-200 ${
                     city === c
                       ? 'bg-amber-400 text-[#0a0a0a]'
-                      : 'bg-white/[0.05] text-warm-gray-300 border border-white/[0.08] hover:bg-white/[0.09] hover:border-amber-400/25'
+                      : 'bg-white/[0.05] text-warm-gray-200 border border-white/[0.1] hover:bg-white/[0.09] hover:border-amber-400/30'
                   }`}
                 >
                   {c}
@@ -143,7 +151,7 @@ export default function WaitlistSection() {
                 className={`px-6 py-3 rounded-full font-semibold text-sm transition-all duration-200 ${
                   city === 'other'
                     ? 'bg-amber-400 text-[#0a0a0a]'
-                    : 'bg-white/[0.05] text-warm-gray-300 border border-white/[0.08] hover:bg-white/[0.09] hover:border-amber-400/25'
+                    : 'bg-white/[0.05] text-warm-gray-200 border border-white/[0.1] hover:bg-white/[0.09] hover:border-amber-400/30'
                 }`}
               >
                 {t('somewhereElse')}
@@ -157,7 +165,7 @@ export default function WaitlistSection() {
                 value={other}
                 onChange={(e) => setOther(e.target.value)}
                 autoFocus
-                className="bg-white/[0.04] border border-white/10 rounded-full px-6 py-3 text-warm-white placeholder-warm-gray-500 focus:border-amber-400/35 transition-all duration-200 text-sm w-64 text-center"
+                className="bg-white/[0.05] border border-white/12 rounded-full px-6 py-3 text-warm-white placeholder-warm-gray-400 focus:border-amber-400/40 transition-all duration-200 text-sm w-64 text-center"
               />
             )}
 
@@ -178,7 +186,7 @@ export default function WaitlistSection() {
                   </span>
                 ) : t('submitCity')}
               </button>
-              <button onClick={handleCitySubmit} disabled={loading} className="text-xs text-warm-gray-500 hover:text-warm-gray-400 transition-colors">
+              <button onClick={handleCitySubmit} disabled={loading} className="text-xs text-warm-gray-400 hover:text-warm-gray-300 transition-colors">
                 {t('skip')}
               </button>
             </div>

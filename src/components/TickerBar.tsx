@@ -13,7 +13,7 @@ export default function TickerBar() {
         {[0, 1].map((i) => (
           <span
             key={i}
-            className="text-warm-gray-400 text-xs tracking-widest font-mono pr-16 whitespace-nowrap"
+            className="text-warm-gray-300 text-xs tracking-widest font-mono pr-16 whitespace-nowrap"
             style={{ fontFamily: 'ui-monospace, SFMono-Regular, monospace' }}
           >
             {ticker}

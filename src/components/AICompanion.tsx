@@ -48,19 +48,22 @@ export default function AICompanion() {
           {/* Left: sticky text */}
           <div className="lg:sticky lg:top-28">
             <FadeIn direction="left">
-              <span className="text-[11px] tracking-[0.2em] uppercase text-amber-400/70 font-medium block mb-4">
-                {t('sectionLabel')}
-              </span>
+              <div className="flex items-center gap-2.5 mb-5">
+                <span className="w-6 h-px bg-amber-400/60" />
+                <span className="text-[11px] tracking-[0.15em] uppercase text-amber-400/90 font-medium">
+                  {t('sectionLabel')}
+                </span>
+              </div>
               <div className="divider mb-5" />
               <h2 className="font-display font-bold text-warm-white leading-tight mb-6" style={{ fontSize: 'clamp(2rem, 4.5vw, 3.6rem)' }}>
                 {t('heading')}
                 <br />
                 <span className="italic gradient-text">{t('headingAccent')}</span>
               </h2>
-              <p className="text-warm-gray-300 text-lg leading-relaxed mb-8 max-w-md" style={{ fontWeight: 300 }}>
+              <p className="text-warm-gray-200 text-lg leading-relaxed mb-8 max-w-md" style={{ fontWeight: 300 }}>
                 {t('body')}
               </p>
-              <div className="inline-flex items-center gap-3 px-5 py-3 rounded-xl border border-amber-400/12 bg-amber-400/[0.04]">
+              <div className="inline-flex items-center gap-3 px-5 py-3 rounded-xl border border-amber-400/15 bg-amber-400/[0.05]">
                 <div className="w-2 h-2 rounded-full bg-amber-400 animate-pulse-slow flex-shrink-0" />
                 <span className="text-sm text-warm-gray-200">{t('badge')}</span>
               </div>
@@ -71,13 +74,13 @@ export default function AICompanion() {
           <div className="flex flex-col gap-4">
             <FadeIn direction="right">
               <div className="flex items-center gap-3 mb-3">
-                <span className="text-sm tracking-[0.15em] uppercase text-warm-gray-200 font-semibold">{t('modesLabel')}</span>
+                <span className="text-sm tracking-[0.12em] uppercase text-warm-gray-200 font-semibold">{t('modesLabel')}</span>
                 <div className="flex-1 h-px bg-white/10" />
               </div>
             </FadeIn>
             {modes.map((mode, i) => (
               <FadeIn key={mode.id} delay={i * 100} direction="right">
-                <div className="card-hover relative flex flex-col p-7 rounded-2xl border border-white/[0.06] bg-[#111] overflow-hidden">
+                <div className="card-hover relative flex flex-col p-7 rounded-2xl border border-white/[0.07] bg-[#0f0e0c] overflow-hidden">
                   <div className="absolute -top-10 -right-10 w-28 h-28 rounded-full opacity-50 pointer-events-none" style={{ background: `radial-gradient(circle, ${mode.accent}30 0%, transparent 70%)`, filter: 'blur(16px)' }} />
 
                   <div className="flex items-start gap-4 mb-3 relative z-10">
@@ -86,11 +89,11 @@ export default function AICompanion() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-[10px] tracking-widest uppercase font-medium mb-0.5" style={{ color: mode.accent }}>{mode.label}</p>
-                      <h3 className="font-display text-lg font-semibold text-warm-white">{mode.tagline}</h3>
+                      <h3 className="text-base font-semibold text-warm-white leading-snug">{mode.tagline}</h3>
                     </div>
                     <button
                       onClick={() => setActiveInfo(mode.id)}
-                      className="flex-shrink-0 w-6 h-6 rounded-full border border-white/30 flex items-center justify-center text-warm-gray-200 hover:text-warm-white hover:border-white/60 transition-colors"
+                      className="flex-shrink-0 w-6 h-6 rounded-full border border-white/25 flex items-center justify-center text-warm-gray-300 hover:text-warm-white hover:border-white/50 transition-colors"
                       aria-label={`learn more about ${mode.label}`}
                     >
                       <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
@@ -101,7 +104,7 @@ export default function AICompanion() {
                     </button>
                   </div>
 
-                  <p className="text-warm-gray-300 text-sm leading-relaxed relative z-10 mb-4">{mode.description}</p>
+                  <p className="text-warm-gray-200 text-sm leading-relaxed relative z-10 mb-4" style={{ fontWeight: 300 }}>{mode.description}</p>
 
                   {mode.status === 'live' ? (
                     <div className="flex items-center gap-2 relative z-10">
@@ -109,11 +112,11 @@ export default function AICompanion() {
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                         {t('liveNow')}
                       </span>
-                      <a href="/demo" className="text-[11px] text-amber-400/70 hover:text-amber-400 transition-colors">{t('tryIt')}</a>
+                      <a href="/demo" className="text-[11px] text-amber-400/80 hover:text-amber-400 transition-colors">{t('tryIt')}</a>
                     </div>
                   ) : (
                     <div className="relative z-10">
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/[0.06] border border-white/20 text-warm-gray-300 text-[11px] font-medium">{t('comingSoon')}</span>
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/[0.06] border border-white/20 text-warm-gray-200 text-[11px] font-medium">{t('comingSoon')}</span>
                     </div>
                   )}
 
@@ -128,8 +131,8 @@ export default function AICompanion() {
       {/* Info modal */}
       {activeMode && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-6" style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(8px)' }} onClick={e => { if (e.target === e.currentTarget) setActiveInfo(null) }}>
-          <div className="w-full max-w-md rounded-2xl border border-white/[0.08] bg-[#111] p-8 relative">
-            <button onClick={() => setActiveInfo(null)} className="absolute top-5 right-5 text-warm-gray-500 hover:text-warm-gray-300 transition-colors">
+          <div className="w-full max-w-md rounded-2xl border border-white/[0.08] bg-[#0f0e0c] p-8 relative">
+            <button onClick={() => setActiveInfo(null)} className="absolute top-5 right-5 text-warm-gray-400 hover:text-warm-gray-200 transition-colors">
               <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M4 4l10 10M14 4L4 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
             </button>
             <div className="flex items-center gap-4 mb-5">
@@ -138,16 +141,16 @@ export default function AICompanion() {
               </div>
               <div>
                 <p className="text-[10px] tracking-widest uppercase font-medium mb-0.5" style={{ color: activeMode.accent }}>{activeMode.label}</p>
-                <h3 className="font-display text-xl font-bold text-warm-white">{activeMode.tagline}</h3>
+                <h3 className="text-lg font-semibold text-warm-white">{activeMode.tagline}</h3>
               </div>
             </div>
-            <p className="text-warm-gray-300 text-sm leading-relaxed mb-6">{activeMode.popupDetail}</p>
+            <p className="text-warm-gray-200 text-sm leading-relaxed mb-6" style={{ fontWeight: 300 }}>{activeMode.popupDetail}</p>
             {activeMode.status === 'live' ? (
               <a href="/demo" className="btn-primary w-full text-center block" onClick={() => setActiveInfo(null)}>
                 {t('tryIt')}
               </a>
             ) : (
-              <p className="text-warm-gray-500 text-xs text-center">{t('comingSoon')}</p>
+              <p className="text-warm-gray-400 text-xs text-center">{t('comingSoon')}</p>
             )}
           </div>
         </div>

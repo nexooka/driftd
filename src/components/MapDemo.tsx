@@ -101,9 +101,12 @@ export default function MapDemo() {
 
         {/* Header */}
         <FadeIn className="mb-10">
-          <span className="text-[11px] tracking-[0.2em] uppercase text-amber-400/70 font-medium block mb-4">
-            {t('sectionLabel')}
-          </span>
+          <div className="flex items-center gap-2.5 mb-5">
+            <span className="w-6 h-px bg-amber-400/60" />
+            <span className="text-[11px] tracking-[0.15em] uppercase text-amber-400/90 font-medium">
+              {t('sectionLabel')}
+            </span>
+          </div>
           <div className="divider mb-5" />
           <h2 className="font-display font-bold text-warm-white leading-tight max-w-2xl" style={{ fontSize: 'clamp(2rem, 5vw, 3.8rem)' }}>
             {t('heading')}{' '}
@@ -191,7 +194,7 @@ export default function MapDemo() {
           </svg>
 
           <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-[#0a0a0a] to-transparent flex items-end justify-center pb-2.5">
-            <p className="text-warm-gray-600 text-[10px] tracking-widest uppercase">{t('caption')}</p>
+            <p className="text-warm-gray-400 text-[10px] tracking-widest uppercase">{t('caption')}</p>
           </div>
         </div>
 
@@ -212,7 +215,7 @@ export default function MapDemo() {
             {city.stops.map((stop, i) => (
               <div key={`${city.id}-m-${i}`} className="flex items-center gap-5 mb-5">
                 <div className="relative z-10 flex-shrink-0 w-9 h-9 rounded-full bg-amber-400 flex items-center justify-center text-[#0a0a0a] text-xs font-bold">{i + 1}</div>
-                <p className="text-warm-white text-sm font-medium leading-snug">{stop.label}</p>
+                <p className="text-warm-white text-sm font-medium leading-snug" style={{ fontWeight: 400 }}>{stop.label}</p>
               </div>
             ))}
           </div>
@@ -223,7 +226,7 @@ export default function MapDemo() {
             ))}
           </div>
 
-          <p className="text-warm-gray-600 text-[10px] text-center mt-4 tracking-widest uppercase">{t('captionMobile')}</p>
+          <p className="text-warm-gray-400 text-[10px] text-center mt-4 tracking-widest uppercase">{t('captionMobile')}</p>
         </div>
       </div>
     </section>
