@@ -332,6 +332,7 @@ export default function DemoPage() {
 
   const resultRef = useRef<HTMLDivElement>(null)
   const loadingDoneRef = useRef(false)
+  const loadingProgressRef = useRef(0)
 
   /* Share route */
   const shareRoute = async () => {
@@ -378,7 +379,9 @@ export default function DemoPage() {
       if (loadingDoneRef.current) return
       const t = Math.min((Date.now() - start) / DURATION, 1)
       const eased = 1 - Math.pow(1 - t, 3)
-      setLoadingProgress(Math.round(eased * TARGET))
+      const val = Math.round(eased * TARGET)
+      loadingProgressRef.current = val
+      setLoadingProgress(val)
     }, 150)
     return () => clearInterval(interval)
   }, [view])
@@ -460,8 +463,22 @@ export default function DemoPage() {
       setPhotoModal(null)
       setMapKey(k => k + 1)
       loadingDoneRef.current = true
-      setLoadingProgress(100)
-      await new Promise(r => setTimeout(r, 380))
+      const from = loadingProgressRef.current
+      const FILL_MS = 600
+      await new Promise<void>(resolve => {
+        const t0 = Date.now()
+        function tick() {
+          const t = Math.min((Date.now() - t0) / FILL_MS, 1)
+          const eased = 1 - Math.pow(1 - t, 2)
+          const val = Math.round(from + (100 - from) * eased)
+          loadingProgressRef.current = val
+          setLoadingProgress(val)
+          if (t < 1) requestAnimationFrame(tick)
+          else resolve()
+        }
+        requestAnimationFrame(tick)
+      })
+      await new Promise(r => setTimeout(r, 150))
       setView('result')
     } catch (e) {
       const msg = e instanceof Error ? e.message : ''
@@ -628,7 +645,7 @@ export default function DemoPage() {
                 width: `${loadingProgress}%`,
                 background: 'linear-gradient(to right, rgba(251,191,36,0.6), #fbbf24)',
                 boxShadow: '0 0 10px rgba(251,191,36,0.4)',
-                transition: 'width 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
+                transition: 'width 0.2s ease-out',
               }}
             >
               {loadingProgress > 1 && loadingProgress < 100 && (
