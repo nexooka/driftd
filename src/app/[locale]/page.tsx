@@ -8,6 +8,7 @@ import AICompanion from '@/components/AICompanion'
 import Manifesto from '@/components/Manifesto'
 import ForCities from '@/components/ForCities'
 import AntiFaq from '@/components/AntiFaq'
+import CityEnergy from '@/components/CityEnergy'
 import WaitlistSection from '@/components/WaitlistSection'
 import Footer from '@/components/Footer'
 import ScrollReset from '@/components/ScrollReset'
@@ -26,6 +27,7 @@ export default function Home() {
       <Manifesto />
       <ForCities />
       <AntiFaq />
+      <CityEnergy />
       <WaitlistSection />
       <Footer />
     </main>
