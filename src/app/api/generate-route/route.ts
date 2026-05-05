@@ -623,20 +623,57 @@ Generate a walking route. Target ${Math.round(minutes / 9)}–${Math.round(minut
       // If the key is missing or the call fails, haversine values are kept.
       await applyGoogleWalkTimes(route.stops)
 
-      // Remove stops where OSRM reveals the walk is still too long
+      // Remove stops with individual legs still too long
       route.stops = removeExcessiveLegStops(route.stops, minutes)
 
-      // Recompute totals from OSRM-corrected times
+      // Recompute totals after individual-leg removal
       let totalWalkingMinutes = 0, totalWalkingMeters = 0
-      route.stops.slice(0, -1).forEach((s: any) => {
-        totalWalkingMinutes += s.walk_to_next_minutes ?? 0
-        totalWalkingMeters  += s.walk_to_next_meters  ?? 0
-      })
+      const recomputeWalkTotals = () => {
+        totalWalkingMinutes = 0; totalWalkingMeters = 0
+        route.stops.slice(0, -1).forEach((s: any) => {
+          totalWalkingMinutes += s.walk_to_next_minutes ?? 0
+          totalWalkingMeters  += s.walk_to_next_meters  ?? 0
+        })
+      }
+      recomputeWalkTotals()
+
+      // ── Budget enforcement ────────────────────────────────────────────
+      // Google Maps times can reveal the total walking far exceeds the
+      // requested time even when no single leg is over 13 min (e.g. 15
+      // stops × 8-min walks = 120 min for a 60-min request). Trim stops
+      // until walking fits within 70% of the time budget.
+      const MIN_STOPS_BUDGET = Math.max(4, Math.floor(minutes / 15))
+      const WALK_BUDGET = minutes * 0.70
+
+      while (totalWalkingMinutes > WALK_BUDGET && route.stops.length > MIN_STOPS_BUDGET) {
+        // Remove the destination stop of the longest walk leg (never stop 0)
+        let worstI = -1, worstW = 0
+        for (let i = 0; i < route.stops.length - 1; i++) {
+          const w = route.stops[i].walk_to_next_minutes ?? 0
+          if (w > worstW) { worstW = w; worstI = i }
+        }
+        if (worstI < 0) break
+        const removeIdx = worstI + 1
+        if (removeIdx >= route.stops.length) break
+        route.stops.splice(removeIdx, 1)
+        route.stops.forEach((s: any, i: number) => { s.number = i + 1 })
+        // Patch the new adjacent leg with haversine
+        if (worstI < route.stops.length - 1 && route.stops[worstI]?.lat && route.stops[worstI + 1]?.lat) {
+          const leg = walkLeg(route.stops[worstI], route.stops[worstI + 1])
+          route.stops[worstI].walk_to_next_minutes = leg.minutes
+          route.stops[worstI].walk_to_next_meters  = leg.meters
+        } else {
+          route.stops[route.stops.length - 1].walk_to_next_minutes = null
+          route.stops[route.stops.length - 1].walk_to_next_meters  = null
+        }
+        recomputeWalkTotals()
+      }
+
       route.total_walking_minutes = totalWalkingMinutes
       route.total_walking_meters  = totalWalkingMeters
 
-      // Re-scale stop dwell times to fill whatever budget remains after OSRM walks
-      const remaining   = Math.max(route.stops.length * 3, minutes - totalWalkingMinutes)
+      // Scale stop dwell times to fill whatever budget remains after walking
+      const remaining    = Math.max(route.stops.length * 3, minutes - totalWalkingMinutes)
       const currentDwell = route.stops.reduce((s: number, st: any) => s + (st.time_at_stop_minutes ?? 0), 0)
       if (currentDwell > 0 && Math.abs(currentDwell - remaining) > 5) {
         const scale = remaining / currentDwell
