@@ -60,6 +60,13 @@ const CITY_T_KEY: Record<string, string> = {
   'New York': 'cityNewYork',
 }
 
+const CITY_THROUGH_KEY: Record<string, string> = {
+  'Warsaw': 'cityWarsawThrough',
+  'Berlin': 'cityBerlinThrough',
+  'Prague': 'cityPragueThrough',
+  'New York': 'cityNewYorkThrough',
+}
+
 const COUNTRY_T_KEY: Record<string, string> = {
   'Warsaw': 'countryPoland',
   'Berlin': 'countryGermany',
@@ -759,7 +766,7 @@ export default function DemoPage() {
                 <h1 className="font-display font-black text-warm-white leading-tight"
                     style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)' }}>
                   {t('through')}{' '}
-                  <span className="italic gradient-text">{CITY_T_KEY[route.city] ? t(CITY_T_KEY[route.city] as Parameters<typeof t>[0]) : route.city.toLowerCase()}</span>
+                  <span className="italic gradient-text">{CITY_THROUGH_KEY[route.city] ? t(CITY_THROUGH_KEY[route.city] as Parameters<typeof t>[0]) : route.city.toLowerCase()}</span>
                 </h1>
                 <div className="flex flex-wrap gap-2 mt-4 items-center">
                   {route.vibes.map(v => (
