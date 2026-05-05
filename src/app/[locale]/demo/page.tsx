@@ -197,11 +197,23 @@ export default function DemoPage() {
   const t = useTranslations('demo')
   const locale = useLocale()
 
-  // Form
-  const [city, setCity] = useState('')
-  const [vibes, setVibes] = useState<string[]>([])
-  const [minutes, setMinutes] = useState(60)
-  const [startPt, setStartPt] = useState('')
+  // Form — restored from session so driftAgain works after page refresh
+  const [city, setCity] = useState(() => {
+    if (typeof window === 'undefined') return ''
+    try { return sessionStorage.getItem('driftd_city') ?? '' } catch { return '' }
+  })
+  const [vibes, setVibes] = useState<string[]>(() => {
+    if (typeof window === 'undefined') return []
+    try { const s = sessionStorage.getItem('driftd_vibes'); return s ? JSON.parse(s) : [] } catch { return [] }
+  })
+  const [minutes, setMinutes] = useState(() => {
+    if (typeof window === 'undefined') return 60
+    try { return Number(sessionStorage.getItem('driftd_minutes')) || 60 } catch { return 60 }
+  })
+  const [startPt, setStartPt] = useState(() => {
+    if (typeof window === 'undefined') return ''
+    try { return sessionStorage.getItem('driftd_start') ?? '' } catch { return '' }
+  })
   const [endPt, setEndPt] = useState('')
   const [notes, setNotes] = useState('')
 
@@ -457,6 +469,10 @@ export default function DemoPage() {
       try {
         sessionStorage.setItem('driftd_route', JSON.stringify(data))
         sessionStorage.setItem('driftd_prev_stops', JSON.stringify(newPrevStops))
+        sessionStorage.setItem('driftd_city', city)
+        sessionStorage.setItem('driftd_vibes', JSON.stringify(vibes))
+        sessionStorage.setItem('driftd_minutes', String(minutes))
+        sessionStorage.setItem('driftd_start', startPt.trim())
       } catch { /* storage unavailable */ }
       setStopPhotos({})
       setStopInfos({})
@@ -762,12 +778,6 @@ export default function DemoPage() {
                   </p>
                 )}
               </div>
-              <button
-                onClick={() => { setView('form'); setRoute(null); try { sessionStorage.removeItem('driftd_route'); sessionStorage.removeItem('driftd_prev_stops') } catch {} }}
-                className="btn-outline text-sm px-7 py-3 self-start md:self-auto"
-              >
-                {t('tryAnother')}
-              </button>
             </div>
           </section>
 
