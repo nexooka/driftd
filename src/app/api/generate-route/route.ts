@@ -26,13 +26,14 @@ STOP COUNT & TIME:
    MAIN STOPS (8–20 min): cafés, bars, galleries, markets — places to linger.
    MICRO-STOPS (2–5 min): murals, courtyards, facades, viewpoints, canal banks, interesting corners — walk past and pause. A micro-stop adds almost no time but makes the route feel rich. Use them liberally between main stops.
    CRITICAL: a 100-minute route with 5 stops is a failure. That's 20 minutes per stop with long boring walks. A 100-minute route should have 11–14 stops — a mix of main stops and micro-stops, each adding texture without eating the whole time budget.
-5. WALKING TIME IS DEAD TIME. Every minute walking is a minute not exploring. Target 4–6 min walks between stops. Walking speed = 83m/min (5 km/h). Real walking distance ≈ straight-line × 1.35 due to streets.
-   - 250m straight = ~4 min ✓ ideal
-   - 400m straight = ~7 min ✓ good
-   - 600m straight = ~10 min ⚠ max acceptable
-   - 900m straight = ~15 min ✗ too far — MUST add a micro-stop between them or replace
-   - 1200m+ straight = 20+ min ✗✗ unacceptable — kill the stop entirely
-6. TIME BUDGET: sum of all (time_at_stop + walk_to_next) must equal total_minutes ± 5 min. Walking is calculated server-side at 83m/min — your walk_to_next_minutes are IGNORED and recalculated. So the only thing that matters is that your stops are CLOSE TOGETHER (under 600m straight-line between any two adjacent stops).
+5. WALKING TIME IS DEAD TIME. Every minute walking is a minute not exploring. Target 4–6 min walks between stops. Keep stops close — straight-line distances between adjacent stops:
+   - 250m = ~4 min ✓ ideal
+   - 400m = ~6 min ✓ good
+   - 550m = ~9 min ⚠ max acceptable
+   - 750m+ = ~13+ min ✗ too far — add a micro-stop between them
+   - 1000m+ = 18+ min ✗✗ unacceptable — kill the stop entirely
+6. TIME BUDGET: walking times are recalculated server-side using OSRM real street routing — your walk_to_next_minutes numbers are completely ignored and overwritten. Real routes are often 40–80% longer than straight line due to bridges, parks, and dead ends. So the ONLY thing that matters is that your stops are CLOSE TOGETHER on the map. Any stop whose OSRM leg exceeds 13 minutes will be automatically cut. Keep adjacent stops under 550m straight-line to guarantee they survive.
+7. ROUTE SHAPE — forward momentum is everything: the route should draw a clean arc or loop through the neighborhood, not zigzag back and forth. Imagine the path on a map — a viewer should be able to trace it without backtracking. Group stops that are in the same block or pocket. If you find yourself placing stop 8 near where stop 3 was, you have a zigzag problem — replace that stop with something further along the natural flow.
 
 NICHE FIRST — THIS IS THE WHOLE POINT OF DRIFTD:
 7. The ratio rule: at least 70% of stops must be niche — places most tourists have never heard of. The remaining 30% can include well-known spots if they genuinely fit the vibe, but never make a famous landmark the centrepiece of the route. It's the seasoning, not the main dish.
@@ -408,6 +409,71 @@ function twoOptImprove(stops: any[]): any[] {
   return route
 }
 
+/* ── Real OSRM walking times — one call for the full route ──────────── */
+// Replaces haversine estimates with actual street-routing data.
+// Haversine × 1.35 misses river detours, parks, and dead-ends by up to 100%.
+async function applyOsrmWalkTimes(stops: any[]): Promise<void> {
+  if (stops.length < 2) return
+  if (!stops.every(s => s.lat && s.lng)) return
+
+  try {
+    const coordStr = stops.map(s => `${s.lng},${s.lat}`).join(';')
+    const res = await fetch(
+      `https://router.project-osrm.org/route/v1/foot/${coordStr}?overview=false`,
+      { signal: AbortSignal.timeout(8000) }
+    )
+    if (!res.ok) return
+    const data = await res.json()
+    const legs: any[] = data.routes?.[0]?.legs
+    if (!Array.isArray(legs) || legs.length !== stops.length - 1) return
+
+    for (let i = 0; i < stops.length - 1; i++) {
+      stops[i].walk_to_next_minutes = Math.max(1, Math.round(legs[i].duration / 60))
+      stops[i].walk_to_next_meters  = Math.round(legs[i].distance)
+    }
+    stops[stops.length - 1].walk_to_next_minutes = null
+    stops[stops.length - 1].walk_to_next_meters  = null
+  } catch {
+    /* network error — keep haversine values */
+  }
+}
+
+/* ── Remove stops whose OSRM leg exceeds the walk budget ────────────── */
+// Runs after applyOsrmWalkTimes so it uses real routing durations.
+// When a leg is too long, removes the destination stop; patches the new
+// adjacent leg with haversine until a second OSRM call would be warranted.
+function removeExcessiveLegStops(stops: any[], targetMinutes: number): any[] {
+  const MAX_WALK  = 13
+  const MIN_STOPS = Math.max(4, Math.floor(targetMinutes / 12))
+
+  let changed = true
+  while (changed && stops.length > MIN_STOPS) {
+    changed = false
+    let worstWalk = 0, worstIdx = -1
+    for (let i = 0; i < stops.length - 1; i++) {
+      const w = stops[i].walk_to_next_minutes ?? 0
+      if (w > worstWalk) { worstWalk = w; worstIdx = i }
+    }
+    if (worstWalk > MAX_WALK && worstIdx >= 0) {
+      const removeIdx = worstIdx + 1
+      if (removeIdx === 0 || removeIdx >= stops.length) break
+      stops.splice(removeIdx, 1)
+      // Patch newly adjacent leg with haversine as placeholder
+      if (worstIdx < stops.length - 1 && stops[worstIdx].lat && stops[worstIdx + 1]?.lat) {
+        const leg = walkLeg(stops[worstIdx], stops[worstIdx + 1])
+        stops[worstIdx].walk_to_next_minutes = leg.minutes
+        stops[worstIdx].walk_to_next_meters  = leg.meters
+      } else {
+        stops[worstIdx].walk_to_next_minutes = null
+        stops[worstIdx].walk_to_next_meters  = null
+      }
+      stops.forEach((s, i) => { s.number = i + 1 })
+      changed = true
+    }
+  }
+  return stops
+}
+
 /* ── Fill missing walk notes for long legs ───────────────────────────── */
 // Claude sometimes skips walk_note even when instructed. This runs after
 // enrichAndAdjust (so walk_to_next_minutes are real haversine values) and
@@ -529,13 +595,36 @@ Generate a walking route. Target ${Math.round(minutes / 9)}–${Math.round(minut
       // 2-opt pass: eliminate crossing paths and zigzag patterns
       route.stops = twoOptImprove(route.stops)
 
-      // Remove stops that cause excessively long walks (haversine-based)
+      // Remove stops that cause excessively long walks (haversine-based, fast pass)
       route.stops = removeOutlierStops(route.stops, minutes)
 
-      // Replace AI walking guesses with haversine, trim if over budget, scale stop times
-      const walking = enrichAndAdjust(route.stops, minutes)
-      route.total_walking_minutes = walking.totalWalkingMinutes
-      route.total_walking_meters = walking.totalWalkingMeters
+      // Haversine walk times, trim stops if over budget, scale stop times
+      enrichAndAdjust(route.stops, minutes)
+
+      // Overwrite haversine estimates with real OSRM street-routing times
+      await applyOsrmWalkTimes(route.stops)
+
+      // Remove stops where OSRM reveals the walk is still too long
+      route.stops = removeExcessiveLegStops(route.stops, minutes)
+
+      // Recompute totals from OSRM-corrected times
+      let totalWalkingMinutes = 0, totalWalkingMeters = 0
+      route.stops.slice(0, -1).forEach((s: any) => {
+        totalWalkingMinutes += s.walk_to_next_minutes ?? 0
+        totalWalkingMeters  += s.walk_to_next_meters  ?? 0
+      })
+      route.total_walking_minutes = totalWalkingMinutes
+      route.total_walking_meters  = totalWalkingMeters
+
+      // Re-scale stop dwell times to fill whatever budget remains after OSRM walks
+      const remaining   = Math.max(route.stops.length * 3, minutes - totalWalkingMinutes)
+      const currentDwell = route.stops.reduce((s: number, st: any) => s + (st.time_at_stop_minutes ?? 0), 0)
+      if (currentDwell > 0 && Math.abs(currentDwell - remaining) > 5) {
+        const scale = remaining / currentDwell
+        route.stops.forEach((st: any) => {
+          st.time_at_stop_minutes = Math.max(0, Math.round((st.time_at_stop_minutes ?? 0) * scale))
+        })
+      }
 
       // Enforce walk notes — any leg ≥8 min must have one
       await fillMissingWalkNotes(route.stops, city)
