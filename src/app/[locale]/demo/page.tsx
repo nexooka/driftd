@@ -468,7 +468,13 @@ export default function DemoPage() {
           lang: locale,
         }),
       })
-      const data = await res.json()
+      let data: any
+      try {
+        data = await res.json()
+      } catch {
+        // Non-JSON body means Vercel timed out (504) or a gateway error — treat as network error
+        throw new Error('Load failed')
+      }
       if (!res.ok) throw new Error(data.error ?? 'generation failed.')
       const newPrevStops = data.stops.map((s: RouteStop) => s.name)
       setRoute(data)

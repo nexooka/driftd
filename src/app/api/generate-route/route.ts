@@ -430,7 +430,7 @@ async function applyGoogleWalkTimes(stops: any[]): Promise<boolean> {
 
     const res = await fetch(
       `https://maps.googleapis.com/maps/api/directions/json?${params}`,
-      { signal: AbortSignal.timeout(10000) }
+      { signal: AbortSignal.timeout(6000) }
     )
     if (!res.ok) return false
     const data = await res.json()
@@ -489,9 +489,9 @@ function removeExcessiveLegStops(stops: any[], targetMinutes: number): any[] {
 
 /* ── Fill missing walk notes for long legs ───────────────────────────── */
 // Claude sometimes skips walk_note even when instructed. This runs after
-// enrichAndAdjust (so walk_to_next_minutes are real haversine values) and
-// generates notes for any leg ≥8 min that still has none.
-async function fillMissingWalkNotes(stops: any[], city: string): Promise<void> {
+// enrichAndAdjust and generates notes for any leg ≥8 min that still has none.
+// lang: write notes in the same language as the rest of the route.
+async function fillMissingWalkNotes(stops: any[], city: string, lang = 'en'): Promise<void> {
   const missing = stops
     .slice(0, -1)
     .map((stop, i) => ({ i, from: stop.name, to: stops[i + 1].name, minutes: stop.walk_to_next_minutes }))
@@ -499,7 +499,11 @@ async function fillMissingWalkNotes(stops: any[], city: string): Promise<void> {
 
   if (!missing.length) return
 
-  const prompt = `Walking route in ${city}. Write one casual sentence per walk — what the walk feels like, what to notice, why it's worth it. Like a tip from a friend, not a navigation instruction. Lowercase. Return ONLY a JSON array of strings, same order as the list.
+  const langInstruction = lang === 'pl'
+    ? 'Write in Polish (casual, lowercase). '
+    : ''
+
+  const prompt = `Walking route in ${city}. ${langInstruction}Write one casual sentence per walk — what the walk feels like, what to notice, why it's worth it. Like a tip from a friend, not a navigation instruction. Lowercase. Return ONLY a JSON array of strings, same order as the list.
 
 ${missing.map((m, idx) => `${idx + 1}. ${m.minutes} min walk: "${m.from}" → "${m.to}"`).join('\n')}`
 
@@ -571,6 +575,7 @@ Generate a walking route. Target ${Math.round(minutes / 9)}–${Math.round(minut
 
   const client = new Anthropic()
   let attempt = 0
+  const requestStart = Date.now()
 
   while (attempt < 2) {
     try {
@@ -640,8 +645,11 @@ Generate a walking route. Target ${Math.round(minutes / 9)}–${Math.round(minut
         })
       }
 
-      // Enforce walk notes — any leg ≥8 min must have one
-      await fillMissingWalkNotes(route.stops, city)
+      // Enforce walk notes — any leg ≥8 min must have one.
+      // Skip if we're already past 45s to avoid hitting Vercel's 60s timeout.
+      if (Date.now() - requestStart < 45000) {
+        await fillMissingWalkNotes(route.stops, city, lang)
+      }
 
       // Always reflect the true computed total — never trust Claude's guess
       route.total_minutes = route.stops.reduce(
