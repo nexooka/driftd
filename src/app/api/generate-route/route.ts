@@ -247,13 +247,12 @@ function haversineMeters(lat1: number, lng1: number, lat2: number, lng2: number)
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
 }
 
-/* ── Haversine walking leg estimate ─────────────────────────────────── */
-// 1.35 = straight-line to road-distance correction factor.
-// 83 m/min = 5 km/h walking pace.
-// Both meters and minutes always come from the same formula → always consistent.
+/* ── Haversine walking leg estimate (fallback) ───────────────────────── */
+// 1.4 = straight-line → road-distance correction (urban grid + detours).
+// 75 m/min = 4.5 km/h — realistic walking pace including crossings/lights.
 function walkLeg(s: any, n: any): { meters: number; minutes: number } {
-  const meters = Math.round(haversineMeters(s.lat, s.lng, n.lat, n.lng) * 1.35)
-  return { meters, minutes: Math.max(1, Math.round(meters / 83)) }
+  const meters = Math.round(haversineMeters(s.lat, s.lng, n.lat, n.lng) * 1.4)
+  return { meters, minutes: Math.max(1, Math.round(meters / 75)) }
 }
 
 /* ── Remove stops that cause excessively long walks ─────────────────── */
@@ -409,32 +408,46 @@ function twoOptImprove(stops: any[]): any[] {
   return route
 }
 
-/* ── Real OSRM walking times — one call for the full route ──────────── */
-// Replaces haversine estimates with actual street-routing data.
-// Haversine × 1.35 misses river detours, parks, and dead-ends by up to 100%.
-async function applyOsrmWalkTimes(stops: any[]): Promise<void> {
-  if (stops.length < 2) return
-  if (!stops.every(s => s.lat && s.lng)) return
+/* ── Google Maps walking times — one Directions call for the full route ─ */
+// The public OSRM demo server uses car-speed routing for its /foot profile,
+// giving absurd results (13 km shown as 20 min). Google Maps is authoritative
+// for real pedestrian routing including bridges, parks, and one-way streets.
+// Falls back gracefully to haversine if the key is absent or the call fails.
+async function applyGoogleWalkTimes(stops: any[]): Promise<boolean> {
+  if (stops.length < 2) return false
+  if (!stops.every(s => s.lat && s.lng)) return false
+
+  const key = process.env.NEXT_PUBLIC_GOOGLE_STREET_VIEW_KEY
+  if (!key) return false
 
   try {
-    const coordStr = stops.map(s => `${s.lng},${s.lat}`).join(';')
+    const origin      = `${stops[0].lat},${stops[0].lng}`
+    const destination = `${stops[stops.length - 1].lat},${stops[stops.length - 1].lng}`
+    const waypoints   = stops.slice(1, -1).map(s => `${s.lat},${s.lng}`).join('|')
+
+    const params = new URLSearchParams({ origin, destination, mode: 'walking', key })
+    if (waypoints) params.set('waypoints', waypoints)
+
     const res = await fetch(
-      `https://router.project-osrm.org/route/v1/foot/${coordStr}?overview=false`,
-      { signal: AbortSignal.timeout(8000) }
+      `https://maps.googleapis.com/maps/api/directions/json?${params}`,
+      { signal: AbortSignal.timeout(10000) }
     )
-    if (!res.ok) return
+    if (!res.ok) return false
     const data = await res.json()
-    const legs: any[] = data.routes?.[0]?.legs
-    if (!Array.isArray(legs) || legs.length !== stops.length - 1) return
+    if (data.status !== 'OK' || !data.routes?.[0]?.legs) return false
+
+    const legs: any[] = data.routes[0].legs
+    if (legs.length !== stops.length - 1) return false
 
     for (let i = 0; i < stops.length - 1; i++) {
-      stops[i].walk_to_next_minutes = Math.max(1, Math.round(legs[i].duration / 60))
-      stops[i].walk_to_next_meters  = Math.round(legs[i].distance)
+      stops[i].walk_to_next_minutes = Math.max(1, Math.round(legs[i].duration.value / 60))
+      stops[i].walk_to_next_meters  = Math.round(legs[i].distance.value)
     }
     stops[stops.length - 1].walk_to_next_minutes = null
     stops[stops.length - 1].walk_to_next_meters  = null
+    return true
   } catch {
-    /* network error — keep haversine values */
+    return false  /* keep haversine values */
   }
 }
 
@@ -601,8 +614,9 @@ Generate a walking route. Target ${Math.round(minutes / 9)}–${Math.round(minut
       // Haversine walk times, trim stops if over budget, scale stop times
       enrichAndAdjust(route.stops, minutes)
 
-      // Overwrite haversine estimates with real OSRM street-routing times
-      await applyOsrmWalkTimes(route.stops)
+      // Overwrite haversine estimates with real Google Maps walking times.
+      // If the key is missing or the call fails, haversine values are kept.
+      await applyGoogleWalkTimes(route.stops)
 
       // Remove stops where OSRM reveals the walk is still too long
       route.stops = removeExcessiveLegStops(route.stops, minutes)
