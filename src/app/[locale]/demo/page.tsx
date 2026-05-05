@@ -331,6 +331,7 @@ export default function DemoPage() {
   }
 
   const resultRef = useRef<HTMLDivElement>(null)
+  const loadingDoneRef = useRef(false)
 
   /* Share route */
   const shareRoute = async () => {
@@ -366,17 +367,19 @@ export default function DemoPage() {
     return () => clearInterval(interval)
   }, [view])
 
-  /* Simulated progress — easeOut to 88% over 20s, completes to 100 on result */
+  /* Simulated progress — easeOut to 80% over 60s, completes to 100 when API responds */
   useEffect(() => {
     if (view !== 'loading') return
+    loadingDoneRef.current = false
     const start = Date.now()
-    const DURATION = 20000
-    const TARGET = 88
+    const DURATION = 60000
+    const TARGET = 80
     const interval = setInterval(() => {
+      if (loadingDoneRef.current) return
       const t = Math.min((Date.now() - start) / DURATION, 1)
       const eased = 1 - Math.pow(1 - t, 3)
       setLoadingProgress(Math.round(eased * TARGET))
-    }, 100)
+    }, 150)
     return () => clearInterval(interval)
   }, [view])
 
@@ -425,6 +428,7 @@ export default function DemoPage() {
     if (!checkRateLimit()) { setFormError(t('errRateLimit')); return }
 
     setFormError('')
+    loadingDoneRef.current = false
     setLoadingProgress(0)
     setView('loading')
     setLoadingIdx(0)
@@ -455,8 +459,9 @@ export default function DemoPage() {
       setStopInfos({})
       setPhotoModal(null)
       setMapKey(k => k + 1)
+      loadingDoneRef.current = true
       setLoadingProgress(100)
-      await new Promise(r => setTimeout(r, 300))
+      await new Promise(r => setTimeout(r, 380))
       setView('result')
     } catch (e) {
       const msg = e instanceof Error ? e.message : ''
@@ -614,18 +619,38 @@ export default function DemoPage() {
         </div>
 
         {/* Progress */}
-        <div className="flex flex-col items-center gap-2 w-full max-w-[220px]">
-          <div className="w-full h-px rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+        <div className="flex flex-col items-center gap-3 w-full max-w-[240px]">
+          <div className="relative w-full" style={{ height: '2px' }}>
+            <div className="absolute inset-0 rounded-full" style={{ background: 'rgba(251,191,36,0.07)' }} />
             <div
-              className="h-full rounded-full bg-amber-400"
+              className="absolute inset-y-0 left-0 rounded-full"
               style={{
                 width: `${loadingProgress}%`,
-                transition: 'width 0.4s ease-out',
-                boxShadow: '0 0 6px rgba(251,191,36,0.5)',
+                background: 'linear-gradient(to right, rgba(251,191,36,0.6), #fbbf24)',
+                boxShadow: '0 0 10px rgba(251,191,36,0.4)',
+                transition: 'width 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
               }}
-            />
+            >
+              {loadingProgress > 1 && loadingProgress < 100 && (
+                <div style={{
+                  position: 'absolute',
+                  right: -3,
+                  top: -2,
+                  width: 6,
+                  height: 6,
+                  borderRadius: '50%',
+                  background: '#fbbf24',
+                  boxShadow: '0 0 8px rgba(251,191,36,0.9), 0 0 3px #fbbf24',
+                }} />
+              )}
+            </div>
           </div>
-          <p className="text-[11px] text-warm-gray-600 tabular-nums">{loadingProgress}%</p>
+          <p
+            className="tabular-nums font-medium tracking-widest"
+            style={{ fontSize: '10px', color: 'rgba(251,191,36,0.4)', letterSpacing: '0.15em' }}
+          >
+            {loadingProgress}%
+          </p>
         </div>
 
       </div>
