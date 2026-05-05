@@ -974,7 +974,14 @@ export default function DemoPage() {
           <section className="max-w-7xl mx-auto px-6 md:px-10 pb-20">
             <div className="flex flex-col sm:flex-row gap-4 items-center flex-wrap">
               <button
-                onClick={() => generate(true)}
+                onClick={() => {
+                  setView('form')
+                  setRoute(null)
+                  try {
+                    sessionStorage.removeItem('driftd_route')
+                    sessionStorage.removeItem('driftd_prev_stops')
+                  } catch {}
+                }}
                 className="btn-outline-amber px-8 py-4"
               >
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="opacity-80">
