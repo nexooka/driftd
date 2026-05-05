@@ -451,10 +451,10 @@ async function applyGoogleWalkTimes(stops: any[]): Promise<boolean> {
   }
 }
 
-/* ── Remove stops whose OSRM leg exceeds the walk budget ────────────── */
-// Runs after applyOsrmWalkTimes so it uses real routing durations.
-// When a leg is too long, removes the destination stop; patches the new
-// adjacent leg with haversine until a second OSRM call would be warranted.
+/* ── Remove stops whose walk leg exceeds the budget ─────────────────── */
+// Runs after applyGoogleWalkTimes so it uses real routing durations.
+// When a leg is too long, removes the destination stop and patches the
+// new adjacent leg with haversine.
 function removeExcessiveLegStops(stops: any[], targetMinutes: number): any[] {
   const MAX_WALK  = 13
   const MIN_STOPS = Math.max(4, Math.floor(targetMinutes / 12))
