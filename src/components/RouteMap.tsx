@@ -116,6 +116,10 @@ export default function RouteMap({ stops, routeKey, height = 420, showHint = tru
         subdomains: 'abcd',
       }).addTo(map)
 
+      // Lighten tiles without touching route/markers (different panes)
+      const tilePane = map.getPane('tilePane')
+      if (tilePane) tilePane.style.filter = 'brightness(1.6) contrast(0.88)'
+
       L.control.attribution({ prefix: false, position: 'bottomright' })
         .addAttribution('© <a href="https://carto.com" style="color:#555">CARTO</a> © <a href="https://openstreetmap.org" style="color:#555">OSM</a>')
         .addTo(map)
