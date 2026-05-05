@@ -211,6 +211,7 @@ export default function DemoPage() {
     try { return sessionStorage.getItem('driftd_route') ? 'result' : 'form' } catch { return 'form' }
   })
   const [loadingIdx, setLoadingIdx] = useState(0)
+  const [loadingProgress, setLoadingProgress] = useState(0)
   const [formError, setFormError] = useState('')
 
   // Result — initialise from sessionStorage so locale switches don't lose state
@@ -365,6 +366,20 @@ export default function DemoPage() {
     return () => clearInterval(interval)
   }, [view])
 
+  /* Simulated progress — easeOut to 88% over 20s, completes to 100 on result */
+  useEffect(() => {
+    if (view !== 'loading') return
+    const start = Date.now()
+    const DURATION = 20000
+    const TARGET = 88
+    const interval = setInterval(() => {
+      const t = Math.min((Date.now() - start) / DURATION, 1)
+      const eased = 1 - Math.pow(1 - t, 3)
+      setLoadingProgress(Math.round(eased * TARGET))
+    }, 100)
+    return () => clearInterval(interval)
+  }, [view])
+
   /* Stagger stop cards on result load */
   useEffect(() => {
     if (view !== 'result' || !route) return
@@ -410,6 +425,7 @@ export default function DemoPage() {
     if (!checkRateLimit()) { setFormError(t('errRateLimit')); return }
 
     setFormError('')
+    setLoadingProgress(0)
     setView('loading')
     setLoadingIdx(0)
 
@@ -439,6 +455,8 @@ export default function DemoPage() {
       setStopInfos({})
       setPhotoModal(null)
       setMapKey(k => k + 1)
+      setLoadingProgress(100)
+      await new Promise(r => setTimeout(r, 300))
       setView('result')
     } catch (e) {
       const msg = e instanceof Error ? e.message : ''
@@ -593,6 +611,21 @@ export default function DemoPage() {
               {t('loadingLong')}
             </p>
           )}
+        </div>
+
+        {/* Progress */}
+        <div className="flex flex-col items-center gap-2 w-full max-w-[220px]">
+          <div className="w-full h-px rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+            <div
+              className="h-full rounded-full bg-amber-400"
+              style={{
+                width: `${loadingProgress}%`,
+                transition: 'width 0.4s ease-out',
+                boxShadow: '0 0 6px rgba(251,191,36,0.5)',
+              }}
+            />
+          </div>
+          <p className="text-[11px] text-warm-gray-600 tabular-nums">{loadingProgress}%</p>
         </div>
 
       </div>
