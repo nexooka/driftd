@@ -13,53 +13,18 @@ type BtnState = 'idle' | 'pulse' | 'click'
 const CITIES = ['Warsaw', 'Berlin', 'Prague', 'New York']
 const VIBES = ['artsy', 'chill', 'foodie', 'historic', 'quirky', 'photogenic']
 const CITY_COUNTRY: Record<string, string> = {
-  Warsaw: 'poland', Berlin: 'germany', Prague: 'czech republic', 'New York': 'united states',
+  Warsaw: 'countryPoland', Berlin: 'countryGermany', Prague: 'countryCzech', 'New York': 'countryUS',
+}
+const VIBE_KEYS: Record<string, string> = {
+  artsy: 'vibeArtsy', chill: 'vibeChill', foodie: 'vibeFoodie',
+  historic: 'vibeHistoric', quirky: 'vibeQuirky', photogenic: 'vibePhotogenic',
 }
 
 const STOPS = [
-  { num: 1, name: 'Bar Familijny',    hood: 'Śródmieście', walk: 12,               desc: 'a time-warp communist milk bar — żurek, pierogi, zero pretension' },
-  { num: 2, name: 'Neon Muzeum',      hood: 'Praga',       walk: 9,                desc: 'hundreds of rescued neon signs glowing in a former bus depot' },
-  { num: 3, name: 'Bazar Różyckiego', hood: 'Praga',       walk: 14,               desc: "warsaw's oldest outdoor market — chaotic, real, perfectly alive" },
-  { num: 4, name: 'Pod Papugami',     hood: 'Powiśle',     walk: null as null | number, desc: 'legendary pub beneath the university library rooftop garden' },
-]
-
-const STEP_CONFIG = [
-  { phase: 'form'    as Phase, label: 'Choose city & vibe',   desc: 'Warsaw, Berlin, Prague…' },
-  { phase: 'loading' as Phase, label: 'AI crafts your route', desc: 'tailored to your mood & time' },
-  { phase: 'result'  as Phase, label: 'Your drift is ready',  desc: 'map + stops in seconds' },
-]
-
-const CALLOUTS = [
-  {
-    icon: (
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-        <path d="M8 1v6l3 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
-        <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.4"/>
-      </svg>
-    ),
-    title: 'under 5 seconds',
-    desc: 'full route generated in real time — no waiting, no loading screens',
-  },
-  {
-    icon: (
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-        <path d="M2 8c0-3.3 2.7-6 6-6s6 2.7 6 6-2.7 6-6 6-6-2.7-6-6Z" stroke="currentColor" strokeWidth="1.4"/>
-        <path d="M5 8l2 2 4-4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
-      </svg>
-    ),
-    title: 'never repeats',
-    desc: 'same city, completely different drift every time you generate',
-  },
-  {
-    icon: (
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-        <circle cx="8" cy="6.5" r="3" stroke="currentColor" strokeWidth="1.4"/>
-        <path d="M3 14c0-2.8 2.2-5 5-5s5 2.2 5 5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
-      </svg>
-    ),
-    title: '100% local',
-    desc: 'spots only locals know — no guidebooks, no influencer lists',
-  },
+  { num: 1, name: 'Bar Familijny',    hood: 'Śródmieście', walk: 12,               descKey: 'stop1Desc' },
+  { num: 2, name: 'Neon Muzeum',      hood: 'Praga',       walk: 9,                descKey: 'stop2Desc' },
+  { num: 3, name: 'Bazar Różyckiego', hood: 'Praga',       walk: 14,               descKey: 'stop3Desc' },
+  { num: 4, name: 'Pod Papugami',     hood: 'Powiśle',     walk: null as null | number, descKey: 'stop4Desc' },
 ]
 
 export default function DemoAnimation() {
@@ -74,6 +39,45 @@ export default function DemoAnimation() {
   const [visibleStops, setVisibleStops] = useState<boolean[]>([])
   const [loadingDot, setLoadingDot]     = useState(0)
   const [scrollOffset, setScrollOffset] = useState(0)
+
+  const steps = [
+    { phase: 'form' as Phase, label: t('step1Label'), desc: t('step1Desc') },
+    { phase: 'loading' as Phase, label: t('step2Label'), desc: t('step2Desc') },
+    { phase: 'result' as Phase, label: t('step3Label'), desc: t('step3Desc') },
+  ]
+
+  const callouts = [
+    {
+      icon: (
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M8 1v6l3 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+          <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.4"/>
+        </svg>
+      ),
+      title: t('callout1Title'),
+      desc: t('callout1Desc'),
+    },
+    {
+      icon: (
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M2 8c0-3.3 2.7-6 6-6s6 2.7 6 6-2.7 6-6 6-6-2.7-6-6Z" stroke="currentColor" strokeWidth="1.4"/>
+          <path d="M5 8l2 2 4-4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      ),
+      title: t('callout2Title'),
+      desc: t('callout2Desc'),
+    },
+    {
+      icon: (
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <circle cx="8" cy="6.5" r="3" stroke="currentColor" strokeWidth="1.4"/>
+          <path d="M3 14c0-2.8 2.2-5 5-5s5 2.2 5 5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+        </svg>
+      ),
+      title: t('callout3Title'),
+      desc: t('callout3Desc'),
+    },
+  ]
 
   // Kick off once when section enters viewport
   useEffect(() => {
@@ -162,7 +166,7 @@ export default function DemoAnimation() {
               </svg>
             </a>
             <div className="mt-10 flex flex-col gap-5">
-              {STEP_CONFIG.map((s) => (
+              {steps.map((s) => (
                 <div key={s.phase} className="flex gap-3 transition-all duration-500" style={{ opacity: phase === s.phase ? 1 : 0.3 }}>
                   <div className="w-1.5 h-1.5 rounded-full mt-[7px] shrink-0 transition-all duration-500"
                     style={{ background: phase === s.phase ? '#fbbf24' : '#3d3830' }} />
@@ -199,7 +203,7 @@ export default function DemoAnimation() {
               <div className={`absolute inset-0 transition-opacity duration-500 ${phase === 'form' ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
                 <div className="p-6 flex flex-col gap-5">
                   <div>
-                    <p className="text-[10px] tracking-[0.18em] uppercase text-warm-gray-400 mb-3">choose your city</p>
+                    <p className="text-[10px] tracking-[0.18em] uppercase text-warm-gray-400 mb-3">{t('formCityLabel')}</p>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                       {CITIES.map(c => (
                         <div
@@ -211,7 +215,7 @@ export default function DemoAnimation() {
                           }}
                         >
                           <p className={`text-xs font-medium transition-colors duration-300 ${citySelected && c === 'Warsaw' ? 'text-warm-white' : 'text-warm-gray-300'}`}>{c}</p>
-                          <p className="text-[9px] text-warm-gray-500 mt-0.5">{CITY_COUNTRY[c]}</p>
+                          <p className="text-[9px] text-warm-gray-500 mt-0.5">{t(CITY_COUNTRY[c] as Parameters<typeof t>[0])}</p>
                         </div>
                       ))}
                     </div>
@@ -219,8 +223,8 @@ export default function DemoAnimation() {
 
                   <div>
                     <p className="text-[10px] tracking-[0.18em] uppercase text-warm-gray-400 mb-3">
-                      your vibe
-                      <span className="ml-2 text-warm-gray-500 normal-case tracking-normal">pick up to 3</span>
+                      {t('formVibeLabel')}
+                      <span className="ml-2 text-warm-gray-500 normal-case tracking-normal">{t('formVibeLimit')}</span>
                     </p>
                     <div className="flex flex-wrap gap-1.5">
                       {VIBES.map(v => (
@@ -233,14 +237,14 @@ export default function DemoAnimation() {
                             color:       selectedVibes.includes(v) ? '#fbbf24' : '#9b9284',
                           }}
                         >
-                          {v}
+                          {t(VIBE_KEYS[v] as Parameters<typeof t>[0])}
                         </div>
                       ))}
                     </div>
                   </div>
 
                   <div>
-                    <p className="text-[10px] tracking-[0.18em] uppercase text-warm-gray-400 mb-3">how long?</p>
+                    <p className="text-[10px] tracking-[0.18em] uppercase text-warm-gray-400 mb-3">{t('formTimeLabel')}</p>
                     <div className="flex items-center gap-4">
                       <div className="flex-1 h-[3px] rounded-full relative" style={{ background: 'rgba(255,255,255,0.07)' }}>
                         <div className="absolute left-0 top-0 h-full rounded-full" style={{ width: '37.5%', background: 'rgba(251,191,36,0.5)' }} />
@@ -259,7 +263,7 @@ export default function DemoAnimation() {
                       boxShadow: btnState === 'pulse' ? '0 0 30px rgba(251,191,36,0.55)' : 'none',
                     }}
                   >
-                    generate my drift
+                    {t('formCta')}
                     <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
                       <path d="M2 6.5h9M7 2.5l4 4-4 4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
@@ -327,7 +331,7 @@ export default function DemoAnimation() {
                 </div>
 
                 <p className="text-warm-gray-300 text-sm tracking-wide">
-                  crafting your drift
+                  {t('loadingText')}
                   <span className="inline-flex ml-0.5 gap-[1px]">
                     {[0, 1, 2].map(i => (
                       <span key={i} className="transition-opacity duration-200" style={{ opacity: loadingDot >= i ? 1 : 0.2 }}>.</span>
@@ -346,17 +350,17 @@ export default function DemoAnimation() {
                 >
                   {/* Header */}
                   <div className="px-5 pt-5 pb-3">
-                    <span className="text-[10px] tracking-[0.2em] uppercase text-amber-400/70 font-medium block mb-1">your drift</span>
+                    <span className="text-[10px] tracking-[0.2em] uppercase text-amber-400/70 font-medium block mb-1">{t('resultLabel')}</span>
                     <h3 className="font-display font-black text-warm-white leading-tight" style={{ fontSize: 'clamp(1.2rem, 3vw, 1.6rem)' }}>
-                      through <span className="italic gradient-text">warsaw</span>
+                      {t('resultThrough')} <span className="italic gradient-text">{t('resultCityWarsaw')}</span>
                     </h3>
                     <div className="flex flex-wrap items-center gap-1.5 mt-2">
-                      <span className="px-2 py-0.5 rounded-full text-[10px] border border-amber-400/20 bg-amber-400/[0.06] text-amber-400/80 font-medium">artsy</span>
-                      <span className="px-2 py-0.5 rounded-full text-[10px] border border-amber-400/20 bg-amber-400/[0.06] text-amber-400/80 font-medium">chill</span>
+                      <span className="px-2 py-0.5 rounded-full text-[10px] border border-amber-400/20 bg-amber-400/[0.06] text-amber-400/80 font-medium">{t('vibeArtsy')}</span>
+                      <span className="px-2 py-0.5 rounded-full text-[10px] border border-amber-400/20 bg-amber-400/[0.06] text-amber-400/80 font-medium">{t('vibeChill')}</span>
                       <span className="text-warm-gray-500 text-[11px]">·</span>
                       <span className="text-warm-gray-400 text-[11px]">60 min</span>
                       <span className="text-warm-gray-500 text-[11px]">·</span>
-                      <span className="text-warm-gray-400 text-[11px]">4 stops</span>
+                      <span className="text-warm-gray-400 text-[11px]">{t('resultStops')}</span>
                     </div>
                   </div>
 
@@ -386,7 +390,7 @@ export default function DemoAnimation() {
                               <p className="font-semibold text-warm-white text-xs leading-snug">{stop.name}</p>
                               <p className="text-[9px] text-warm-gray-400 shrink-0">{stop.hood}</p>
                             </div>
-                            <p className="text-warm-gray-300 text-[10px] leading-relaxed">{stop.desc}</p>
+                            <p className="text-warm-gray-300 text-[10px] leading-relaxed">{t(stop.descKey as Parameters<typeof t>[0])}</p>
                           </div>
                         </div>
                         {stop.walk && (
@@ -396,7 +400,7 @@ export default function DemoAnimation() {
                               <div className="w-1 h-1 rounded-full" style={{ background: 'rgba(251,191,36,0.25)' }}/>
                               <div className="w-px h-2" style={{ background: 'rgba(251,191,36,0.3)' }}/>
                             </div>
-                            <span className="text-[10px] text-warm-gray-400 tracking-widest">{stop.walk} min walk</span>
+                            <span className="text-[10px] text-warm-gray-400 tracking-widest">{stop.walk} {t('resultWalkMin')}</span>
                           </div>
                         )}
                       </div>
@@ -406,8 +410,8 @@ export default function DemoAnimation() {
                       className="mt-3 pt-3 border-t border-white/[0.06] flex items-center justify-between"
                       style={{ opacity: visibleStops[3] ? 1 : 0, transition: 'opacity 0.4s ease-out 0.5s' }}
                     >
-                      <span className="text-[10px] text-warm-gray-400">generated in 4.2s · unique to you</span>
-                      <a href="/demo" className="text-[10px] text-amber-400/80 hover:text-amber-400 transition-colors">try it →</a>
+                      <span className="text-[10px] text-warm-gray-400">{t('resultGeneratedIn')}</span>
+                      <a href="/demo" className="text-[10px] text-amber-400/80 hover:text-amber-400 transition-colors">{t('resultTryIt')}</a>
                     </div>
                   </div>
                 </div>
@@ -426,7 +430,7 @@ export default function DemoAnimation() {
 
           {/* ── RIGHT ── */}
           <div className="hidden lg:flex flex-col gap-4 lg:sticky lg:top-28">
-            {CALLOUTS.map((c, i) => (
+            {callouts.map((c, i) => (
               <FadeIn key={i} direction="right" delay={i * 80 + 160}>
                 <div className="card-hover p-5 rounded-2xl border border-white/[0.07] bg-[#0f0e0c]">
                   <div className="w-8 h-8 rounded-xl flex items-center justify-center mb-3" style={{ color: '#fbbf24', background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.15)' }}>
