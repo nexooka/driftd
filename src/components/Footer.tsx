@@ -47,12 +47,12 @@ export default function Footer() {
   }
 
   const navLinks = [
-    { label: t('link0'), href: '#how-it-works' },
-    { label: t('link1'), href: '#features' },
-    { label: t('link2'), href: '#cities' },
+    { label: t('link0'), href: '/how-it-works' },
+    { label: t('link1'), href: '/features' },
+    { label: t('link2'), href: '/for-cities' },
     { label: t('link3'), href: '/about' },
-    { label: t('link4'), href: 'mailto:press@driftd.world' },
-    { label: t('link5'), href: 'mailto:hello@driftd.world' },
+    { label: t('link4'), href: '/press' },
+    { label: t('link5'), href: '/careers' },
   ]
 
   return (
