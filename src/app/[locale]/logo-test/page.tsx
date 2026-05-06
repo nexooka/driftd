@@ -1,10 +1,15 @@
 'use client'
 
+// Two fonts loaded for this page only (not affecting the rest of the site)
+const EXTRA_FONTS = `
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Space+Grotesk:wght@300;400;700&family=Instrument+Serif:ital@0;1&display=swap');
+`
+
 const OPTIONS = [
   {
     id: 'A',
-    label: 'current — amber d',
-    note: 'what you have now',
+    label: 'current baseline',
+    note: 'drift Playfair · d Playfair amber',
     render: () => (
       <span className="font-display text-xl font-bold" style={{ letterSpacing: '0.05em' }}>
         <span className="text-white">drift</span><span className="text-amber-400">d</span>
@@ -13,65 +18,67 @@ const OPTIONS = [
   },
   {
     id: 'B',
-    label: 'weight contrast',
-    note: 'drift thin · d heavy amber',
+    label: 'sans + serif split',
+    note: 'drift DM Sans · d Playfair italic amber',
     render: () => (
-      <span className="font-display text-xl" style={{ letterSpacing: '0.05em' }}>
-        <span className="text-white/70 font-light">drift</span><span className="text-amber-400 font-black">d</span>
+      <span className="text-xl font-bold" style={{ letterSpacing: '0.05em' }}>
+        <span className="text-white" style={{ fontFamily: 'var(--font-dm-sans)', fontWeight: 600, letterSpacing: '0.06em' }}>drift</span>
+        <span className="text-amber-400 font-display italic font-black" style={{ letterSpacing: 0 }}>d</span>
       </span>
     ),
   },
   {
     id: 'C',
-    label: 'full gradient',
-    note: 'warm white fading to amber',
+    label: 'serif + sans split',
+    note: 'drift Playfair · d DM Sans bold amber',
     render: () => (
-      <span
-        className="font-display text-xl font-bold"
-        style={{
-          letterSpacing: '0.05em',
-          background: 'linear-gradient(90deg, #f5f0e8 40%, #fbbf24 100%)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-        }}
-      >
-        driftd
+      <span className="text-xl" style={{ letterSpacing: '0.05em' }}>
+        <span className="text-white font-display font-bold">drift</span>
+        <span className="text-amber-400 font-bold" style={{ fontFamily: 'var(--font-dm-sans)', letterSpacing: 0, fontWeight: 700 }}>d</span>
       </span>
     ),
   },
   {
     id: 'D',
-    label: 'slash separator',
-    note: 'drift / d with amber slash',
+    label: 'Cormorant drift',
+    note: 'drift Cormorant italic · d DM Sans amber',
     render: () => (
-      <span className="font-display text-xl font-bold" style={{ letterSpacing: '0.05em' }}>
-        <span className="text-white">drift</span>
-        <span className="text-amber-400/50 font-light mx-0.5" style={{ letterSpacing: 0 }}>/</span>
-        <span className="text-amber-400">d</span>
+      <span className="text-xl" style={{ letterSpacing: '0.05em' }}>
+        <span className="text-white" style={{ fontFamily: '"Cormorant Garamond", serif', fontStyle: 'italic', fontWeight: 600, fontSize: '1.35rem' }}>drift</span>
+        <span className="text-amber-400 font-bold" style={{ fontFamily: 'var(--font-dm-sans)', letterSpacing: 0 }}>d</span>
       </span>
     ),
   },
   {
     id: 'E',
-    label: 'dot accent',
-    note: 'amber dot beneath the d',
+    label: 'Space Grotesk drift',
+    note: 'drift Space Grotesk · d Playfair italic amber',
     render: () => (
-      <span className="font-display text-xl font-bold relative" style={{ letterSpacing: '0.05em' }}>
-        <span className="text-white">drift</span>
-        <span className="relative inline-block">
-          <span className="text-white">d</span>
-          <span className="absolute bottom-[-4px] left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-amber-400 block" />
-        </span>
+      <span className="text-xl" style={{ letterSpacing: '0.04em' }}>
+        <span className="text-white" style={{ fontFamily: '"Space Grotesk", sans-serif', fontWeight: 300, letterSpacing: '0.08em' }}>drift</span>
+        <span className="text-amber-400 font-display font-black italic" style={{ letterSpacing: 0 }}>d</span>
       </span>
     ),
   },
   {
     id: 'F',
-    label: 'wide + amber d',
-    note: 'more spacing, bolder presence',
+    label: 'Instrument Serif drift',
+    note: 'drift Instrument Serif italic · d DM Sans amber',
     render: () => (
-      <span className="font-display text-xl font-bold" style={{ letterSpacing: '0.12em' }}>
-        <span className="text-white">drift</span><span className="text-amber-400">d</span>
+      <span className="text-xl" style={{ letterSpacing: '0.04em' }}>
+        <span className="text-white" style={{ fontFamily: '"Instrument Serif", serif', fontStyle: 'italic', fontWeight: 400, fontSize: '1.35rem' }}>drift</span>
+        <span className="text-amber-400 font-bold" style={{ fontFamily: 'var(--font-dm-sans)', fontWeight: 700, letterSpacing: 0 }}>d</span>
+      </span>
+    ),
+  },
+  {
+    id: 'G',
+    label: 'Cormorant + Playfair',
+    note: 'drift Cormorant thin · d Playfair italic amber',
+    render: () => (
+      <span className="text-xl" style={{ letterSpacing: '0.05em' }}>
+        <span className="text-white/85" style={{ fontFamily: '"Cormorant Garamond", serif', fontWeight: 400, fontSize: '1.4rem', letterSpacing: '0.08em' }}>drift</span>
+        <span className="text-amber-400 font-display font-black italic" style={{ letterSpacing: 0, fontSize: '1.2rem' }}>d</span>
       </span>
     ),
   },
@@ -80,35 +87,33 @@ const OPTIONS = [
 export default function LogoTestPage() {
   return (
     <main className="min-h-screen bg-[#0a0a0a] pt-20 pb-32">
+      <style>{EXTRA_FONTS}</style>
       <div className="max-w-2xl mx-auto px-8">
-        <p className="text-[11px] tracking-[0.2em] uppercase text-amber-400/60 font-medium mb-3">logo options</p>
+        <p className="text-[11px] tracking-[0.2em] uppercase text-amber-400/60 font-medium mb-3">logo options · font mixing</p>
         <h1 className="text-warm-white text-2xl font-bold mb-1">pick your favourite</h1>
-        <p className="text-warm-gray-400 text-sm mb-16">all shown at exact navbar size — tell me the letter and i'll set it live.</p>
+        <p className="text-warm-gray-400 text-sm mb-16">all shown at exact navbar size · tell me the letter</p>
 
-        <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-4">
           {OPTIONS.map(opt => (
             <div
               key={opt.id}
-              className="flex items-center gap-8 px-8 py-6 rounded-2xl border border-white/[0.07] bg-[#0f0e0c]"
+              className="flex items-center gap-6 px-6 py-5 rounded-2xl border border-white/[0.07] bg-[#0f0e0c]"
             >
-              {/* Letter */}
-              <span className="font-display font-black text-amber-400/40 text-3xl w-6 shrink-0">{opt.id}</span>
+              <span className="font-display font-black text-amber-400/35 text-2xl w-5 shrink-0">{opt.id}</span>
 
-              {/* Logo preview — dark bar simulating navbar */}
               <div className="flex-1 flex items-center px-6 py-4 rounded-xl" style={{ background: '#070707' }}>
                 {opt.render()}
               </div>
 
-              {/* Description */}
-              <div className="w-44 shrink-0 text-right">
+              <div className="w-48 shrink-0 text-right">
                 <p className="text-warm-white text-sm font-medium">{opt.label}</p>
-                <p className="text-warm-gray-500 text-xs mt-0.5">{opt.note}</p>
+                <p className="text-warm-gray-500 text-[11px] mt-0.5 leading-relaxed">{opt.note}</p>
               </div>
             </div>
           ))}
         </div>
 
-        <p className="text-warm-gray-500 text-xs mt-12 text-center">this page is not linked anywhere — delete it once you've decided.</p>
+        <p className="text-warm-gray-500 text-xs mt-12 text-center">temp page · not linked anywhere</p>
       </div>
     </main>
   )
