@@ -228,7 +228,7 @@
     "body": "dołącz do listy. bądź pierwszy, gdy ruszymy.",
     "emailPlaceholder": "twoj@email.pl",
     "submitEmail": "jestem w grze",
-    "microcopy": "premiera latem 2026 w Warszawie, Berlinie i Pradze · więcej miast wkrótce",
+    "microcopy": "premiera latem 2026 w Warszawie, Berlinie, Pradze i Nowym Jorku · więcej miast wkrótce",
     "cityStepLabel": "jeszcze jedno",
     "cityHeading": "w którym mieście powinniśmy",
     "cityHeadingAccent": "dryfować",
@@ -283,7 +283,7 @@
     "ctaHeading": "ciekawy, jak wygląda prawdziwe miasto?",
     "ctaBody": "dołącz do listy i bądź pierwszy, gdy ruszymy.",
     "ctaButton": "zapisz się na listę",
-    "ctaMicro": "premiera latem 2026 w Warszawie, Berlinie i Pradze"
+    "ctaMicro": "premiera latem 2026 w Warszawie, Berlinie, Pradze i Nowym Jorku"
   },
   "demo": {
     "sectionLabel": "demo na żywo",

@@ -5,7 +5,7 @@ import Footer from '@/components/Footer'
 import { FadeIn } from '@/components/FadeIn'
 
 const FACTS = [
-  { label: 'founded', value: '2025' },
+  { label: 'founded', value: '2026' },
   { label: 'category', value: 'AI travel' },
   { label: 'model', value: 'B2B2C — cities pay, tourists explore free' },
   { label: 'launching', value: 'Warsaw · Kraków · Prague · 2026' },
