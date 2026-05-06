@@ -63,7 +63,7 @@ export default function Footer() {
           {/* Brand */}
           <div>
             <a href="/" className="font-display text-xl font-bold hover:opacity-80 transition-opacity duration-200 block mb-3" style={{ letterSpacing: '0.05em' }}>
-              <span className="text-warm-white">drift</span><span className="text-amber-400">d</span>
+              <span className="text-warm-white">drift</span><span className="text-amber-400 italic">d</span>
             </a>
             <p className="text-warm-gray-300 text-sm leading-relaxed max-w-xs mb-6" style={{ fontWeight: 300 }}>{t('brand')}</p>
             <div className="flex gap-2.5">
@@ -111,7 +111,7 @@ export default function Footer() {
 
         {/* Bottom bar */}
         <div className="border-t border-white/[0.06] pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-warm-gray-400">© {new Date().getFullYear()} <span className="font-display font-bold" style={{ letterSpacing: '0.05em' }}><span>drift</span><span className="text-amber-400/70">d</span></span></p>
+          <p className="text-xs text-warm-gray-400">© {new Date().getFullYear()} <span className="font-display font-bold" style={{ letterSpacing: '0.05em' }}><span>drift</span><span className="text-amber-400/70 italic">d</span></span></p>
           <p className="text-xs text-warm-gray-400 italic tracking-wide">{t('tagline')}</p>
           <div className="flex gap-5">
             <a href="/privacy" className="text-xs text-warm-gray-400 hover:text-warm-gray-200 transition-colors">{t('privacy')}</a>

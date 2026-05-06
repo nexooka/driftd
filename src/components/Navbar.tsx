@@ -66,7 +66,7 @@ export default function Navbar() {
           className="font-display text-xl font-bold hover:opacity-80 transition-opacity duration-200"
           style={{ letterSpacing: '0.05em' }}
         >
-          <span className="text-warm-white">drift</span><span className="text-amber-400">d</span>
+          <span className="text-warm-white">drift</span><span className="text-amber-400 italic">d</span>
         </Link>
 
         {/* Desktop links */}
