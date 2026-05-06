@@ -114,8 +114,8 @@ export default function Footer() {
           <p className="text-xs text-warm-gray-400">© {new Date().getFullYear()} driftd</p>
           <p className="text-xs text-warm-gray-400 italic tracking-wide">{t('tagline')}</p>
           <div className="flex gap-5">
-            <a href="#" className="text-xs text-warm-gray-400 hover:text-warm-gray-200 transition-colors">{t('privacy')}</a>
-            <a href="#" className="text-xs text-warm-gray-400 hover:text-warm-gray-200 transition-colors">{t('terms')}</a>
+            <a href="/privacy" className="text-xs text-warm-gray-400 hover:text-warm-gray-200 transition-colors">{t('privacy')}</a>
+            <a href="/terms" className="text-xs text-warm-gray-400 hover:text-warm-gray-200 transition-colors">{t('terms')}</a>
             <a href="mailto:hello@driftd.world" className="text-xs text-warm-gray-400 hover:text-warm-gray-200 transition-colors">hello@driftd.world</a>
           </div>
         </div>
