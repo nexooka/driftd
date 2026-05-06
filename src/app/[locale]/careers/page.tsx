@@ -114,7 +114,7 @@ export default function CareersPage() {
               tell us who you are, what you build, and why driftd. we promise we'll get back to everyone who reaches out.
             </p>
             <a
-              href="mailto:kopikdawid@gmail.com"
+              href="mailto:apply@driftd.world"
               className="inline-flex items-center gap-3 px-8 py-4 rounded-xl border border-amber-400/30 text-amber-400 text-sm font-medium hover:bg-amber-400/[0.08] transition-all duration-200"
               style={{ background: 'rgba(251,191,36,0.05)' }}
             >
@@ -122,10 +122,10 @@ export default function CareersPage() {
                 <rect x="1.5" y="3.5" width="13" height="9" rx="1.5" stroke="currentColor" strokeWidth="1.3" />
                 <path d="M1.5 5.5l6.5 4 6.5-4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
               </svg>
-              kopikdawid@gmail.com
+              apply@driftd.world
             </a>
             <p className="mt-5 text-warm-gray-500 text-sm italic">
-              write to our founder directly — no recruiters, no middlemen.
+              write to us directly — no recruiters, no middlemen.
             </p>
           </FadeIn>
 
