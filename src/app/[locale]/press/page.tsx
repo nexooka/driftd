@@ -1,19 +1,20 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import { FadeIn } from '@/components/FadeIn'
 
-const FACTS = [
-  { label: 'founded', value: '2026' },
-  { label: 'category', value: 'AI travel' },
-  { label: 'model', value: 'B2B2C — cities pay, tourists explore free' },
-  { label: 'launching', value: 'Warsaw · Kraków · Prague · 2026' },
-]
-
-const BOILERPLATE = `driftd is an AI-powered city exploration platform that helps tourists discover hidden, off-the-beaten-path spots through personalized walking routes with an AI audio companion. on the B2B side, driftd helps cities and tourism boards redistribute foot traffic from overcrowded landmarks to undervisited neighborhoods. driftd is anti-tourist tourism — we help people explore like locals, not tourists.`
-
 export default function PressPage() {
+  const t = useTranslations('press')
+
+  const facts = [
+    { label: t('factFounded'),  value: t('factFoundedValue') },
+    { label: t('factCategory'), value: t('factCategoryValue') },
+    { label: t('factModel'),    value: t('factModelValue') },
+    { label: t('factLaunching'),value: t('factLaunchingValue') },
+  ]
+
   return (
     <main>
       <Navbar />
@@ -25,12 +26,12 @@ export default function PressPage() {
         <div className="relative z-10 max-w-5xl mx-auto px-6 md:px-10">
           <FadeIn>
             <span className="text-[11px] tracking-[0.2em] uppercase text-amber-400/70 font-medium block mb-5">
-              press & media
+              {t('sectionLabel')}
             </span>
             <div className="divider mb-6" />
             <h1 className="font-display font-black text-warm-white leading-[0.92] tracking-tight" style={{ fontSize: 'clamp(2.8rem, 8vw, 6rem)' }}>
-              media<br />
-              <span className="italic gradient-text">resources</span>
+              {t('heading')}<br />
+              <span className="italic gradient-text">{t('headingAccent')}</span>
             </h1>
           </FadeIn>
         </div>
@@ -42,13 +43,13 @@ export default function PressPage() {
 
           {/* Press contact */}
           <FadeIn className="mb-20">
-            <span className="text-[11px] tracking-[0.2em] uppercase text-amber-400/60 font-medium block mb-4">press contact</span>
+            <span className="text-[11px] tracking-[0.2em] uppercase text-amber-400/60 font-medium block mb-4">{t('contactLabel')}</span>
             <div className="divider mb-6" />
             <h2 className="font-display font-bold text-warm-white leading-tight mb-4" style={{ fontSize: 'clamp(1.6rem, 3.5vw, 2.4rem)' }}>
-              get in touch
+              {t('contactHeading')}
             </h2>
             <p className="text-warm-gray-300 text-lg leading-relaxed mb-6" style={{ fontWeight: 300 }}>
-              for press inquiries, interview requests, and media assets — reach out directly.
+              {t('contactBody')}
             </p>
             <a
               href="mailto:press@driftd.world"
@@ -64,30 +65,30 @@ export default function PressPage() {
 
           {/* Boilerplate */}
           <FadeIn delay={80} className="mb-20">
-            <span className="text-[11px] tracking-[0.2em] uppercase text-amber-400/60 font-medium block mb-4">about driftd</span>
+            <span className="text-[11px] tracking-[0.2em] uppercase text-amber-400/60 font-medium block mb-4">{t('boilerplateLabel')}</span>
             <div className="divider mb-6" />
             <h2 className="font-display font-bold text-warm-white leading-tight mb-4" style={{ fontSize: 'clamp(1.6rem, 3.5vw, 2.4rem)' }}>
-              boilerplate
+              {t('boilerplateHeading')}
             </h2>
             <div className="relative p-6 rounded-xl border border-white/[0.07] bg-[#0f0e0c]">
               <p className="text-warm-gray-200 text-base leading-relaxed italic" style={{ fontWeight: 300 }}>
-                {BOILERPLATE}
+                {t('boilerplateText')}
               </p>
               <button
-                onClick={() => navigator.clipboard?.writeText(BOILERPLATE)}
+                onClick={() => navigator.clipboard?.writeText(t('boilerplateText'))}
                 className="mt-4 text-[11px] text-warm-gray-400 hover:text-amber-400 transition-colors tracking-wide"
               >
-                copy text ↗
+                {t('boilerplateCopy')}
               </button>
             </div>
           </FadeIn>
 
           {/* Fast facts */}
           <FadeIn delay={160} className="mb-20">
-            <span className="text-[11px] tracking-[0.2em] uppercase text-amber-400/60 font-medium block mb-4">fast facts</span>
+            <span className="text-[11px] tracking-[0.2em] uppercase text-amber-400/60 font-medium block mb-4">{t('factsLabel')}</span>
             <div className="divider mb-6" />
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {FACTS.map((f) => (
+              {facts.map((f) => (
                 <div key={f.label} className="p-5 rounded-xl border border-white/[0.07] bg-[#0f0e0c]">
                   <p className="text-[10px] tracking-[0.15em] uppercase text-warm-gray-400 mb-1">{f.label}</p>
                   <p className="text-warm-white text-sm font-medium">{f.value}</p>
@@ -98,16 +99,16 @@ export default function PressPage() {
 
           {/* Brand assets */}
           <FadeIn delay={240}>
-            <span className="text-[11px] tracking-[0.2em] uppercase text-amber-400/60 font-medium block mb-4">brand assets</span>
+            <span className="text-[11px] tracking-[0.2em] uppercase text-amber-400/60 font-medium block mb-4">{t('assetsLabel')}</span>
             <div className="divider mb-6" />
             <h2 className="font-display font-bold text-warm-white leading-tight mb-4" style={{ fontSize: 'clamp(1.6rem, 3.5vw, 2.4rem)' }}>
-              logos & guidelines
+              {t('assetsHeading')}
             </h2>
             <p className="text-warm-gray-300 text-lg leading-relaxed mb-6" style={{ fontWeight: 300 }}>
-              logos, screenshots, and brand guidelines are available on request. drop us an email and we'll send over a press kit within 24 hours.
+              {t('assetsBody')}
             </p>
             <a href="mailto:press@driftd.world" className="text-amber-400/80 hover:text-amber-400 transition-colors text-sm">
-              request press kit →
+              {t('assetsLink')}
             </a>
           </FadeIn>
 
