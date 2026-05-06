@@ -63,10 +63,10 @@ export default function Navbar() {
         {/* Logo */}
         <Link
           href="/"
-          className="font-display text-xl font-bold text-warm-white hover:text-amber-400 transition-colors duration-200"
-          style={{ letterSpacing: '0.05em' }}
+          className="font-display text-2xl font-black italic tracking-tight leading-none"
+          style={{ letterSpacing: '-0.01em' }}
         >
-          driftd
+          <span className="text-warm-white transition-colors duration-300 group-hover:text-warm-white">drift</span><span className="text-amber-400">d</span>
         </Link>
 
         {/* Desktop links */}
