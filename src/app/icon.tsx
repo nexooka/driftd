@@ -6,7 +6,7 @@ export const size = { width: 32, height: 32 }
 export const contentType = 'image/png'
 
 export default function Icon() {
-  const font = readFileSync(join(process.cwd(), 'public/fonts/PlayfairDisplay-BoldItalic.woff2'))
+  const font = readFileSync(join(process.cwd(), 'public/fonts/PlayfairDisplay-BoldItalic.ttf'))
 
   return new ImageResponse(
     (

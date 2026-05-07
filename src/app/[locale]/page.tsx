@@ -12,8 +12,8 @@ import WaitlistSection from '@/components/WaitlistSection'
 import Footer from '@/components/Footer'
 import ScrollReset from '@/components/ScrollReset'
 
-const DemoAnimation = dynamic(() => import('@/components/DemoAnimation'), { ssr: false })
-const CityEnergy = dynamic(() => import('@/components/CityEnergy'), { ssr: false })
+const DemoAnimation = dynamic(() => import('@/components/DemoAnimation'))
+const CityEnergy = dynamic(() => import('@/components/CityEnergy'))
 
 export default function Home() {
   return (
