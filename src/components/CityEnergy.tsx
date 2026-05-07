@@ -134,6 +134,14 @@ export default function CityEnergy() {
     let destroyed = false
     let raf = 0
     let leafletMap: any = null
+    let visible = false
+
+    // Only animate while the section is in the viewport
+    const observer = new IntersectionObserver(
+      ([entry]) => { visible = entry.isIntersecting },
+      { threshold: 0.05 }
+    )
+    observer.observe(canvas.closest('section') ?? canvas)
 
     import('leaflet').then(L => {
       if (destroyed) return
@@ -182,6 +190,7 @@ export default function CityEnergy() {
       function tick() {
         if (destroyed) return
         raf = requestAnimationFrame(tick)
+        if (!visible) return
         ctx.clearRect(0, 0, W, H)
 
         projected.forEach((city, ci) => {
@@ -248,6 +257,7 @@ export default function CityEnergy() {
     return () => {
       destroyed = true
       cancelAnimationFrame(raf)
+      observer.disconnect()
       if (leafletMap) { leafletMap.remove(); leafletMap = null }
     }
   }, [])
